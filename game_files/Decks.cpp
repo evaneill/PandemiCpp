@@ -222,3 +222,54 @@ int Decks::PlayerDeck::_total_cards_drawn(){return total_cards_drawn;};
 int Decks::PlayerDeck::_remainder(){return remainder;}
 int Decks::PlayerDeck::_drawn_cards(){return drawn_cards.size();}
 int Decks::PlayerDeck::_epidemics_drawn(){return epidemics_drawn;}
+
+// INFECTION DECK section
+
+Decks::InfectCard::InfectCard(Map::City city){
+    index = city.index;
+    color = city.color;
+    name = city.name;
+}
+
+Decks::InfectDeck::InfectDeck(Map::Cities set_map): fixed_board(set_map) {
+    // Hard-coding the existence of 48 cities deal with it
+    // phattest because it's the phattest InfectCardGroup there will be during the game
+    Decks::InfectCardGroup phattest_stack = InfectCardGroup({});
+    for(int c=0;c<48;c++){
+        phattest_stack.cards.push_back(Decks::InfectCard(set_map.get_city(c)));
+    }
+
+    // The Deck will be represented by one group of cards, which contains all of them.
+    deck_stack.push_back(phattest_stack);
+}
+
+void Decks::InfectDeck::readd_discard(){
+
+    Decks::InfectCardGroup newest_group = Decks::InfectCardGroup(current_discard);
+
+    deck_stack.push_back(newest_group);
+
+    current_discard = {};
+}
+
+Decks::InfectCardGroup::InfectCardGroup(std::vector<InfectCard> _cards): cards(_cards){};
+
+Decks::InfectCard Decks::InfectDeck::draw(){
+    
+    Decks::InfectCardGroup& current_stack = deck_stack.back();
+
+    // 
+    int chosen_index = rand() % current_stack.cards.size();
+
+    Decks::InfectCard chosen_card = current_stack.cards[chosen_index];
+    current_stack.cards.erase(current_stack.cards.begin()+chosen_index);
+
+    if(current_stack.cards.empty()){
+        // If we just removed the last card from the most recently added group, get rid of it.
+        deck_stack.pop_back();
+    }
+
+    current_discard.push_back(chosen_card);
+
+    return chosen_card;
+}

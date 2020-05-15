@@ -62,6 +62,8 @@ namespace Decks
 		int _total_cards_drawn();
 		int _remainder();
 		int _epidemics_drawn();
+
+		~PlayerDeck();
 	};
 
 	class CityCard: public PlayerCard{
@@ -87,23 +89,31 @@ namespace Decks
 	public:
 		InfectCard(Map::City city);
 		int index;
-		
 		int color;
 		std::string name;
 
 	};
 
+	class InfectCardGroup{
+		public:
+			InfectCardGroup(std::vector<InfectCard> _cards);
+			std::vector<InfectCard> cards;
+			InfectCard draw();
+	};
+
 	class InfectDeck{
 
-		std::vector<InfectCard> nondiscard;
-		std::vector<InfectCard> discard; // nondiscard get draw()n into discard. Occassionally discard is shuffled and put on top of stack and drawn from.
-		std::vector<InfectCard> discarded_discard; // when discard is being drawn from, result goes into discarded_discard
+		// This vector stores a pop-able stack of distinct chunks of cards
+		// Each such group uniquely determines the distribution from which cards are drawn.
+		std::vector<InfectCardGroup> deck_stack;
+		std::vector<InfectCard> current_discard;
+
+		Map::Cities fixed_board;
 
 	public:
+		InfectDeck(Map::Cities set_map);
 		InfectCard draw();
 		void readd_discard();
-		void shuffle(); // only needs to be called on game construction.
-		bool discard_on_top = false; // true when readd_discard() called. Set back to false when discard cards on top are gone.
 	};
 
 }

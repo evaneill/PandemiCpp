@@ -10,3 +10,6 @@ test_randomness:
 test_temp:
 	g++ -std=c++11 -o tmp.out tests/test.cpp
 	./tmp.out
+test_infectdeck:
+	g++ -std=c++11 -o tests/infectdeck_test.out game_files/Map.cpp game_files/Decks.cpp tests/test_infectdeck.cpp
+	tests/infectdeck_test.out
