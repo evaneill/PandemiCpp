@@ -1,3 +1,6 @@
+#ifndef MAP_H
+#define MAP_H
+
 #include <iostream>
 #include <set>
 #include <string>
@@ -14,14 +17,14 @@ namespace Map
 
 	public:
 
-		int population;
-		int index;
-		std::string name;
-		int color;
+		const int population;
+		const int index;
+		const std::string name;
+		const int color;
 
-		std::set<int> neighbors;
+		const std::set<int> fixed_neighbors;
 
-	City(int ind, int pop, int color, std::string name);
+	City(int ind, int pop, int color, std::string name,std::set<int> neighbors);
 
 	const bool operator == (City &rhs) {return index==rhs.index && population==rhs.population && name==rhs.name && color==rhs.color;}
 	const bool operator < (City &rhs) {return index<rhs.index;}
@@ -40,10 +43,12 @@ namespace Map
 	
 	class Cities{
 
-		std::vector<City> cities;
+		const std::vector<City> cities;
 
 	public:
 		Cities();
 		City get_city(int city_index);
 	};
 }
+
+#endif

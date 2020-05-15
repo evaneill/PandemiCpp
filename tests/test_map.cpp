@@ -15,11 +15,8 @@ void print(std::set<int> const &s)
 
 int main(){
     std::cout << "First lets make an example out of oxford: \n";
-    Map::City oxford = Map::City(0,100000,Map::BLACK,"Oxford");
-    std::cout << "Oxford is defined. Giving oxford neighbors...\n";
-    std::set<int> _neighbors = {1,2,3};
-    oxford.neighbors = _neighbors;
-    std::cout << "Now oxford has neighbors.\n";
+    Map::City oxford = Map::City(0,100000,Map::BLACK,"Oxford", {1,2,3});
+    std::cout << "Oxford is defined.\n\n";
     
     std::cout << "Map::City oxford:\n";
     std::cout << "-- index = "<< oxford.index << "\t (should be 0)\n";
@@ -27,9 +24,8 @@ int main(){
     std::cout << "-- color = " << oxford.color << "\t\t (should be " << Map::BLACK << ")\n";
     std::cout << "-- name = " << oxford.name << "\t (should be Oxford)\n";
     std::cout << "-- neighbors = {";
-    print(oxford.neighbors);
+    print(oxford.fixed_neighbors);
     std::cout << "}\t (Should be {1 2 3})\n\n";
-
 
 
     std::cout << "Building map...\n";
@@ -39,10 +35,10 @@ int main(){
     std::cout << "Let's list out all the city connections: \n";
     for(int i=0;i<48;i++){
         Map::City current_city = cities.get_city(i);
-        std::set<int>::iterator it = current_city.neighbors.begin();
+        std::set<int>::iterator it = current_city.fixed_neighbors.begin();
 
         std::cout << current_city.name << " is connected to:\n";
-        while(it!=current_city.neighbors.end()){
+        while(it!=current_city.fixed_neighbors.end()){
             std::cout << "-- " << cities.get_city(*it).name << "\n";
             it++;
         }
