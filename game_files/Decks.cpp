@@ -27,11 +27,14 @@ Decks::CityCard::CityCard(Map::City &city){
     epidemic = false;
 }
 
-// Setting up the game deck steps
+
+// Player Deck Section
+// Setting up the Player deck steps
 //  1. Initialize deck w/ the constructor
 //  2. for each player, 
 //      use draw_setup_cards(# cards per player) to retrieve player hands during setup.
 //  3. setup_shuffle_deck() to set parameters that can track probability distribution over each draw().
+
 
 Decks::PlayerDeck::PlayerDeck(int diff, Map::Cities set_map): fixed_board(set_map){
     // Takes difficulty in 4,5,6 but you could throw whatever garbage in here you want

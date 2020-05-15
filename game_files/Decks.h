@@ -63,7 +63,6 @@ namespace Decks
 		int _remainder();
 		int _epidemics_drawn();
 
-		~PlayerDeck();
 	};
 
 	class CityCard: public PlayerCard{
