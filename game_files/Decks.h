@@ -18,6 +18,7 @@ namespace Decks
 	public:
 		std::string name;
 		bool epidemic;
+		bool event;
 		int index;
 		PlayerCard() = default;
 	};
@@ -41,14 +42,14 @@ namespace Decks
 		PlayerDeck(int diff, Map::Cities set_map); //called on instantiation to start a game. Thereafter only draw() is used, whether in a game copy or  
 		
 		// These two methods in combination make a card.
-		PlayerCard draw(); // puts two methods below together.
-		int draw_index();  // an index according to stochastic rules of deck organization.
+		PlayerCard draw(bool setup=false); // puts two methods below together.
+		int draw_index(bool setup);  // an index according to stochastic rules of deck organization.
 		
-		PlayerCard make_card_by_vector_index(int index); // make a card from its index in remaining_nonepi_cards
-		PlayerCard make_card_by_card_index(int index); 	// make a card from it's card.index
-		PlayerCard make_card_by_indices(int vec_index, int card_index); // Called
+		PlayerCard make_card_by_vector_index(int index,bool setup=false); // make a card from its index in remaining_nonepi_cards
+		// PlayerCard make_card_by_card_index(int index); 	// make a card from it's card.index
+		PlayerCard make_card_by_indices(int vec_index, int card_index, bool setup=false); // Actually instantiates cards
 
-		std::vector<PlayerCard> draw_setup_cards(int num_cards); // used right after instantiation to hand cards to players during setup.
+		// std::vector<PlayerCard> draw_setup_cards(int num_cards); // used right after instantiation to hand cards to players during setup.
 		void setup_shuffle_deck(); // used after the sequence of draw_setup_cards() for each player.
 		
 		// This tracks losing status - very important! Determines winning/losing status.
