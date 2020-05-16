@@ -33,7 +33,9 @@ int main(){
     vector<Decks::PlayerCard> player_hand (3);
     for(int p=0;p<3;p++){
         cout << "======= Drawing cards for player " << p+1 << "...\n";
-        player_hand = my_deck.draw_setup_cards(3);
+        for(int l=0;l<3;l++){
+            player_hand[l]=my_deck.draw(true);
+        }
         cout << "Player " << p+1 << " drew " << player_hand.size() << " cards (should be 3).\n";
         cout << "There are now " << my_deck._remaining_nonepi_cards() << " non-epidemic cards left (should be 51 - 3*" << p+1 << ").\n";
 
@@ -46,8 +48,8 @@ int main(){
     cout << "======= Using these remaining cards, we organize it into 4 chunks and shuffle them...\n";
     my_deck.setup_shuffle_deck();
     cout << "After doing this, we have:\n";
-    cout << " --- " << my_deck._remainder() << " fat chunks of size " << my_deck._fat_chunk_size() << " (should be 2)\n";
-    cout << " --- " << 4 - my_deck._remainder() << " regular chunks of size " << my_deck._chunk_size() << " (should be 2)\n";
+    cout << " --- " << my_deck._remainder() << " fat chunks of size " << my_deck._fat_chunk_size() << " (should be 2 of them)\n";
+    cout << " --- " << 4 - my_deck._remainder() << " regular chunks of size " << my_deck._chunk_size() << " (should be 2 of them)\n";
     cout << " --- " << my_deck._total_cards_drawn() << " cards drawn during play so far. (Should be 0)\n";
     cout << " --- " << my_deck._drawn_cards() << " cards now existent outside of the deck on the board. (Should be 9)\n";
 

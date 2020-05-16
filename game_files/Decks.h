@@ -27,7 +27,7 @@ namespace Decks
 		std::set<int> drawn_cards;
 		std::vector<int> remaining_nonepi_cards;
 
-		// number of 
+		// number of epidemic cards (and number of epidemic-holding segments into which deck is segregated)
 		int difficulty;
 		Map::Cities fixed_board;
 
@@ -46,11 +46,9 @@ namespace Decks
 		int draw_index(bool setup);  // an index according to stochastic rules of deck organization.
 		
 		PlayerCard make_card_by_vector_index(int index,bool setup=false); // make a card from its index in remaining_nonepi_cards
-		// PlayerCard make_card_by_card_index(int index); 	// make a card from it's card.index
 		PlayerCard make_card_by_indices(int vec_index, int card_index, bool setup=false); // Actually instantiates cards
 
-		// std::vector<PlayerCard> draw_setup_cards(int num_cards); // used right after instantiation to hand cards to players during setup.
-		void setup_shuffle_deck(); // used after the sequence of draw_setup_cards() for each player.
+		void setup_shuffle_deck(); // used after ever player has their cards.
 		
 		// This tracks losing status - very important! Determines winning/losing status.
 		bool isempty();

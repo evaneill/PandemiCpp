@@ -34,8 +34,7 @@ Decks::CityCard::CityCard(Map::City &city){
 // Player Deck Section
 // Setting up the Player deck steps
 //  1. Initialize deck w/ the constructor
-//  2. for each player, 
-//      use draw(true) to retrieve player hands during setup. 
+//  2. for each player, use draw(true) to retrieve player hands during setup. 
 //  3. setup_shuffle_deck() to set parameters that can track probability distribution over each draw().
 
 
@@ -71,27 +70,6 @@ Decks::PlayerDeck::PlayerDeck(int diff, Map::Cities set_map): fixed_board(set_ma
     // index 48-50 event cards
     // index 51+ epidemic cards
 }
-
-// std::vector<Decks::PlayerCard> Decks::PlayerDeck::draw_setup_cards(int num_cards){
-//     // To be called for each player, only during game setup.
-//     // Returns vector of ints representing card.index that can be turned into player hands.
-//     std::vector<PlayerCard> return_vector (num_cards);
-
-//     // For each card to be drawn for this player...
-//     for(int k=0;k<num_cards;k++){
-//         // Choose the card to pull out of the non-epidemic cards
-//         int chosen_index = rand() % remaining_nonepi_cards.size();
-
-//         // Put it into the output to be returned.
-//         // The make_card...() does the insertion into drawn cards and removal from remaining.
-//         Decks::PlayerCard new_card = make_card_by_card_index(chosen_index);
-
-//         return_vector[k]=new_card;
-//     }
-//     std::cout << "\n";
-//     total_cards_drawn = 0; // This has to be set back to 0 for remaining gameplay logic to work.
-//     return return_vector;
-// }
 
 void Decks::PlayerDeck::setup_shuffle_deck(){
     // This should be the only time these variables are changed. Will be called after each player 
@@ -161,12 +139,6 @@ Decks::PlayerCard Decks::PlayerDeck::draw(bool setup){
     PlayerCard drawn_card = make_card_by_vector_index(drop_idx,setup);
     return drawn_card;
 }
-
-// Decks::PlayerCard Decks::PlayerDeck::make_card_by_card_index(int idx){
-//     std::vector<int>::iterator it = std::find(remaining_nonepi_cards.begin(), remaining_nonepi_cards.end(), idx);
-//     int drop_index = std::distance(remaining_nonepi_cards.begin(), it);
-//     return make_card_by_indices(drop_index, idx);
-// }
 
 Decks::PlayerCard Decks::PlayerDeck::make_card_by_vector_index(int drop_index,bool setup){
 
