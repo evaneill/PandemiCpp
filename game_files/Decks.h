@@ -29,7 +29,7 @@ namespace Decks
 
 		// number of epidemic cards (and number of epidemic-holding segments into which deck is segregated)
 		int difficulty;
-		Map::Cities fixed_board;
+		std::vector<Map::City> fixed_board;
 
 		// These are used to track the exact distribution according to which cards are draw()n.
 		int epidemics_drawn; 	// is what it says
@@ -39,7 +39,7 @@ namespace Decks
 		int total_cards_drawn;	// Track cards drawn during play. DIFFERENT from total # of cards missing from deck since player hands have to be created at first.
 
 	public:
-		PlayerDeck(int diff, Map::Cities set_map); //called on instantiation to start a game. Thereafter only draw() is used, whether in a game copy or  
+		PlayerDeck(int diff, std::vector<Map::City>& set_map); //called on instantiation to start a game. Thereafter only draw() is used, whether in a game copy or  
 		
 		// These two methods in combination make a card.
 		PlayerCard draw(bool setup=false); // puts two methods below together.
@@ -106,10 +106,10 @@ namespace Decks
 		std::vector<InfectCardGroup> deck_stack;
 		std::vector<InfectCard> current_discard;
 
-		Map::Cities fixed_board;
+		std::vector<Map::City> fixed_board;
 
 	public:
-		InfectDeck(Map::Cities set_map);
+		InfectDeck(std::vector<Map::City>& set_map);
 		InfectCard draw();
 		void readd_discard();
 	};

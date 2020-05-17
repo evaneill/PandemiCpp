@@ -20,9 +20,9 @@ int main(){
     int junk = rand(); // For some reason, first rand is ALWAYS seed*constant. This biases the first choice to a value that almost guarantees epidemic when seeded just before that choice.
 
 
-    cout << "Instantiate a city map...\n";
-    Map::Cities cities = Map::Cities();
-    cout << "... success!\n\n";
+    cout << "Get the city map...\n";
+    std::vector<Map::City>& cities = Map::CITIES;
+    cout << "... success! The map has " << cities.size() << " cities (Should be 48)\n\n";
 
     cout << "======= Instantiate a PlayerDeck w/ difficulty 4...\n";
     Decks::PlayerDeck my_deck = Decks::PlayerDeck(4, cities);

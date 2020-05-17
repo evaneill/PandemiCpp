@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <iterator>
 
-void print(std::set<int> const &s)
+void print(std::vector<int> const &s)
 {
     std::copy(s.begin(),
             s.end(),
@@ -24,23 +24,18 @@ int main(){
     std::cout << "-- color = " << oxford.color << "\t\t (should be " << Map::BLACK << ")\n";
     std::cout << "-- name = " << oxford.name << "\t (should be Oxford)\n";
     std::cout << "-- neighbors = {";
-    print(oxford.fixed_neighbors);
+    print(oxford.neighbors);
     std::cout << "}\t (Should be {1 2 3})\n\n";
 
-
-    std::cout << "Building map...\n";
-    Map::Cities cities = Map::Cities();
-    std::cout << "Successfully built map.\n\n";
+    std::cout << "The game map has " << Map::CITIES.size() << " cities. (Should be 48)\n\n";
 
     std::cout << "Let's list out all the city connections: \n";
-    for(int i=0;i<48;i++){
-        Map::City current_city = cities.get_city(i);
-        std::set<int>::iterator it = current_city.fixed_neighbors.begin();
+    for(int i=0;i<Map::CITIES.size();i++){
+        Map::City& current_city = Map::CITIES[i];
 
         std::cout << current_city.name << " is connected to:\n";
-        while(it!=current_city.fixed_neighbors.end()){
-            std::cout << "-- " << cities.get_city(*it).name << "\n";
-            it++;
+        for(int k=0;k<current_city.neighbors.size();k++){
+            std::cout << "--- " << Map::CITIES[current_city.neighbors[k]].name << "\n";
         }
     }
 }

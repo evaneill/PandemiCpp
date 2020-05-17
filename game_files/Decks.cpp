@@ -38,7 +38,7 @@ Decks::CityCard::CityCard(Map::City &city){
 //  3. setup_shuffle_deck() to set parameters that can track probability distribution over each draw().
 
 
-Decks::PlayerDeck::PlayerDeck(int diff, Map::Cities set_map): fixed_board(set_map){
+Decks::PlayerDeck::PlayerDeck(int diff, std::vector<Map::City>& set_map): fixed_board(set_map){
     // Takes difficulty in 4,5,6 but you could throw whatever garbage in here you want
     // input an alread-instantiated map set_map. Referenced here.
     // 
@@ -162,7 +162,7 @@ Decks::PlayerCard Decks::PlayerDeck::make_card_by_indices(int drop_index, int id
     if(idx>=0 && idx<=47){
         remaining_nonepi_cards.erase(remaining_nonepi_cards.begin()+drop_index);
 
-        Map::City corresponding_city = fixed_board.get_city(idx);
+        Map::City& corresponding_city = fixed_board[idx];
 
         return (PlayerCard) CityCard(corresponding_city);
     } else if(idx>=48 && idx<=50){
@@ -209,12 +209,11 @@ Decks::InfectCard::InfectCard(Map::City city){
     name = city.name;
 }
 
-Decks::InfectDeck::InfectDeck(Map::Cities set_map): fixed_board(set_map) {
-    // Hard-coding the existence of 48 cities deal with it
+Decks::InfectDeck::InfectDeck(std::vector<Map::City>& set_map): fixed_board(set_map) {
     // phattest because it's the phattest InfectCardGroup there will be during the game
     Decks::InfectCardGroup phattest_stack = InfectCardGroup({});
-    for(int c=0;c<48;c++){
-        phattest_stack.cards.push_back(Decks::InfectCard(set_map.get_city(c)));
+    for(int c=0;c<set_map.size();c++){
+        phattest_stack.cards.push_back(Decks::InfectCard(set_map[c]));
     }
 
     // The Deck will be represented by one group of cards, which contains all of them.
