@@ -26,6 +26,24 @@ Decks::CityCard::CityCard(Map::City &city){
     color = city.color;
     name = city.name;
     index = city.index;
+    population = city.population;
+
+    epidemic = false;
+    event = false;
+}
+
+Decks::CityCard::CityCard(Map::City city){
+    color = city.color;
+    name = city.name;
+    index = city.index;
+    epidemic = false;
+    event = false;
+}
+
+Decks::CityCard::CityCard(int city_idx){
+    color = Map::CITIES[city_idx].color;
+    name = Map::CITIES[city_idx].name;
+    index = Map::CITIES[city_idx].index;
     epidemic = false;
     event = false;
 }
@@ -38,9 +56,8 @@ Decks::CityCard::CityCard(Map::City &city){
 //  3. setup_shuffle_deck() to set parameters that can track probability distribution over each draw().
 
 
-Decks::PlayerDeck::PlayerDeck(int diff, std::vector<Map::City>& set_map): fixed_board(set_map){
+Decks::PlayerDeck::PlayerDeck(int diff){
     // Takes difficulty in 4,5,6 but you could throw whatever garbage in here you want
-    // input an alread-instantiated map set_map. Referenced here.
     // 
     // In the real game, epidemics are shuffled into equal-ish sized chunks of cards and the chunks are stacked together
     // Here the deck is modeled as drawing from a uniform distribution over the possible remaining cards in each chunk.
@@ -162,9 +179,9 @@ Decks::PlayerCard Decks::PlayerDeck::make_card_by_indices(int drop_index, int id
     if(idx>=0 && idx<=47){
         remaining_nonepi_cards.erase(remaining_nonepi_cards.begin()+drop_index);
 
-        Map::City& corresponding_city = fixed_board[idx];
+        Map::City& corresponding_city = Map::CITIES[idx];
 
-        return (PlayerCard) CityCard(corresponding_city);
+        return (PlayerCard) CityCard(corresponding_city.index);
     } else if(idx>=48 && idx<=50){
         switch(idx){
             case 48:{
@@ -209,11 +226,17 @@ Decks::InfectCard::InfectCard(Map::City city){
     name = city.name;
 }
 
-Decks::InfectDeck::InfectDeck(std::vector<Map::City>& set_map): fixed_board(set_map) {
+Decks::InfectCard::InfectCard(int city_idx){
+    index = Map::CITIES[city_idx].index;
+    color = Map::CITIES[city_idx].color;
+    name = Map::CITIES[city_idx].name;
+}
+
+Decks::InfectDeck::InfectDeck(){
     // phattest because it's the phattest InfectCardGroup there will be during the game
     Decks::InfectCardGroup phattest_stack = InfectCardGroup({});
-    for(int c=0;c<set_map.size();c++){
-        phattest_stack.cards.push_back(Decks::InfectCard(set_map[c]));
+    for(int c=0;c<Map::CITIES.size();c++){
+        phattest_stack.cards.push_back(Decks::InfectCard(Map::CITIES[c]));
     }
 
     // The Deck will be represented by one group of cards, which contains all of them.
@@ -244,6 +267,26 @@ Decks::InfectCard Decks::InfectDeck::draw(){
     if(current_stack.cards.empty()){
         // If we just removed the last card from the most recently added group, get rid of it.
         deck_stack.pop_back();
+    }
+
+    current_discard.push_back(chosen_card);
+
+    return chosen_card;
+}
+
+Decks::InfectCard Decks::InfectDeck::draw_bottom(){
+    
+    Decks::InfectCardGroup& current_stack = deck_stack[0];
+
+    // 
+    int chosen_index = rand() % current_stack.cards.size();
+
+    Decks::InfectCard chosen_card = current_stack.cards[chosen_index];
+    current_stack.cards.erase(current_stack.cards.begin()+chosen_index);
+
+    if(current_stack.cards.empty()){
+        // If we just removed the last card from the original bottom of the infect deck, remove it (this might be impossible?)
+        deck_stack.erase(deck_stack.begin()+0);
     }
 
     current_discard.push_back(chosen_card);

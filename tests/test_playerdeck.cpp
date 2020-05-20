@@ -25,7 +25,7 @@ int main(){
     cout << "... success! The map has " << cities.size() << " cities (Should be 48)\n\n";
 
     cout << "======= Instantiate a PlayerDeck w/ difficulty 4...\n";
-    Decks::PlayerDeck my_deck = Decks::PlayerDeck(4, cities);
+    Decks::PlayerDeck my_deck = Decks::PlayerDeck(4);
     cout << "... success!\n";
     cout << "This instantiated deck has " << my_deck._remaining_nonepi_cards() << " non-epidemic cards total. (Should be 51)\n\n";
 

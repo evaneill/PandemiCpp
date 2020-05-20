@@ -12,7 +12,7 @@ int main(){
     std::cout << "...success! This map has " << cities.size() << " cities. (Should be 48)\n\n";
 
     cout << "Trying to initialize an InfectDeck...\n";
-    Decks::InfectDeck my_deck = Decks::InfectDeck(cities);
+    Decks::InfectDeck my_deck = Decks::InfectDeck();
     cout << "...success!\n\n";
 
     std::srand(static_cast<unsigned int>(std::time(nullptr))); 
@@ -44,7 +44,7 @@ int main(){
     }
 
     cout << "Making a new deck...\n";
-    Decks::InfectDeck new_deck = Decks::InfectDeck(cities);
+    Decks::InfectDeck new_deck = Decks::InfectDeck();
     cout << "...success!\n\n";
 
     cout << "First 10 cards: \n";

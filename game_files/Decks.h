@@ -20,7 +20,10 @@ namespace Decks
 		bool epidemic;
 		bool event;
 		int index;
+		int population; // only instantiated for CityCard
 		PlayerCard() = default;
+
+		const bool operator == (PlayerCard& rhs) {return index == rhs.index && name == rhs.name && epidemic== rhs.epidemic && event==rhs.event;};
 	};
 
 	class PlayerDeck{
@@ -29,7 +32,6 @@ namespace Decks
 
 		// number of epidemic cards (and number of epidemic-holding segments into which deck is segregated)
 		int difficulty;
-		std::vector<Map::City> fixed_board;
 
 		// These are used to track the exact distribution according to which cards are draw()n.
 		int epidemics_drawn; 	// is what it says
@@ -39,8 +41,9 @@ namespace Decks
 		int total_cards_drawn;	// Track cards drawn during play. DIFFERENT from total # of cards missing from deck since player hands have to be created at first.
 
 	public:
-		PlayerDeck(int diff, std::vector<Map::City>& set_map); //called on instantiation to start a game. Thereafter only draw() is used, whether in a game copy or  
-		
+		PlayerDeck(int diff); //called on instantiation to start a game. Thereafter only draw() is used, whether in a game copy or  
+		PlayerDeck(){};
+
 		// These two methods in combination make a card.
 		PlayerCard draw(bool setup=false); // puts two methods below together.
 		int draw_index(bool setup);  // an index according to stochastic rules of deck organization.
@@ -53,7 +56,7 @@ namespace Decks
 		// This tracks losing status - very important! Determines winning/losing status.
 		bool isempty();
 
-		// right now these is purely for testing purposes.
+		// right now these are purely for testing purposes.
 		int _remaining_nonepi_cards();
 		int _drawn_cards();
 		int _chunk_size();
@@ -65,9 +68,16 @@ namespace Decks
 	};
 
 	class CityCard: public PlayerCard{
-		int color;
 	public:
 		CityCard(Map::City &city);
+		CityCard(Map::City city);
+		CityCard(int city_idx);
+		int color;
+		int population;
+
+		// logical == and !=
+		const bool operator == (CityCard & rhs) {return index == rhs.index && name == rhs.name && epidemic== rhs.epidemic && event==rhs.event && color==rhs.color;};
+		const bool operator != (CityCard & rhs) {return index != rhs.index || name != rhs.name || epidemic!= rhs.epidemic || event!=rhs.event || color!=rhs.color;};
 	};
 
 	class EpidemicCard: public PlayerCard{
@@ -86,6 +96,7 @@ namespace Decks
 	class InfectCard{
 	public:
 		InfectCard(Map::City city);
+		InfectCard(int city_idx);
 		int index;
 		int color;
 		std::string name;
@@ -106,11 +117,11 @@ namespace Decks
 		std::vector<InfectCardGroup> deck_stack;
 		std::vector<InfectCard> current_discard;
 
-		std::vector<Map::City> fixed_board;
-
 	public:
-		InfectDeck(std::vector<Map::City>& set_map);
+		InfectDeck();
 		InfectCard draw();
+		InfectCard draw_bottom(); // for epidemics
+		
 		void readd_discard();
 	};
 
