@@ -19,13 +19,46 @@ namespace Players
     };
 
     class Player{
-    public:
-        Player(int role_id,Map::Cities set_map);
+    protected:
+        const int hand_limit = 7;
 
-        Map::City position; // position on map
+        // Map::City position of player.
+        Map::City position; 
+
+    public:
+        Player(int role_id);
+        Player();
         Role role;
-        std::vector<Decks::PlayerCard> hand;
+
+        std::vector<Decks::PlayerCard> hand;// non-event cards
+        std::vector<Decks::PlayerCard> event_cards; // event cards
+
+        // Update the non-event-card hand with a CityCard
+        void UpdateHand(Decks::CityCard drawn_card);
         
+        // Update the event-card hand with an EventCard
+        void UpdateHand(Decks::EventCard drawn_card);
+
+        // Update with either
+        void UpdateHand(Decks::PlayerCard drawn_card);
+
+        // Set the position to a new city
+        void set_position(Map::City new_city);
+        void set_position(int new_city); // new_city index
+
+        // Whether or not the player currently has at least 7 cards
+        bool hand_full();
+        int handsize();
+
+        // get rid of the event or city card matching the one in the argument by logical ==
+        void removeCard(Decks::PlayerCard card);
+
+        // Return the city representing current position
+        Map::City get_position();
+
+        // To track whether or not they've jumped from a research station to somewhere else
+        // <DANGER!> Relies on game logic to use properly ONLY for operations expert.
+        bool used_OperationsExpertFlight;
     };
 
     class QuarantineSpecialist: public Role{

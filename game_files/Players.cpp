@@ -1,32 +1,91 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cassert>
 
 #include "Players.h"
 #include "Map.h"
 
-Players::Player::Player(int role_id,Map::Cities set_map): position(set_map.get_city(3)), hand({}) {
+Players::Player::Player(int role_id): 
+    position(Map::CITIES[3]),
+    hand({}),
+    used_OperationsExpertFlight(false) 
+    {
     // Make it work for now with a hard-coded reference to roles
     // Should only matter at game instantiation! So get it write once in an agent test and it's always right.
     switch(role_id){
         case 0:
-            role = (Players::Role) QuarantineSpecialist();
+            role = Players::QuarantineSpecialist();
             break;
         case 1:
-            role = (Players::Role) Medic();
+            role = Players::Medic();
             break;
         case 2:
-            role = (Players::Role) Scientist();
+            role = Players::Scientist();
             break;
         case 3:
-            role = (Players::Role) Researcher();
+            role = Players::Researcher();
             break;
         case 4:
-            role = (Players::Role) OperationsExpert();
+            role = Players::OperationsExpert();
             break;
         default:
             role = Role(NULL,0); // Should break the game quickly on a bad input
     }
+    
+}
+
+Players::Player::Player()=default;
+
+bool Players::Player::hand_full(){
+    return (hand.size()+event_cards.size())>hand_limit;
+}
+
+void Players::Player::UpdateHand(Decks::CityCard drawn_card){
+    hand.push_back(drawn_card);
+}
+
+void Players::Player::UpdateHand(Decks::EventCard drawn_card){
+    event_cards.push_back(drawn_card);
+}
+
+void Players::Player::UpdateHand(Decks::PlayerCard drawn_card){
+    if(typeid(drawn_card)==typeid(Decks::CityCard)){
+        hand.push_back(drawn_card);
+    } else if(typeid(drawn_card)==typeid(Decks::EventCard)){
+        event_cards.push_back(drawn_card);
+    }
+}
+
+int Players::Player::handsize(){
+    return hand.size()+event_cards.size();
+}
+
+void Players::Player::set_position(Map::City new_city){
+    Map::City position = new_city;
+};
+
+void Players::Player::set_position(int new_city){
+    Map::City position = Map::CITIES[new_city];
+};
+
+void Players::Player::removeCard(Decks::PlayerCard card_to_remove){
+    for(int c=0;c<hand.size();c++){
+        if(hand[c].index==card_to_remove.index){
+            hand.erase(hand.begin()+c);
+            return;
+        }
+    }
+    for(int c=0;c<event_cards.size();c++){
+        if(event_cards[c].index==card_to_remove.index){
+            event_cards.erase(event_cards.begin()+c);
+            return;
+        }
+    }
+}
+
+Map::City Players::Player::get_position(){
+    return position;
 }
 
 Players::Role::Role(std::string _name,int req_cure_cards){
