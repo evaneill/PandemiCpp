@@ -20,6 +20,7 @@ namespace Decks
 		bool epidemic;
 		bool event;
 		int index;
+		int color; // only instantiated for CityCard
 		int population; // only instantiated for CityCard
 		PlayerCard() = default;
 
