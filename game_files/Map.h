@@ -6,10 +6,14 @@
 
 namespace Map
 {
-	const int BLUE = 0;
-	const int YELLOW = 1;
-	const int BLACK = 2;
-	const int RED = 3;
+	// fixed indices of color descriptions
+	inline const int BLUE = 0;
+	inline const int YELLOW = 1;
+	inline const int BLACK = 2;
+	inline const int RED = 3;
+
+	// fixed vector of color names
+	inline const std::vector<std::string> COLORS = {"BLUE","YELLOW","BLACK","RED"};
 
 	class City{
 
@@ -22,6 +26,7 @@ namespace Map
 
 		const std::vector<int> neighbors;
 
+	City();
 	City(int ind, int pop, int color, std::string name,std::vector<int> _neighbors);
 
 	const bool operator == (City &rhs) {return index==rhs.index && population==rhs.population && name==rhs.name && color==rhs.color;}
