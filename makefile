@@ -16,3 +16,9 @@ test_infectdeck:
 test_players:
 	g++ -std=c++17 -o tests/players_test.out tests/players_test.cpp game_files/Map.cpp game_files/Players.cpp
 	tests/players_test.out
+test_gamelogic:
+	c++ -std=c++17 -o tests/gamelogic_test.out -I game_files/ game_files/*.cpp tests/test_gamelogic.cpp
+	tests/gamelogic_test.out
+test_board:
+	c++ -std=c++17 -o tests/board_test.out -I game_files/ game_files/*.cpp tests/test_board.cpp
+	tests/board_test.out
