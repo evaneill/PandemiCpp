@@ -22,3 +22,6 @@ test_gamelogic:
 test_board:
 	c++ -std=c++17 -o tests/board_test.out -I game_files/ game_files/*.cpp tests/test_board.cpp
 	tests/board_test.out
+playtest:
+	g++ -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp Play.cpp -o play.out
+	./play.out
