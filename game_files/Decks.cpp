@@ -157,6 +157,14 @@ Decks::PlayerCard Decks::PlayerDeck::draw(bool setup){
     return drawn_card;
 }
 
+bool Decks::PlayerDeck::isempty(){
+    if(remaining_nonepi_cards.size()==0 && epidemics_drawn==difficulty){
+        return true;
+    } else {
+        return false;
+    }
+}
+
 Decks::PlayerCard Decks::PlayerDeck::make_card_by_vector_index(int drop_index,bool setup){
 
     int idx;
@@ -277,7 +285,7 @@ Decks::InfectCard Decks::InfectDeck::draw(){
 Decks::InfectCard Decks::InfectDeck::draw_bottom(){
     
     Decks::InfectCardGroup& current_stack = deck_stack[0];
-
+    
     // 
     int chosen_index = rand() % current_stack.cards.size();
 

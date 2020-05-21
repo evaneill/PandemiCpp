@@ -35,8 +35,6 @@ Players::Player::Player(int role_id):
     
 }
 
-Players::Player::Player()=default;
-
 bool Players::Player::hand_full(){
     return (hand.size()+event_cards.size())>hand_limit;
 }

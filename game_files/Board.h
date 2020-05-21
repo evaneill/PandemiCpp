@@ -8,7 +8,6 @@
 #include "Map.h"
 #include "Decks.h"
 #include "Players.h"
-#include "Actions.h"
 
 namespace Board
 {
@@ -18,7 +17,7 @@ namespace Board
     class Board{
     private:
         // only tracks whether or not setup() has already been called.
-        bool SETUP = false;
+        bool SETUP;
 
         // the players
         std::vector<Players::Player> players;
@@ -37,7 +36,7 @@ namespace Board
 
         // vector of 4 vectors : one to count each disease of size 48 (# cities)
         // have to initialize to 0 on setup
-        std::vector<std::vector<int>> disease_count; 
+        std::array<std::array<int,48>,4> disease_count; 
 
         // vector of 4 bools: whether or not each disease is cured
         std::vector<bool> cured= {false,false,false,false};
@@ -45,34 +44,33 @@ namespace Board
         std::vector<bool> eradicated = {false,false,false,false};
 
         // Tracks which players turn it is
-        int turn = 0; 
+        int turn; 
 
         // Actions used on this turn so far. Also used to track game stage
         // {0,1,2,3} are player turns, incremented with each action.
         // {4} is player card draw stage, incremented after drawing second player card
         // {5} is infect stage is incremented 
         // End of infect stage should result in reset to 0
-        int turn_actions = 0;
+        int turn_actions;
 
         // Tracked by stochastic actions. How many player cards have been drawn during draw phase.
-        int player_cards_drawn = 0; 
+        int player_cards_drawn; 
         // Tracked by stochastic actions. How many infect cards have been drawn during this phase;
-        int infect_cards_drawn = 0;
+        int infect_cards_drawn;
 
-        bool quiet_night = false;
+        bool quiet_night;
 
-        bool lost = false;
-        bool won = false;
+        bool lost;
+        bool won;
 
         // flag that can be referenced with broken() to force failure on known badness in logic functions
-        bool BROKEN = false;
+        bool BROKEN;
         std::vector<std::string> why_it_broke; // can be used to update reasons BROKEN=true was set
     public:
         // Should only be called once instantiate the board.
         // Can input the player roles, hardcoded in Players.cpp switch() correspondence
         // Can input difficulty to describe how many epidemic cards to include in player deck.
         Board(std::vector<int> roles,int _difficulty);
-        Board(){};
         std::string repr(); // A string representation for logging
 
         // Setup the board for play
@@ -109,7 +107,7 @@ namespace Board
         // functional additions (lots of them)
         Players::Player& active_player(); // reference to active player
         std::vector<Map::City>& get_stations(); // reference to research stations
-        std::vector<std::vector<int>>& get_disease_count(); // reference to disease count to increment
+        std::array<std::array<int,48>,4>& get_disease_count(); // reference to disease count to increment
         std::vector<bool>& get_eradicated();
         std::vector<bool>& get_cured(); // reference to cured status to update/use
         std::vector<Players::Player>& get_players();

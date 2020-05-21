@@ -19,14 +19,13 @@ namespace Map
 
 	public:
 
-		const int population;
-		const int index;
-		const std::string name;
-		const int color;
+		int population;
+		int index;
+		std::string name;
+		int color;
 
-		const std::vector<int> neighbors;
+		std::vector<int> neighbors;
 
-	City();
 	City(int ind, int pop, int color, std::string name,std::vector<int> _neighbors);
 
 	const bool operator == (City &rhs) {return index==rhs.index && population==rhs.population && name==rhs.name && color==rhs.color;}

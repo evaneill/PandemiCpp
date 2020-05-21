@@ -5,8 +5,8 @@
 #include <vector>
 #include <set>
 
-#include "Players.h"
 #include "Board.h"
+#include "Players.h"
 #include "Map.h"
 #include "Decks.h"
 
@@ -16,14 +16,17 @@ namespace Actions
         // To be constructed and returned, then called with execute();
     public:
         Action(Board::Board& _active_board);
-        // A reference to the board to be modified in place by execute()
-        Board::Board& active_board;
+        // A pointer to the board to be modified in place by execute()
+        Board::Board *active_board;
 
         // E.g. "MOVE"
         std::string movetype;
 
         // Act on the referenced active_board according to child class logic
-        void execute();
+        virtual void execute()=0;
+        
+        // String representation for logging/debugging
+        virtual std::string repr()=0;
     };
 
     /* Below are all the actions, each of which has
@@ -63,7 +66,7 @@ namespace Actions
     // ===== Move ===== 
     class Move: public Action{
         // to incorporate dispatcher would either need a new action, or include player, from, and to here.
-        Map::City& to;
+        Map::City to;
     public:
         Move(Board::Board& _active_board, Map::City _to);
         void execute(); // to modify active_board in-place
@@ -119,7 +122,7 @@ namespace Actions
         // This is the index of the station in the list of stations to remove
         int remove_station;
     public:
-        Build(Board::Board& _active_board,int remove_station=NULL);
+        Build(Board::Board& _active_board,int _remove_station=-1);
         void execute(); // to modify active_board
         std::string repr(); // to yield a string representation for logging
     }; 
@@ -183,7 +186,7 @@ namespace Actions
         Players::Player& using_player;
         int remove_station;
     public:
-        GovernmentGrant(Board::Board& _active_board, Players::Player& _using_player,int _target_city,int _remove_station=NULL);
+        GovernmentGrant(Board::Board& _active_board, Players::Player& _using_player,int _target_city,int _remove_station=-1);
         void execute(); // to modify active_board
         std::string repr(); // to yield a string representation for logging
     };
@@ -221,14 +224,18 @@ namespace Actions
     //This is an object that can instantiate any of a class of actions, using legal arguments.
     class ActionConstructor{
     public:
-        ActionConstructor(Board::Board& _active_board): active_board(_active_board){};
-        Board::Board& active_board;
+        ActionConstructor(Board::Board& _active_board);
+        Board::Board *active_board;
         
+        // Base Constructor methods are all pure virtual - REQUIRES child to be defined. Good b/c this class should never be called.
+        
+        // Get a representation
+        virtual std::string get_movetype()=0;
         // how many legal actions there are
-        int n_actions(); 
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
-        bool legal(){};
+        virtual int n_actions()=0; 
+        virtual Actions::Action* random_action()=0; // return a random action of thie movetype with legal arguments
+        virtual std::vector<Actions::Action*> all_actions()=0; //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        virtual bool legal()=0;
     };
 
     // ===== PLAYER ACTION CONSTRUCTORS =====
@@ -238,10 +245,13 @@ namespace Actions
     public:
         MoveConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions(); 
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -250,10 +260,13 @@ namespace Actions
     public:
         DirectFlightConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -263,10 +276,13 @@ namespace Actions
     public:
         CharterFlightConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -276,10 +292,13 @@ namespace Actions
     public:
         ShuttleFlightConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -289,10 +308,13 @@ namespace Actions
     public:
         OperationsExpertFlightConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -302,10 +324,13 @@ namespace Actions
     public:
         BuildConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -314,10 +339,13 @@ namespace Actions
     public:
         TreatConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -326,10 +354,13 @@ namespace Actions
     public:
         CureConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -338,10 +369,13 @@ namespace Actions
     public:
         GiveConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -350,36 +384,43 @@ namespace Actions
     public:
         TakeConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
     // ===== EVENT CARD ACTION CONSTRUCTORS =====
 
     // Parent to generate all available event card actions
-    class EventCardActionConstructor: public ActionConstructor{
-    public:
-        EventCardActionConstructor(Board::Board& _active_board);
+    // (Deprecated - GameLogic looks at individual EventCard action constructors individually)
+    // class EventCardActionConstructor: public ActionConstructor{
+    // public:
+    //     EventCardActionConstructor(Board::Board& _active_board);
 
-        // how many legal actions there are
-        int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
-        bool legal();
-    };
+    //     // how many legal actions there are
+    //     virtual int n_actions();
+    //     virtual Action* random_action(); // return a random action of thie movetype with legal arguments
+    //     virtual std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+    //     virtual bool legal();
+    // };
     
     class AirliftConstructor: public ActionConstructor{
         const std::string movetype = "AIRLIFT";
     public:
         AirliftConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -388,10 +429,13 @@ namespace Actions
     public:
         GovernmentGrantConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -400,10 +444,13 @@ namespace Actions
     public:
         QuietNightConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
@@ -413,23 +460,30 @@ namespace Actions
     public:
         DoNothingConstructor(Board::Board& active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal(); // whether there is any legal use of this movetype
     };
 
     // ===== FORCED DISCARD CONSTRUCTOR =====
 
     class ForcedDiscardConstructor: public Actions::ActionConstructor{
+        const std::string movetype = "FORCEDDISCARD";
     public:
         ForcedDiscardConstructor(Board::Board& _active_board);
 
+        // Get a representation
+        virtual std::string get_movetype();
+
         // how many legal actions there are
         int n_actions();
-        Actions::Action random_action(); // return a random action of thie movetype with legal arguments
-        std::vector<Actions::Action> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
+        Actions::Action* random_action(); // return a random action of thie movetype with legal arguments
+        std::vector<Actions::Action*> all_actions(); //  a vector of all legal actions for this movetype (E.g. instantiate a list of Action objects with all possible attributes)
         bool legal();
     };
 }
