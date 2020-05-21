@@ -23,10 +23,6 @@ void Play(std::vector<int> roles, int difficulty){
     std::cout << "done!" << std::endl << "About to enter the game loop...";
     // While the game isn't over (while maintaining sanity checks throughout)
     int decisions_made = 0;
-
-    // Seed the randomness of the game with current game
-    std::srand(std::time(NULL));
-    rand();
     
     // While keeping track of sanity checks (at computational expense)
     while(!the_game.is_terminal(false)){
@@ -38,6 +34,10 @@ void Play(std::vector<int> roles, int difficulty){
 }
 
 int main(){
+    // Seed the randomness of the game with current game
+    std::srand(std::time(NULL));
+    rand();
+    
     // 4 epidemic cards and quarantine specialist, scientist, and researcher
     std::cout << "About to call Play({0,2,3},4)...";
     Play({0,2,3},4);
