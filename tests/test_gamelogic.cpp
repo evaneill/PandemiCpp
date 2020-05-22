@@ -27,7 +27,7 @@ int main(){
         cout << "...The action I got is: " << random_action -> repr() << endl;
     }
 
-    cout << endl << "Now I'll try to get ALL the actions... (Should contain at least DONOTHING, and MOVE to Miami, MOVE to Chicago, MOVE to Washington)" << endl;
+    cout << endl << "Now I'll try to get ALL the actions... (Should contain at least DONOTHING, and MOVE to Miami, MOVE to Chicago, MOVE to Washington, and some DIRECTFLIGHTs)" << endl;
     std::vector<Actions::Action*> possible_actions = new_game.list_actions();
     for(Actions::Action* act_ptr: possible_actions){
         cout << "...action: " << act_ptr -> repr() << endl;
