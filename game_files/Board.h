@@ -17,7 +17,7 @@ namespace Board
     class Board{
     private:
         // only tracks whether or not setup() has already been called.
-        bool SETUP;
+        bool SETUP = false;
 
         // the players
         std::vector<Players::Player> players;
