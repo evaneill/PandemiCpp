@@ -31,8 +31,8 @@ namespace Board
         // infect card deck
         Decks::InfectDeck infect_deck;
 
-        int outbreak_count; // increments on city outbreaks
-        int epidemics_drawn; // increments on drawing epidemics. Used to get infection rate from INFECTION_COUNTER
+        int outbreak_count = 0; // increments on city outbreaks
+        int epidemics_drawn = 0; // increments on drawing epidemics. Used to get infection rate from INFECTION_COUNTER
 
         // vector of 4 vectors : one to count each disease of size 48 (# cities)
         // have to initialize to 0 on setup
@@ -44,7 +44,7 @@ namespace Board
         std::vector<bool> eradicated = {false,false,false,false};
 
         // Tracks which players turn it is
-        int turn; 
+        int turn = 0; 
 
         // This is perhaps a silly way to solve the tracking of already-outbroken cities during outbreak()
         std::vector<int> already_outbroken_cities = {};
@@ -54,22 +54,22 @@ namespace Board
         // {4} is player card draw stage, incremented after drawing second player card
         // {5} is infect stage is incremented 
         // End of infect stage should result in reset to 0
-        int turn_actions;
+        int turn_actions = 0;
 
         // Tracked by stochastic actions. How many player cards have been drawn during draw phase.
-        int player_cards_drawn; 
+        int player_cards_drawn = 0; 
         // Tracked by stochastic actions. How many infect cards have been drawn during this phase;
-        int infect_cards_drawn;
+        int infect_cards_drawn = 0;
 
-        bool quiet_night;
+        bool quiet_night = false;
 
-        bool lost;
+        bool lost = false;
         std::string why_lost;
 
-        bool won;
+        bool won = false;
 
         // flag that can be referenced with broken() to force failure on known badness in logic functions
-        bool BROKEN;
+        bool BROKEN = false;
         std::vector<std::string> why_it_broke; // can be used to update reasons BROKEN=true was set
     public:
         // Should only be called once instantiate the board.
@@ -91,7 +91,7 @@ namespace Board
         void readd_infect_discard();
 
         // difficulty. Only used for sanity checks after initialization
-        int difficulty;
+        int difficulty = 0;
 
         // Logic to add cubes to city
         // incorporates outbreak etc.
