@@ -5,6 +5,7 @@
 #include "SanityCheck.h"
 #include "StochasticActions.h"
 #include "Actions.h"
+#include "Debug.h"
 
 GameLogic::Game::Game(std::vector<int> roles, int difficulty,bool verbose): 
     active_board(roles,difficulty),
@@ -51,11 +52,11 @@ GameLogic::Game::Game(std::vector<int> roles, int difficulty,bool verbose):
     StochasticCon(active_board)
     {
         if(verbose){
-            std::cout << "[Game::Game(...)] Instantiating Game Logic. Setting up the board..." << std::endl;
+            DEBUG_MSG("[Game::Game(...)] Instantiating Game Logic. Setting up the board..." << std::endl);
         }
         active_board.setup(verbose);
         if(verbose){
-            std::cout << "[Game::Game(...)] ... success! Board set up" << std::endl;
+            DEBUG_MSG("[Game::Game(...)] ... success! Board set up" << std::endl);
         }
 }
 
@@ -65,11 +66,11 @@ void GameLogic::Game::nonplayer_actions(bool verbose){
     while(StochasticCon.legal() && !ForcedDiscardCon.legal()){
         Actions::Action* next_action = StochasticCon.get_action();
         if(verbose){
-            std::cout << "[Game::nonplayer_actions()] " << active_board.active_player().role.name << ": ";
+            DEBUG_MSG("[Game::nonplayer_actions()] " << active_board.active_player().role.name << ": ");
         }
         next_action -> execute();
         if(verbose){
-            std::cout << next_action -> repr() << std::endl;
+            DEBUG_MSG(next_action -> repr() << std::endl);
         }
     }
 }
@@ -85,14 +86,14 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
     nonplayer_actions(verbose);
     if(verbose){
         Players::Player& active_player = active_board.active_player();
-        std::cout << "[Game:get_random_action_uniform] "<< active_player.role.name << " has hand: ";
+        DEBUG_MSG("[Game:get_random_action_uniform] "<< active_player.role.name << " has hand: ");
         for(Decks::PlayerCard card: active_player.hand){
-            std::cout << card.name << "; ";
+            DEBUG_MSG(card.name << "; ");
         }
         for(Decks::PlayerCard card: active_player.event_cards){
-            std::cout << card.name << "; ";
+            DEBUG_MSG(card.name << "; ");
         }
-        std::cout << std::endl;
+        DEBUG_MSG(std::endl);
     }
     if(ForcedDiscardCon.legal()){
         // ALWAYS return a choice of discard actions if it's possible.
@@ -101,30 +102,30 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
     }
 
     if(verbose){
-        std::cout << "[Game:get_random_action_uniform] There are a total of " << n_available_actions() << " available actions according to n_available_actions()";
+        DEBUG_MSG("[Game:get_random_action_uniform] There are a total of " << n_available_actions() << " available actions according to n_available_actions()");
     }
     // n_available_actions) includes nonzero additions where the group is legal
     int randomized = rand() % n_available_actions(verbose);
     if(verbose){
-        std::cout << std::endl << "[Game:get_random_action_uniform] Chose random number: " << randomized << " to choose an action.";
+        DEBUG_MSG(std::endl << "[Game:get_random_action_uniform] Chose random number: " << randomized << " to choose an action.");
     }
     // Under this scheme actions should appear uniformly
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
         if(verbose){
-            std::cout << std::endl << "[Game:get_random_action_uniform] "<< (*con_ptr).get_movetype() << " being considered for random choice,";
-            std::cout << " which has " << con_ptr -> n_actions() << " possible actions.";
+            DEBUG_MSG(std::endl << "[Game:get_random_action_uniform] "<< (*con_ptr).get_movetype() << " being considered for random choice,");
+            DEBUG_MSG(" which has " << con_ptr -> n_actions() << " possible actions.");
         }
         if(randomized <= (con_ptr -> n_actions())){
             return (con_ptr -> random_action());
         }else{
             randomized -= (con_ptr -> n_actions());
             if(verbose){
-                std::cout << " randomized number reduced to " << randomized << ".";
+                DEBUG_MSG(" randomized number reduced to " << randomized << ".");
             }
         }
     }
     if(verbose){
-        std::cout << std::endl << "[Game:get_random_action_uniform] considered ALL actions for random choice but algorithm failed!";
+        DEBUG_MSG(std::endl << "[Game:get_random_action_uniform] considered ALL actions for random choice but algorithm failed!");
     }
     active_board.broken()=true;
     active_board.broken_reasons().push_back("[Game:get_random_action_uniform] get_random_action_uniform got to end of execution without choosing an action");
@@ -196,13 +197,13 @@ bool GameLogic::Game::is_terminal(bool sanity_check,bool verbose){
     bool broken = active_board.broken();
     if(broken && verbose){
         for(std::string reason: active_board.broken_reasons()){
-            std::cout << std::endl << "[Game::is_terminal()] Game broke! One reason: " << reason;
+            DEBUG_MSG(std::endl << "[Game::is_terminal()] Game broke! One reason: " << reason);
         }
     }
     bool won = active_board.has_won();
     bool lost = active_board.has_lost();
     if(lost && verbose){
-        std::cout << std::endl << "[Game::is_terminal()] LOST! because " <<  active_board.get_lost_reason();
+        DEBUG_MSG(std::endl << "[Game::is_terminal()] LOST! because " <<  active_board.get_lost_reason());
     }
     return won || lost || broken;
 }

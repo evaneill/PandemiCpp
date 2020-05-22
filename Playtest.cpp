@@ -56,8 +56,8 @@ int main(){
     std::cout << std::endl << "===== STOPPING CLOCK =====" << std::endl;
     auto stop = std::chrono::high_resolution_clock::now(); 
 
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
-  
+    std::chrono::duration<double, std::milli> duration = stop - start;
+
     // To get the value of duration use the count() 
     // member function on the duration object 
 
