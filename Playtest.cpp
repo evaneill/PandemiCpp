@@ -25,7 +25,7 @@ void Play(std::vector<int> roles, int difficulty){
     int decisions_made = 0;
     
     // While keeping track of sanity checks (at computational expense)
-    while(!the_game.is_terminal(false)){
+    while(!the_game.is_terminal(true,false)){
         the_agent -> take_step(true);
         decisions_made++;
     }

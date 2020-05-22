@@ -22,6 +22,9 @@ test_gamelogic:
 test_board:
 	c++ -std=c++17 -o tests/board_test.out -I game_files/ game_files/*.cpp tests/test_board.cpp
 	tests/board_test.out
+test_infectcity:
+	c++ -std=c++17 -o tests/infectcity_test.out game_files/Board.cpp tests/test_infectcity.cpp game_files/Map.cpp game_files/Decks.cpp game_files/Players.cpp
+	tests/infectcity_test.out
 playtest:
-	g++ -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp Play.cpp -o play.out
+	g++ -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp Playtest.cpp -o play.out
 	./play.out
