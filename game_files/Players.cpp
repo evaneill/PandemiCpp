@@ -48,10 +48,12 @@ void Players::Player::UpdateHand(Decks::EventCard drawn_card){
 }
 
 void Players::Player::UpdateHand(Decks::PlayerCard drawn_card){
-    if(typeid(drawn_card)==typeid(Decks::CityCard)){
+    if(drawn_card.index<Map::CITIES.size()){
         hand.push_back(drawn_card);
-    } else if(typeid(drawn_card)==typeid(Decks::EventCard)){
+    } else if(drawn_card.index>=Map::CITIES.size()){
         event_cards.push_back(drawn_card);
+    } else {
+        std::cout << std::endl << "[Player::UpdateHand] [" << role.name << "] did not add card " << drawn_card.name << "(index " << drawn_card.index << ")!!!!" << std::endl;
     }
 }
 
@@ -60,11 +62,11 @@ int Players::Player::handsize(){
 }
 
 void Players::Player::set_position(Map::City new_city){
-    Map::City position = new_city;
+    position = new_city;
 };
 
 void Players::Player::set_position(int new_city){
-    Map::City position = Map::CITIES[new_city];
+    position = Map::CITIES[new_city];
 };
 
 void Players::Player::removeCard(Decks::PlayerCard card_to_remove){

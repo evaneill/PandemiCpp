@@ -19,10 +19,10 @@ void StochasticActions::PlayerDeckDrawAction::execute(){
     // Get a new card
     Decks::PlayerCard new_card = active_board ->draw_playerdeck();
     card_drawn = new_card.name;
-    if(typeid(new_card)==typeid(Decks::CityCard)){
+    if(new_card.index<Map::CITIES.size()){
         // Insert the identical city card in their hand
         active_player.UpdateHand(Decks::CityCard(new_card.index));
-    } else if(typeid(new_card)==typeid(Decks::EventCard)){
+    } else if(new_card.index>=Map::CITIES.size() && new_card.index<(Map::CITIES.size()+3)){
         // Or insert the identical 
         switch(new_card.index){
             case 48:
@@ -39,12 +39,11 @@ void StochasticActions::PlayerDeckDrawAction::execute(){
                 active_board ->broken_reasons().push_back("Card index drawn during player deck draw was " + std::to_string(new_card.index) + " (name: " + card_drawn+ " )");
                 break;
         }
-    } else if(typeid(new_card)==typeid(Decks::EpidemicCard)){
-        Decks::InfectCard new_card = active_board ->draw_infectdeck_bottom();
+    } else if(new_card.index>=(Map::CITIES.size()+3)){
+        // This must be an epidemic card
+        // Logic of how many have been drawn has already been updated at this point in the deck
+        Decks::InfectCard new_card = active_board -> draw_infectdeck_bottom();
         
-        // Increment epidemics drawn, and so value returned by called get_infection_rate()
-        active_board ->get_epidemic_count()++;
-
         bool quarantine_adjacent = false;
 
         // Check for existence & adjacency of quarantine specialist
@@ -63,7 +62,7 @@ void StochasticActions::PlayerDeckDrawAction::execute(){
         }
         // If there's either no player or there is but they're not adjacent, infect
         if(!quarantine_adjacent){
-            active_board ->infect_city(new_card,3);
+            active_board ->infect(new_card.index,new_card.color,3);
         }
 
         active_board ->readd_infect_discard();
@@ -87,7 +86,9 @@ std::string StochasticActions::PlayerDeckDrawAction::repr(){
 }
 
 bool StochasticActions::PlayerDeckDrawAction::legal(){
+    // Legal if it's the player's draw turn...
     if(active_board ->get_turn_action()==4){
+        // And only 0 or 1 player cards have been drawn so far
         if(active_board ->get_player_cards_drawn()>=0 && active_board ->get_player_cards_drawn()<=1){
             return true;
         } else {
@@ -109,7 +110,7 @@ StochasticActions::InfectDrawAction::InfectDrawAction(Board::Board& _active_boar
 
 void StochasticActions::InfectDrawAction::execute(){
     // If it's not quiet night
-    if(!active_board ->quiet_night_status()){
+    if(!(active_board ->quiet_night_status())){
         // draw a card
         Decks::InfectCard new_card = active_board ->draw_infectdeck();
 
@@ -135,7 +136,7 @@ void StochasticActions::InfectDrawAction::execute(){
             }
             // If there's either no player or there is but they're not adjacent, infect
             if(!QuarantineSpecialistBlocked){
-                outbreak_track = active_board ->infect_city(new_card,1);
+                outbreak_track = active_board ->infect(new_card.index,new_card.color,1);
 
                 // check for losing status on number of outbreaks & disease cube counts
                 if(!active_board ->outbreak_count_safe() || !active_board ->disease_count_safe()){
@@ -174,8 +175,9 @@ void StochasticActions::InfectDrawAction::execute(){
 
         // reset the next players "operations expert flight" boolean just in case
         active_board ->active_player().used_OperationsExpertFlight=false;
+
+        active_board ->quiet_night_status()=false;
     }
-    active_board ->quiet_night_status()=false;
 }
 
 std::string StochasticActions::InfectDrawAction::repr(){
@@ -188,6 +190,7 @@ std::string StochasticActions::InfectDrawAction::repr(){
 }
 
 bool StochasticActions::InfectDrawAction::legal(){
+    // Legal when it's the infect step and <Infection rate cards have been drawn.
     if(active_board ->get_turn_action()==5 && (active_board ->get_infect_cards_drawn())<(active_board ->get_infection_rate())){
         return true;
     } else {

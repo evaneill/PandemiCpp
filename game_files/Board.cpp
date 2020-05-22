@@ -17,7 +17,7 @@ Board::Board::Board(std::vector<int> roles, int _difficulty){
     SETUP=false;
 }
 
-void Board::Board::setup(){
+void Board::Board::setup(bool verbose){
     if(!SETUP){
         int setup_cards;
         switch(players.size()){
@@ -36,8 +36,14 @@ void Board::Board::setup(){
         // Allot each player their correct number of cards.
         int max_pop = 0, first_player =0, player_idx = 0;
         for(Players::Player& p : players){
+            if(verbose){
+                std::cout << std::endl << "[SETUP] Drawing cards for " << p.role.name << " : ";
+            }
             for(int c=0; c<setup_cards;c++){
-                Decks::PlayerCard drawn_card = player_deck.draw(true); // true used for setup (draw from all non-epidemics)
+                Decks::PlayerCard drawn_card = player_deck.draw(true); // true used for setup (i.e. draw from all non-epidemic cards)
+                if(verbose){
+                    std::cout << drawn_card.name << "(color " << drawn_card.color << ", index " << drawn_card.index << ") \t";
+                }
                 if(!drawn_card.event){
                     if(drawn_card.population>max_pop){
                         max_pop = drawn_card.population;
@@ -45,6 +51,16 @@ void Board::Board::setup(){
                     }
                 }
                 p.UpdateHand(drawn_card);
+            }
+            if(verbose){
+                std::cout << std::endl << "[SETUP] " << p.role.name << " has cards: ";
+                for(Decks::PlayerCard card: p.hand){
+                    std::cout << card.name << "; ";
+                }
+                for(Decks::PlayerCard card: p.event_cards){
+                    std::cout << card.name << "; ";
+                }
+                std::cout << std::endl;
             }
             player_idx++;
         }
@@ -55,24 +71,36 @@ void Board::Board::setup(){
         // The ensuing logic means that, though a random player goes first, the order is not shuffled from that given.
         // This is intended: when people play they'll sit down in a fixed order then learn who goes first.
         // Any randomization in roles should happen above the call to Board().
+        if(verbose){
+            std::cout << std::endl << "[SETUP] First player is in position " << first_player << " (" << Players::Player(first_player).role.name << ")" << std::endl; 
+        }
         turn = first_player;
 
-        // Set all of the disease counts to 0 
-        for(int col=0;col<4;col++){
-            for(int city;city<Map::CITIES.size();city++){
-                disease_count[col][city]=0;
-            }
-        }
+        // Make sure all the disease counts in every city are 0
+        reset_disease_count();
+        
         // Now you have to infect the first 9 cities
         // for each of 1,2, and 3 disease cubes...
+        if(verbose){
+            std::cout << std::endl << "[SETUP] INFECT STEP " << std::endl;
+        }
         for(int infect_count = 1 ; infect_count<4;infect_count++){
             // for 3 times
             for(int _ = 0; _<3;_++){
                 // infect that city with infect_count # of cubes
                 Decks::InfectCard card_to_infect = infect_deck.draw();
-                std::array<int,2> junk = infect_city(card_to_infect,infect_count); // ignore the output here
-                std::cout << std::endl << "SETUP: " << card_to_infect.name << " was infected with " << infect_count << " cube(s)." << std::endl;
-                std::cout << "SETUP: " << card_to_infect.name << " now has " << disease_count[card_to_infect.color][card_to_infect.index] << " cubes on it" <<std::endl;
+                if(verbose){
+                    std::cout << "[SETUP] infecting " << card_to_infect.name << " with " << infect_count << std::endl;
+                }
+                std::array<int,2> junk = infect_city(card_to_infect.index,card_to_infect.color,infect_count); // ignore the output here
+            }
+        }
+        if(verbose){
+            for(int col=0;col<4;col++){
+                std::cout << std::endl << "[SETUP] =====RESULT OF " << Map::COLORS[col] << " INFECTS =====" << std::endl; 
+                for(Map::City city: Map::CITIES){
+                    std::cout << "[SETUP] " << Map::COLORS[col] << ": " << city.name << " = " << disease_count[col][city.index] << std::endl;
+                }
             }
         }
          // Add Atlanta to list of research stations
@@ -80,9 +108,7 @@ void Board::Board::setup(){
         
         // Set a bunch of counters to 0 and statuses to false
         outbreak_count=0;
-        epidemics_drawn=0;
-        
-        turn =0;
+
         turn_actions=0;
 
         player_cards_drawn=0;
@@ -103,6 +129,15 @@ void Board::Board::setup(){
     SETUP = true;
 }
 
+void Board::Board::reset_disease_count(){
+    // Set all of the disease counts to 0 (I didn't think I had to do this but...)
+    for(int col=0;col<4;col++){
+        for(Map::City city: Map::CITIES){
+            disease_count[col][city.index]=0;
+        }
+    }
+}
+
 Decks::PlayerCard Board::Board::draw_playerdeck(){
     return player_deck.draw();
 }
@@ -119,7 +154,13 @@ void Board::Board::readd_infect_discard(){
     infect_deck.readd_discard();
 }
 
-std::array<int,2> Board::Board::infect_city(Decks::InfectCard infectcard,int add,std::vector<int> outbroken_already){
+std::array<int,2> Board::Board::infect(int city_idx, int col,int add){
+    std::array<int,2> output = Board::Board::infect_city(city_idx, col, add);
+    reset_outbreak_memory();
+    return output;
+}
+
+std::array<int,2> Board::Board::infect_city(int city_idx, int col,int add){
     // count outbreaks the occur as a result of this logic
     int n_outbreaks = 0;
 
@@ -131,8 +172,8 @@ std::array<int,2> Board::Board::infect_city(Decks::InfectCard infectcard,int add
         for(Players::Player& p: players){
             if(typeid(p.role)==typeid(Players::QuarantineSpecialist)){
                 // If they're in the same city
-                if(p.get_position().index==infectcard.index){
-                    if(disease_count[infectcard.color][infectcard.index]+add>3){
+                if(p.get_position().index==city_idx){
+                    if(disease_count[col][city_idx]+add>3){
                         return {0,1};
                     } else {
                         return {0,0};
@@ -140,8 +181,8 @@ std::array<int,2> Board::Board::infect_city(Decks::InfectCard infectcard,int add
                 }
                 // Or if they're in an adjacent city
                 for(int n: p.get_position().neighbors){
-                    if(infectcard.index==n){
-                        if(disease_count[infectcard.color][infectcard.index]+add>3){
+                    if(city_idx==n){
+                        if(disease_count[col][city_idx]+add>3){
                             return {0,1};
                         } else {
                             return {0,0};
@@ -152,30 +193,25 @@ std::array<int,2> Board::Board::infect_city(Decks::InfectCard infectcard,int add
             }
         }
     }
-    for(int c: outbroken_already){
-        if(c==infectcard.index){
+    for(int c: already_outbroken_cities){
+        if(c==city_idx){
             return {0,0};
         }
     }
     // To get to this point there can't have been a blocking quarantine specialist
     // This city also can't have been a previously outbroken city during the resolution of this logic
     // If adding the suggested amount would result in there being >3 cubes...
-    if((disease_count[infectcard.color][infectcard.index]+add)>3){
+    if((disease_count[col][city_idx]+add)>3){
         // set the count there to 3 whether or not it was already
-        disease_count[infectcard.color][infectcard.index] = 3;
+        disease_count[col][city_idx] = 3;
 
         // outbreak this city and color
-        std::array<int,2> outbreak_result = outbreak(infectcard.index,infectcard.color,outbroken_already);
-        
-        // Store the results
-        n_outbreaks+=outbreak_result[0];
-        blocked_outbreaks+=outbreak_result[1];
+        return outbreak(city_idx,col);
     } else{
         // Otherwise just add "add" number of cubes to it if this city isn't outbroken
-        disease_count[infectcard.color][infectcard.index]+=add;
+        disease_count[col][city_idx]+=add;
+        return {0,0};
     }
-
-    return {n_outbreaks,blocked_outbreaks};
 }
 
 // This outbreak resolution ignores the fact that players get to CHOOSE the resolution order of outbreaks, potentially to their great advantage.
@@ -183,32 +219,39 @@ std::array<int,2> Board::Board::infect_city(Decks::InfectCard infectcard,int add
 // _Very_ rare that order matters in outbreak resolution. Usually at most 2.
 // Could optimize resolution in favor of the player by always outbreaking the neighbors with 3 cubes FIRST, then the remainder
 // Not even sure that that would be best. Regardless it's irrelevant in almost all cases.
-std::array<int,2> Board::Board::outbreak(int city_idx,int col,std::vector<int> outbroken_already){
+std::array<int,2> Board::Board::outbreak(int city_idx,int col){
     // increment game outbreak counter
     outbreak_count++;
+    // immediate fail - no need to keep evolving the state at this point
     if(outbreak_count>7){
         lost=true;
-        return {0,1};
+        return {1,0};
     }
 
     // track this-resolution outbreaks and blocked outbreaks.
     int n_outbreaks =1, n_blocked = 0;
 
     // Add this city being outbroken to the list of those outbroken on this resolution
-    outbroken_already.push_back(city_idx);
+    already_outbroken_cities.push_back(city_idx);
 
     for(int neighbor: Map::CITIES[city_idx].neighbors){
-        std::array<int,2> infect_result= infect_city(Decks::InfectCard(neighbor),1,outbroken_already);
-        
+        std::array<int,2> infect_result= infect_city(neighbor,col,1);
+        if(infect_result[0]>0 || infect_result[1]>0){
+            // If an outbreak event did or would have happened at the neighbor, then it's accounted for
+            already_outbroken_cities.push_back(neighbor);
+        }
         n_outbreaks+=infect_result[0];
         n_blocked+=infect_result[1];
     }
-
     return {n_outbreaks,n_blocked};
 }
 
-std::array<int,2> Board::Board::outbreak(Map::City city, int col,std::vector<int> outbroken_already){
-    return outbreak(city.index,col,outbroken_already);
+std::array<int,2> Board::Board::outbreak(Map::City city, int col){
+    return outbreak(city.index,col);
+}
+
+void Board::Board::reset_outbreak_memory(){
+    already_outbroken_cities.clear();
 }
 
 bool Board::Board::is_terminal(){
@@ -216,9 +259,6 @@ bool Board::Board::is_terminal(){
     if(won || lost){
         return true;
     } else if(BROKEN){
-        for(std::string reason : why_it_broke){
-            std::cout << "One reason it broke: " << reason << std::endl;
-        }
         return true;
     } else {
         return false;
@@ -234,17 +274,17 @@ void Board::Board::updatestatus(){
     }
     if(player_deck.isempty()){
         // If there are no more player cards, you lost.
-        std::cout << "Found the player deck to be empty!" << std::endl;
+        why_lost = "Ran out of player cards!";
         lost = true;
     }
     if(outbreak_count>7){
         // If there are >7 outbreaks
-        std::cout << "Found >7 outbreaks!" << std::endl;
+        why_lost =  "Found >7 outbreaks!";
         lost=true;
     }
     if(!disease_count_safe()){
         // If any disease has >24 cubes on the board
-        std::cout << "Found that disease cube count wasn't safe!" << std::endl;
+        why_lost = "Found that disease cube count wasn't safe!";
         lost = true;
     }
 }
@@ -302,7 +342,7 @@ int& Board::Board::get_outbreak_count(){
 }
 
 int& Board::Board::get_epidemic_count(){
-    return epidemics_drawn;
+    return player_deck._epidemics_drawn();
 }
 
 int& Board::Board::get_difficulty(){
@@ -310,7 +350,7 @@ int& Board::Board::get_difficulty(){
 }
 
 int Board::Board::get_infection_rate(){
-    return INFECTION_COUNTER[epidemics_drawn];
+    return INFECTION_COUNTER[player_deck._epidemics_drawn()];
 }
 
 int& Board::Board::get_turn(){
@@ -344,4 +384,8 @@ bool& Board::Board::broken(){
 
 std::vector<std::string>& Board::Board::broken_reasons(){
     return why_it_broke;
+}
+
+std::string&  Board::Board::get_lost_reason(){
+    return why_lost;
 }

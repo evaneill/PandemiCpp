@@ -265,7 +265,11 @@ std::string Actions::ShuttleFlightConstructor::get_movetype(){
 }
 
 int Actions::ShuttleFlightConstructor::n_actions(){
-    return active_board ->get_stations().size()-1;
+    if(legal()){
+        return active_board ->get_stations().size()-1;
+    } else {
+        return 0;
+    }
 }
 
 Actions::Action* Actions::ShuttleFlightConstructor::random_action(){
@@ -635,11 +639,68 @@ void Actions::Cure::execute(){
         min_needed++;
     }
 
-    for(int card=0;card<active_player.hand.size();card++){
+    for(Decks::PlayerCard card: active_player.hand){
         // Following logic relies on the fact that: 
         //      hand limit is at most 7
         //      If you've counted at least 4 of one color of a card, it must be the one this player can cure
-        switch(active_player.hand[card].color){
+        switch(card.color){
+            case Map::BLUE:
+                BLUE_count++;
+                if(BLUE_count==min_needed){
+                    for(Decks::PlayerCard pcard: active_player.hand){
+                        // Remove the first min_needed cards from their hand of this color
+                        // I can't imagine rewriting this rn to account for all possible discards sets
+                        if(pcard.color==Map::BLUE && BLUE_count>0){
+                            active_player.removeCard(pcard);
+                            BLUE_count--;
+                        }
+                    }
+                    cured[Map::BLUE]=true;
+                    if(std::accumulate(cured.begin(),cured.end(),0)==4){
+                        active_board ->has_won()=true;
+                    }
+                    active_board ->get_turn_action()++;
+                    return;
+                }
+                break;
+            case Map::YELLOW:
+                YELLOW_count++;
+                if(YELLOW_count==min_needed){
+                    for(Decks::PlayerCard pcard: active_player.hand){
+                        // Remove the first min_needed cards from their hand of this color
+                        // I can't imagine rewriting this rn to account for all possible discards sets
+                        if(pcard.color==Map::YELLOW && YELLOW_count>0){
+                            active_player.removeCard(pcard);
+                            YELLOW_count--;
+                        }
+                    }
+                    cured[Map::YELLOW]=true;
+                    if(std::accumulate(cured.begin(),cured.end(),0)==4){
+                        active_board ->has_won()=true;
+                    }
+                    active_board ->get_turn_action()++;
+                    return;
+                }
+                break;
+            case Map::BLACK:
+                BLACK_count++;
+                if(BLACK_count==min_needed){
+                    for(Decks::PlayerCard pcard: active_player.hand){
+                        // Remove the first min_needed cards from their hand of this color
+                        // I can't imagine rewriting this rn to account for all possible discards sets
+                        if(pcard.color==Map::BLACK && BLACK_count>0){
+                            active_player.removeCard(pcard);
+                            BLACK_count--;
+                        }
+                    }
+                    cured[Map::BLACK]=true;
+                    if(std::accumulate(cured.begin(),cured.end(),0)==4){
+                        active_board ->has_won()=true;
+                    }
+                    active_board ->get_turn_action()++;
+                    return;
+                }
+                break;
             case Map::RED:
                 RED_count++;
                 if(RED_count==min_needed){
@@ -659,63 +720,10 @@ void Actions::Cure::execute(){
                     active_board ->get_turn_action()++;
                     return;
                 }
-            case Map::BLUE:
-                BLUE_count++;
-                if(BLUE_count==min_needed){
-                    for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first min_needed cards from their hand of this color
-                        // I can't imagine rewriting this rn to account for all possible discards sets
-                        if(pcard.color==Map::BLUE && BLUE_count>0){
-                            active_player.removeCard(pcard);
-                            BLUE_count--;
-                        }
-                    }
-                    cured[Map::BLUE]=true;
-                    if(std::accumulate(cured.begin(),cured.end(),0)==4){
-                        active_board ->has_won()=true;
-                    }
-                    active_board ->get_turn_action()++;
-                    return;
-                }
-            case Map::BLACK:
-                BLACK_count++;
-                if(BLACK_count==min_needed){
-                    for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first min_needed cards from their hand of this color
-                        // I can't imagine rewriting this rn to account for all possible discards sets
-                        if(pcard.color==Map::BLACK && BLACK_count>0){
-                            active_player.removeCard(pcard);
-                            BLACK_count--;
-                        }
-                    }
-                    cured[Map::BLACK]=true;
-                    if(std::accumulate(cured.begin(),cured.end(),0)==4){
-                        active_board ->has_won()=true;
-                    }
-                    active_board ->get_turn_action()++;
-                    return;
-                }
-            case Map::YELLOW:
-                YELLOW_count++;
-                if(YELLOW_count==min_needed){
-                    for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first min_needed cards from their hand of this color
-                        // I can't imagine rewriting this rn to account for all possible discards sets
-                        if(pcard.color==Map::YELLOW && YELLOW_count>0){
-                            active_player.removeCard(pcard);
-                            YELLOW_count--;
-                        }
-                    }
-                    cured[Map::YELLOW]=true;
-                    if(std::accumulate(cured.begin(),cured.end(),0)==4){
-                        active_board ->has_won()=true;
-                    }
-                    active_board ->get_turn_action()++;
-                    return;
-                }
+                break;
             default:
                 active_board ->broken()=true;
-                active_board ->broken_reasons().push_back("The color of a card in the players hand ("+std::to_string(active_player.hand[card].color)+") doesn't match known colors");
+                active_board ->broken_reasons().push_back("[Cure::execute()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
                 return;
         }
     }
@@ -728,38 +736,42 @@ std::string Actions::Cure::repr(){
     if(typeid(active_player.role)!=typeid(Players::Scientist)){
         min_needed++;
     }
-    for(int card=0;card<active_player.hand.size();card++){
+    for(Decks::PlayerCard card: active_player.hand){
     // Following logic relies on the fact that: 
     //      hand limit is at most 7
     //      If you've counted at least 4 of one color of a card, it must be the one this player can cure
-        switch(active_player.hand[card].color){
-            case Map::RED:
-                RED_count++;
-                if(RED_count==min_needed){
-                    return movetype+" "+Map::COLORS[Map::RED];
-                }
+        switch(card.color){
             case Map::BLUE:
                 BLUE_count++;
                 if(BLUE_count==min_needed){
                     return movetype+" "+Map::COLORS[Map::BLUE];
                 }
-            case Map::BLACK:
-                BLACK_count++;
-                if(BLACK_count==min_needed){
-                    return movetype+" "+Map::COLORS[Map::BLACK];
-                }
+                break;
             case Map::YELLOW:
                 YELLOW_count++;
                 if(YELLOW_count==min_needed){
                     return movetype+" "+Map::COLORS[Map::YELLOW];
                 }
+                break;
+            case Map::BLACK:
+                BLACK_count++;
+                if(BLACK_count==min_needed){
+                    return movetype+" "+Map::COLORS[Map::BLACK];
+                }
+                break;
+            case Map::RED:
+                RED_count++;
+                if(RED_count==min_needed){
+                    return movetype+" "+Map::COLORS[Map::RED];
+                }
+                break;
             default:
                 active_board ->broken()=true;
-                active_board ->broken_reasons().push_back("The color of a card in the players hand ("+std::to_string(active_player.hand[card].color)+") doesn't match known colors");
+                active_board ->broken_reasons().push_back("[Cure::repr()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
                 return "BREAK";
         }
         active_board ->broken()=true;
-        active_board ->broken_reasons().push_back("CURE repr() was called but there don't seem to be enough of any card to cure...");
+        active_board ->broken_reasons().push_back("[Cure::repr()] CURE repr() was called but there don't seem to be enough of any card to cure...");
     }
 }
 
@@ -795,35 +807,42 @@ bool Actions::CureConstructor::legal(){
             int min_needed = 4;
             if(typeid(active_player.role)!=typeid(Players::Scientist)){
                 min_needed++;
+            } 
+            if(active_board ->active_player().hand.size()<min_needed){
+                return false;
             }
-            for(int card=0;card<active_player.hand.size();card++){
+            for(Decks::PlayerCard card: active_player.hand){
                 // Following logic relies on the fact that: 
                 //      hand limit is at most 7
                 //      If you've counted at least minimum_needed (4 or 5) of one color of a card, it must be the one this player can cure
-                switch(active_player.hand[card].color){
-                    case Map::RED:
-                        RED_count++;
-                        if(RED_count==min_needed){  
-                            return true;
-                        }
+                switch(card.color){
                     case Map::BLUE:
                         BLUE_count++;
                         if(BLUE_count==min_needed){
                             return true;
                         }
-                    case Map::BLACK:
-                        BLACK_count++;
-                        if(BLACK_count==min_needed){
-                            return true;
-                        }
+                        break;
                     case Map::YELLOW:
                         YELLOW_count++;
                         if(YELLOW_count==min_needed){
                             return true;
                         }
+                        break;
+                    case Map::BLACK:
+                        BLACK_count++;
+                        if(BLACK_count==min_needed){
+                            return true;
+                        }
+                        break;
+                    case Map::RED:
+                        RED_count++;
+                        if(RED_count==min_needed){  
+                            return true;
+                        }
+                        break;
                     default:
                         active_board ->broken()=true;
-                        active_board ->broken_reasons().push_back("The color of a card in the players hand ("+std::to_string(active_player.hand[card].color)+") doesn't match known colors");
+                        active_board ->broken_reasons().push_back("[Cure::legal()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
                         return "BREAK";
                 }
             }
@@ -930,7 +949,7 @@ Actions::Action* Actions::GiveConstructor::random_action(){
         }
     }
     active_board ->broken()=true;
-    active_board ->broken_reasons().push_back("GIVE random_action()");
+    active_board ->broken_reasons().push_back("[GiveConstructor::random_action()] GIVE failed to return a random action!");
 }
 
 std::vector<Actions::Action*> Actions::GiveConstructor::all_actions(){
@@ -1159,7 +1178,7 @@ Actions::Action* Actions::AirliftConstructor::random_action(){
         }
     }
     active_board ->broken()=true;
-    active_board ->broken_reasons().push_back("AIRLIFT random_action() called and didn't return an action");
+    active_board ->broken_reasons().push_back("[AirliftConstructor::random_action()] AIRLIFT random_action() called and didn't return an action");
 }
 
 std::vector<Actions::Action*> Actions::AirliftConstructor::all_actions(){
@@ -1203,6 +1222,7 @@ Actions::GovernmentGrant::GovernmentGrant(Board::Board& _active_board,Players::P
 }
 
 void Actions::GovernmentGrant::execute(){
+    using_player.removeCard(Decks::EventCard(49,"Government Grant"));
     std::vector<Map::City>& stations = active_board ->get_stations();
     
     // Add it to the vector of research station Map::City elements
@@ -1213,6 +1233,7 @@ void Actions::GovernmentGrant::execute(){
         // (Should be index of station to remove in active_board ->stations)
         active_board ->get_stations().erase(active_board ->get_stations().begin() + remove_station);
     }
+
 }
 
 std::string Actions::GovernmentGrant::repr(){
@@ -1270,7 +1291,7 @@ Actions::Action* Actions::GovernmentGrantConstructor::random_action(){
         }
     }
     active_board ->broken()=true;
-    active_board ->broken_reasons().push_back("GOVERNMENTGRANT random_action() called but didn't return an action");
+    active_board ->broken_reasons().push_back("[GovernmentGrantConstructor::random_action()] GOVERNMENTGRANT random_action() called but didn't return an action");
 }
 
 std::vector<Actions::Action*> Actions::GovernmentGrantConstructor::all_actions(){
@@ -1370,7 +1391,7 @@ Actions::Action* Actions::QuietNightConstructor::random_action(){
         }
     }
     active_board ->broken()=true;
-    active_board ->broken_reasons().push_back("QUIETNIGHT random_action() called and didn't return an action");
+    active_board ->broken_reasons().push_back("[QuietNightConstructor::random_action()] QUIETNIGHT random_action() called and didn't return an action");
 }
 
 std::vector<Actions::Action*> Actions::QuietNightConstructor::all_actions(){
@@ -1387,7 +1408,7 @@ std::vector<Actions::Action*> Actions::QuietNightConstructor::all_actions(){
         }
     }
     active_board ->broken()=true;
-    active_board ->broken_reasons().push_back("QUIETNIGHT all_actions() called and didn't return any actions");
+    active_board ->broken_reasons().push_back("[QuietNightConstructor::all_actions()] QUIETNIGHT all_actions() called and didn't return any actions");
 }
 
 bool Actions::QuietNightConstructor::legal(){
@@ -1494,6 +1515,7 @@ std::string Actions::ForcedDiscardConstructor::get_movetype(){
 
 int Actions::ForcedDiscardConstructor::n_actions(){
     // Find the first player whose hand is full and build discard actions
+    // Unlike other actions, we DON'T care about legality guards here, since it won't ever (and shouldn't) be considered for random selection by an agent.
     for(Players::Player& p: active_board ->get_players()){
         if(p.hand_full()){
             int total_actions = p.hand.size(); // initialize with # of city cards
@@ -1510,7 +1532,7 @@ int Actions::ForcedDiscardConstructor::n_actions(){
                         break;
                     default:
                         active_board ->broken()=true;
-                        active_board ->broken_reasons().push_back("Card index ("+std::to_string(e.index)+") isn't an event card");
+                        active_board ->broken_reasons().push_back("[ForcedDiscardConstructor::n_actions()] Card index ("+std::to_string(e.index)+") isn't an event card");
                         break;
                 }
             }
@@ -1519,7 +1541,7 @@ int Actions::ForcedDiscardConstructor::n_actions(){
         }
     }
     active_board ->broken()=true;
-    active_board ->broken_reasons().push_back("FORCEDDISCARD n_actions() called but didn't return anything");
+    active_board ->broken_reasons().push_back("[ForcedDiscardConstructor::n_actions()] FORCEDDISCARD n_actions() called but didn't return anything");
 }
 
 Actions::Action* Actions::ForcedDiscardConstructor::random_action(){
@@ -1572,7 +1594,7 @@ Actions::Action* Actions::ForcedDiscardConstructor::random_action(){
         }
     }
     active_board ->broken()=true; // should never get here
-    active_board ->broken_reasons().push_back("Forced Discard Constructor has failed to return any action");
+    active_board ->broken_reasons().push_back("[ForcedDiscardConstructor::random_action()] Forced Discard Constructor has failed to return any action");
 }
 
 std::vector<Actions::Action*> Actions::ForcedDiscardConstructor::all_actions(){
@@ -1601,7 +1623,7 @@ std::vector<Actions::Action*> Actions::ForcedDiscardConstructor::all_actions(){
         }
     }
     active_board ->broken()=true;
-    active_board ->broken_reasons().push_back("FORCEDDISCARD all_actions() called but didn't return anything");
+    active_board ->broken_reasons().push_back("[ForcedDiscardConstructor::all_actions()] FORCEDDISCARD all_actions() called but didn't return anything");
 }
 
 bool Actions::ForcedDiscardConstructor::legal(){

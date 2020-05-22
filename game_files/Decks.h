@@ -64,7 +64,7 @@ namespace Decks
 		int _fat_chunk_size();
 		int _total_cards_drawn();
 		int _remainder();
-		int _epidemics_drawn();
+		int& _epidemics_drawn();
 
 	};
 
@@ -73,7 +73,6 @@ namespace Decks
 		CityCard(Map::City &city);
 		CityCard(Map::City city);
 		CityCard(int city_idx);
-		int color;
 		int population;
 
 		// logical == and !=
@@ -108,7 +107,6 @@ namespace Decks
 		public:
 			InfectCardGroup(std::vector<InfectCard> _cards);
 			std::vector<InfectCard> cards;
-			InfectCard draw();
 	};
 
 	class InfectDeck{

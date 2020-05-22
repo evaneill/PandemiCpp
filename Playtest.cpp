@@ -30,13 +30,21 @@ void Play(std::vector<int> roles, int difficulty){
         decisions_made++;
     }
     std::cout << std::endl << "game finished!" << std::endl << "The agent made " + std::to_string(decisions_made) + " decisions.\n";
+
     std::cout << "The game ended with a reward of " << the_game.reward() << "\n";
 }
 
 int main(){
     // Seed the randomness of the game with current game
-    std::srand(std::time(NULL));
-    rand();
+
+    // ===== Thank you stackoverflow =====
+    // https://stackoverflow.com/questions/20201141/same-random-numbers-generated-every-time-in-c
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+
+    /* using nano-seconds instead of seconds */
+    srand((time_t)ts.tv_nsec);
+    // ===== End of stack overflow copypasta ===== 
     
     // 4 epidemic cards and quarantine specialist, scientist, and researcher
     std::cout << "About to call Play({0,2,3},4)...";

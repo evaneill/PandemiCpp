@@ -11,6 +11,7 @@
 Decks::EventCard::EventCard(int ind, std::string _name){
     index = ind;
     name = _name;
+    color = -1; // make sure color is broken if considered
     epidemic=false;
     event = true;
 }
@@ -36,6 +37,7 @@ Decks::CityCard::CityCard(Map::City city){
     color = city.color;
     name = city.name;
     index = city.index;
+
     epidemic = false;
     event = false;
 }
@@ -44,6 +46,7 @@ Decks::CityCard::CityCard(int city_idx){
     color = Map::CITIES[city_idx].color;
     name = Map::CITIES[city_idx].name;
     index = Map::CITIES[city_idx].index;
+
     epidemic = false;
     event = false;
 }
@@ -105,7 +108,7 @@ void Decks::PlayerDeck::setup_shuffle_deck(){
 }
 
 int Decks::PlayerDeck::draw_index(bool setup){
-    // Goal is to get and return the card index to be given 
+    // Goal is to get and return the index within remaining_nonepi_cards to be given 
     
     int accounted_for_cards=0; // cards that have preceded the considered chunk in the iteration.
     int drop_index;    // The index that's randomly generated to pull out a vector element or epidemic card.
@@ -153,7 +156,7 @@ int Decks::PlayerDeck::draw_index(bool setup){
 // Draw to only be used during play, not setup.
 Decks::PlayerCard Decks::PlayerDeck::draw(bool setup){
     int drop_idx = draw_index(setup);
-    PlayerCard drawn_card = make_card_by_vector_index(drop_idx,setup);
+    Decks::PlayerCard drawn_card = make_card_by_vector_index(drop_idx,setup);
     return drawn_card;
 }
 
@@ -168,7 +171,7 @@ bool Decks::PlayerDeck::isempty(){
 Decks::PlayerCard Decks::PlayerDeck::make_card_by_vector_index(int drop_index,bool setup){
 
     int idx;
-    if(drop_index>remaining_nonepi_cards.size()){
+    if(drop_index>Map::CITIES.size()){
         idx= drop_index;
     } else {
         idx = remaining_nonepi_cards[drop_index];
@@ -187,34 +190,32 @@ Decks::PlayerCard Decks::PlayerDeck::make_card_by_indices(int drop_index, int id
     if(idx>=0 && idx<=47){
         remaining_nonepi_cards.erase(remaining_nonepi_cards.begin()+drop_index);
 
-        Map::City& corresponding_city = Map::CITIES[idx];
-
-        return (PlayerCard) CityCard(corresponding_city.index);
+        return CityCard(idx);
     } else if(idx>=48 && idx<=50){
         switch(idx){
             case 48:{
                 remaining_nonepi_cards.erase(remaining_nonepi_cards.begin()+drop_index);
 
-                return (PlayerCard) EventCard(idx,"Quiet Night");
+                return EventCard(idx,"Quiet Night");
                 }
             case 49:{
                 remaining_nonepi_cards.erase(remaining_nonepi_cards.begin()+drop_index);
 
-                return (PlayerCard) EventCard(idx,"Government Grant");
+                return EventCard(idx,"Government Grant");
                 }
             case 50:{
                 remaining_nonepi_cards.erase(remaining_nonepi_cards.begin()+drop_index);
 
-                return (PlayerCard) EventCard(idx,"Airlift");
+                return EventCard(idx,"Airlift");
                 }
             default:
-                return (PlayerCard) PlayerCard(); // Should make game fail ASAP hopefully
+                return PlayerCard(); // Should make game fail ASAP hopefully
         }
     } else if(idx>=51){
         epidemics_drawn++;
-        return (PlayerCard) EpidemicCard(idx);
+        return EpidemicCard(idx);
     }
-    return (PlayerCard) PlayerCard(); // if somehow no logic is caught, try to make game fail.
+    return PlayerCard(); // if somehow no logic is caught, try to make game fail.
 }
 
 // These are only called for testing so far. 
@@ -224,7 +225,7 @@ int Decks::PlayerDeck::_fat_chunk_size(){return fat_chunk_size;};
 int Decks::PlayerDeck::_total_cards_drawn(){return total_cards_drawn;};
 int Decks::PlayerDeck::_remainder(){return remainder;}
 int Decks::PlayerDeck::_drawn_cards(){return drawn_cards.size();}
-int Decks::PlayerDeck::_epidemics_drawn(){return epidemics_drawn;}
+int& Decks::PlayerDeck::_epidemics_drawn(){return epidemics_drawn;}
 
 // INFECTION DECK section
 

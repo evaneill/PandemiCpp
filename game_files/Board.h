@@ -46,6 +46,9 @@ namespace Board
         // Tracks which players turn it is
         int turn; 
 
+        // This is perhaps a silly way to solve the tracking of already-outbroken cities during outbreak()
+        std::vector<int> already_outbroken_cities = {};
+
         // Actions used on this turn so far. Also used to track game stage
         // {0,1,2,3} are player turns, incremented with each action.
         // {4} is player card draw stage, incremented after drawing second player card
@@ -61,6 +64,8 @@ namespace Board
         bool quiet_night;
 
         bool lost;
+        std::string why_lost;
+
         bool won;
 
         // flag that can be referenced with broken() to force failure on known badness in logic functions
@@ -74,7 +79,7 @@ namespace Board
         std::string repr(); // A string representation for logging
 
         // Setup the board for play
-        void setup();
+        void setup(bool verbose=false);
 
         // Logic to draw from the player deck
         Decks::PlayerCard draw_playerdeck();
@@ -92,11 +97,16 @@ namespace Board
         // incorporates outbreak etc.
         // returns vector of <# cities outbroken, # prevented> for logging
         // obviously isn't useful for tracking how many cubes the specialist blocked, only prevented outbreaks
-        std::array<int,2> infect_city(Decks::InfectCard infectcard,int add=1,std::vector<int> outbroken_already = {});
+        
+        // This is the function to call to actually infect cities. Requires resetting memory o
+        std::array<int,2> infect(int city_idx,int color, int add);
+
+        // This does the actual infecting of each city
+        std::array<int,2> infect_city(int city_idx,int color, int add);
 
         // Logic to outbreak a city
-        std::array<int,2> outbreak(Map::City city,int col,std::vector<int> outbroken_already = {});
-        std::array<int,2> outbreak(int city_idx, int col,std::vector<int> outbroken_already = {});
+        std::array<int,2> outbreak(Map::City city,int col);
+        std::array<int,2> outbreak(int city_idx, int col);
 
         // is_terminal and valuation
         bool is_terminal();
@@ -108,6 +118,8 @@ namespace Board
         Players::Player& active_player(); // reference to active player
         std::vector<Map::City>& get_stations(); // reference to research stations
         std::array<std::array<int,48>,4>& get_disease_count(); // reference to disease count to increment
+        void reset_disease_count();
+        void reset_outbreak_memory();
         std::vector<bool>& get_eradicated();
         std::vector<bool>& get_cured(); // reference to cured status to update/use
         std::vector<Players::Player>& get_players();
@@ -131,6 +143,7 @@ namespace Board
         bool& broken();
         // reference to why_it_broke vector - insert new reasons as more things break!
         std::vector<std::string>& broken_reasons();
+        std::string& get_lost_reason();
 
     };
 }

@@ -51,11 +51,11 @@ GameLogic::Game::Game(std::vector<int> roles, int difficulty,bool verbose):
     StochasticCon(active_board)
     {
         if(verbose){
-            std::cout << "Instantiating Game Logic. Setting up the board..." << std::endl;
+            std::cout << "[Game::Game(...)] Instantiating Game Logic. Setting up the board..." << std::endl;
         }
-        active_board.setup();
+        active_board.setup(verbose);
         if(verbose){
-            std::cout << "... success! Board set up" << std::endl;
+            std::cout << "[Game::Game(...)] ... success! Board set up" << std::endl;
         }
 }
 
@@ -65,7 +65,7 @@ void GameLogic::Game::nonplayer_actions(bool verbose){
     while(StochasticCon.legal() && !ForcedDiscardCon.legal()){
         Actions::Action* next_action = StochasticCon.get_action();
         if(verbose){
-            std::cout << active_board.active_player().role.name << ": ";
+            std::cout << "[Game::nonplayer_actions()] " << active_board.active_player().role.name << ": ";
         }
         next_action -> execute();
         if(verbose){
@@ -83,26 +83,48 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
     
     // Like with list_actions, gotta do the execution of any necessary game logic before listing out actions
     nonplayer_actions(verbose);
-
+    if(verbose){
+        Players::Player& active_player = active_board.active_player();
+        std::cout << "[Game:get_random_action_uniform] "<< active_player.role.name << " has hand: ";
+        for(Decks::PlayerCard card: active_player.hand){
+            std::cout << card.name << "; ";
+        }
+        for(Decks::PlayerCard card: active_player.event_cards){
+            std::cout << card.name << "; ";
+        }
+        std::cout << std::endl;
+    }
     if(ForcedDiscardCon.legal()){
         // ALWAYS return a choice of discard actions if it's possible.
         // Includes possible plays of event cards
         return ForcedDiscardCon.random_action();
     }
 
+    if(verbose){
+        std::cout << "[Game:get_random_action_uniform] There are a total of " << n_available_actions() << " available actions according to n_available_actions()";
+    }
     // n_available_actions) includes nonzero additions where the group is legal
-    int randomized = rand() % n_available_actions();
-
+    int randomized = rand() % n_available_actions(verbose);
+    if(verbose){
+        std::cout << std::endl << "[Game:get_random_action_uniform] Chose random number: " << randomized << " to choose an action.";
+    }
     // Under this scheme actions should appear uniformly
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
-        if(randomized < (con_ptr -> n_actions())){
+        if(verbose){
+            std::cout << std::endl << "[Game:get_random_action_uniform] "<< (*con_ptr).get_movetype() << " being considered for random choice,";
+            std::cout << " which has " << con_ptr -> n_actions() << " possible actions.";
+        }
+        if(randomized <= (con_ptr -> n_actions())){
             return (con_ptr -> random_action());
         }else{
             randomized -= (con_ptr -> n_actions());
         }
     }
+    if(verbose){
+        std::cout << std::endl << "[Game:get_random_action_uniform] considered ALL actions for random choice but algorithm failed!";
+    }
     active_board.broken()=true;
-    active_board.broken_reasons().push_back("get_random_action_uniform got to end of execution without choosing an action");
+    active_board.broken_reasons().push_back("[Game:get_random_action_uniform] get_random_action_uniform got to end of execution without choosing an action");
 }
 
 Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
@@ -168,7 +190,18 @@ bool GameLogic::Game::is_terminal(bool sanity_check,bool verbose){
     if(sanity_check){
         SanityCheck::CheckBoard(active_board,verbose);
     }
-    return active_board.is_terminal();
+    bool broken = active_board.broken();
+    if(broken && verbose){
+        for(std::string reason: active_board.broken_reasons()){
+            std::cout << std::endl << "[Game::is_terminal()] Game broke! One reason: " << reason;
+        }
+    }
+    bool won = active_board.has_won();
+    bool lost = active_board.has_lost();
+    if(lost && verbose){
+        std::cout << std::endl << "[Game::is_terminal()] LOST! because " <<  active_board.get_lost_reason();
+    }
+    return won || lost || broken;
 }
 
 int GameLogic::Game::reward(){
@@ -178,7 +211,7 @@ int GameLogic::Game::reward(){
         return 1;
     } else {
         active_board.broken()=true;
-        active_board.broken_reasons().push_back("Asking for reward when win/lose aren't true");
+        active_board.broken_reasons().push_back("[Game::reward()] Asking for reward when win/lose aren't true");
         return -10000000;// NULL gets converted to 0 anyway; this should make it obvious something broke... hoepfully....
     }
 }
