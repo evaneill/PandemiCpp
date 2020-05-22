@@ -10,6 +10,7 @@
 #include <string>
 
 #include <ctime>
+#include <chrono>
 
 void Play(std::vector<int> roles, int difficulty){
     
@@ -46,8 +47,20 @@ int main(){
     srand((time_t)ts.tv_nsec);
     // ===== End of stack overflow copypasta ===== 
     
+    std::cout << std::endl << "===== STARTING CLOCK =====" << std::endl;
+    auto start = std::chrono::high_resolution_clock::now(); 
     // 4 epidemic cards and quarantine specialist, scientist, and researcher
     std::cout << "About to call Play({0,2,3},4)...";
     Play({0,2,3},4);
+
+    std::cout << std::endl << "===== STOPPING CLOCK =====" << std::endl;
+    auto stop = std::chrono::high_resolution_clock::now(); 
+
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
+  
+    // To get the value of duration use the count() 
+    // member function on the duration object 
+
+    std::cout << "DURATION (ms): " << duration.count() <<std::endl; 
 }
 
