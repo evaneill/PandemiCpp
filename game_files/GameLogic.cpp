@@ -118,6 +118,9 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
             return (con_ptr -> random_action());
         }else{
             randomized -= (con_ptr -> n_actions());
+            if(verbose){
+                std::cout << " randomized number reduced to " << randomized << ".";
+            }
         }
     }
     if(verbose){
