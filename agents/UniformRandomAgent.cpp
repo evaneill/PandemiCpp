@@ -11,7 +11,7 @@ Agents::UniformRandomAgent::UniformRandomAgent(GameLogic::Game& _active_game):
     BaseAgent(_active_game){};
 
 Actions::Action* Agents::UniformRandomAgent::generate_action(bool verbose){
-    Actions::Action* chosen_action = active_game.get_random_action_bygroup(verbose);
+    Actions::Action* chosen_action = active_game.get_random_action_uniform(verbose);
     return chosen_action;
 }
 
