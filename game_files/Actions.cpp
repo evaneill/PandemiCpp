@@ -36,6 +36,8 @@ Actions::Move::Move(Board::Board& _active_board, Map::City _to): Action(_active_
 void Actions::Move::execute(){
     Players::Player& active_player = active_board ->active_player();
     active_player.set_position(to);
+    // This logic checks for existence of the medic, and clears cubes of any eradicated disease at their location
+
     active_board ->get_turn_action()++;
 }
 
@@ -394,7 +396,7 @@ std::vector<Actions::Action*> Actions::OperationsExpertFlightConstructor::all_ac
 bool Actions::OperationsExpertFlightConstructor::legal(){
     Players::Player& active_player = active_board ->active_player();
     // If active player is the operations expert
-    if(typeid(active_player.role)==typeid(Players::OperationsExpert)){
+    if(active_player.role.name=="Operations Expert"){
         // and it's still players turn to do stuff
         if(active_board ->get_turn_action()<4){
             for(Map::City st: active_board ->get_stations()){
@@ -429,7 +431,7 @@ void Actions::Build::execute(){
     stations.push_back(Map::CITIES[active_player.get_position().index]);
 
     //Check whether active player is Operations Expert. If not, discard necessary card.
-    if(typeid(active_player.role)!=typeid(Players::OperationsExpert)){
+    if(active_player.role.name=="Operations Expert"){
         active_player.removeCard(Decks::CityCard(active_player.get_position()));
     }
 
@@ -497,7 +499,7 @@ std::vector<Actions::Action*> Actions::BuildConstructor::all_actions(){
 bool Actions::BuildConstructor::legal(){
     Players::Player& active_player = active_board ->active_player();
     if(active_board ->get_turn_action()<4){
-        if(typeid(active_player.role)==typeid(Players::OperationsExpert)){
+        if(active_player.role.name=="Operations Expert"){
             bool already_station = false;
             for(Map::City st: active_board ->get_stations()){
                 if(st.index==active_player.get_position().index){
@@ -539,7 +541,7 @@ Actions::Treat::Treat(Board::Board& _active_board,int _color):
 void Actions::Treat::execute(){
     Players::Player& active_player = active_board ->active_player();
     
-    if(typeid(active_player.role)==typeid(Players::Medic) || active_board ->get_cured()[color]){
+    if(active_player.role.name=="Medic" || active_board ->get_cured()[color]){
         active_board ->get_disease_count()[color][active_player.get_position().index]=0;
     } else {
         active_board ->get_disease_count()[color][active_player.get_position().index]--;
@@ -557,7 +559,7 @@ void Actions::Treat::execute(){
 std::string Actions::Treat::repr(){
     Players::Player& active_player = active_board ->active_player();
     int n_cured;
-    if(typeid(active_player.role)==typeid(Players::Medic) || active_board ->get_cured()[color]){
+    if(active_player.role.name=="Medic" || active_board ->get_cured()[color]){
         n_cured = active_board ->get_disease_count()[color][active_player.get_position().index];
     } else {
         n_cured = 1;
@@ -634,11 +636,6 @@ void Actions::Cure::execute(){
     int RED_count=0, BLUE_count=0, BLACK_count=0, YELLOW_count=0;
     std::vector<bool>& cured = active_board ->get_cured();
 
-    int min_needed = 4;
-    if(typeid(active_player.role)!=typeid(Players::Scientist)){
-        min_needed++;
-    }
-
     for(Decks::PlayerCard card: active_player.hand){
         // Following logic relies on the fact that: 
         //      hand limit is at most 7
@@ -646,9 +643,9 @@ void Actions::Cure::execute(){
         switch(card.color){
             case Map::BLUE:
                 BLUE_count++;
-                if(BLUE_count==min_needed){
+                if(BLUE_count==active_player.role.required_cure_cards){
                     for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first min_needed cards from their hand of this color
+                        // Remove the first active_player.role.required_cure_cards cards from their hand of this color
                         // I can't imagine rewriting this rn to account for all possible discards sets
                         if(pcard.color==Map::BLUE && BLUE_count>0){
                             active_player.removeCard(pcard);
@@ -656,6 +653,7 @@ void Actions::Cure::execute(){
                         }
                     }
                     cured[Map::BLUE]=true;
+                    // Check for whether or not this cure has won the game (this will be a redundant check)
                     if(std::accumulate(cured.begin(),cured.end(),0)==4){
                         active_board ->has_won()=true;
                     }
@@ -665,9 +663,9 @@ void Actions::Cure::execute(){
                 break;
             case Map::YELLOW:
                 YELLOW_count++;
-                if(YELLOW_count==min_needed){
+                if(YELLOW_count==active_player.role.required_cure_cards){
                     for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first min_needed cards from their hand of this color
+                        // Remove the first active_player.role.required_cure_cards cards from their hand of this color
                         // I can't imagine rewriting this rn to account for all possible discards sets
                         if(pcard.color==Map::YELLOW && YELLOW_count>0){
                             active_player.removeCard(pcard);
@@ -684,9 +682,9 @@ void Actions::Cure::execute(){
                 break;
             case Map::BLACK:
                 BLACK_count++;
-                if(BLACK_count==min_needed){
+                if(BLACK_count==active_player.role.required_cure_cards){
                     for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first min_needed cards from their hand of this color
+                        // Remove the first active_player.role.required_cure_cards cards from their hand of this color
                         // I can't imagine rewriting this rn to account for all possible discards sets
                         if(pcard.color==Map::BLACK && BLACK_count>0){
                             active_player.removeCard(pcard);
@@ -703,9 +701,9 @@ void Actions::Cure::execute(){
                 break;
             case Map::RED:
                 RED_count++;
-                if(RED_count==min_needed){
+                if(RED_count==active_player.role.required_cure_cards){
                     for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first min_needed cards from their hand of this color
+                        // Remove the first active_player.role.required_cure_cards cards from their hand of this color
                         // I can't imagine rewriting this rn to account for all possible discards sets
                         if(pcard.color==Map::RED && RED_count>0){
                             active_player.removeCard(pcard);
@@ -727,41 +725,40 @@ void Actions::Cure::execute(){
                 return;
         }
     }
+    active_board ->broken()=true;
+    active_board ->broken_reasons().push_back("[Cure::execute()] CURE execute() was called but there don't seem to be enough of any card to cure...");
 }
 
 std::string Actions::Cure::repr(){
     Players::Player& active_player = active_board ->active_player();
     int RED_count=0, BLUE_count=0, BLACK_count=0, YELLOW_count=0;
-    int min_needed = 4;
-    if(typeid(active_player.role)!=typeid(Players::Scientist)){
-        min_needed++;
-    }
-    for(Decks::PlayerCard card: active_player.hand){
+
+    for(Decks::PlayerCard& card: active_player.hand){
     // Following logic relies on the fact that: 
     //      hand limit is at most 7
     //      If you've counted at least 4 of one color of a card, it must be the one this player can cure
         switch(card.color){
             case Map::BLUE:
                 BLUE_count++;
-                if(BLUE_count==min_needed){
+                if(BLUE_count==active_player.role.required_cure_cards){
                     return movetype+" "+Map::COLORS[Map::BLUE];
                 }
                 break;
             case Map::YELLOW:
                 YELLOW_count++;
-                if(YELLOW_count==min_needed){
+                if(YELLOW_count==active_player.role.required_cure_cards){
                     return movetype+" "+Map::COLORS[Map::YELLOW];
                 }
                 break;
             case Map::BLACK:
                 BLACK_count++;
-                if(BLACK_count==min_needed){
+                if(BLACK_count==active_player.role.required_cure_cards){
                     return movetype+" "+Map::COLORS[Map::BLACK];
                 }
                 break;
             case Map::RED:
                 RED_count++;
-                if(RED_count==min_needed){
+                if(RED_count==active_player.role.required_cure_cards){
                     return movetype+" "+Map::COLORS[Map::RED];
                 }
                 break;
@@ -770,9 +767,9 @@ std::string Actions::Cure::repr(){
                 active_board ->broken_reasons().push_back("[Cure::repr()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
                 return "BREAK";
         }
-        active_board ->broken()=true;
-        active_board ->broken_reasons().push_back("[Cure::repr()] CURE repr() was called but there don't seem to be enough of any card to cure...");
     }
+    active_board ->broken()=true;
+    active_board ->broken_reasons().push_back("[Cure::repr()] CURE repr() was called but there don't seem to be enough of any card to cure...");
 }
 
 Actions::CureConstructor::CureConstructor(Board::Board& _active_board): ActionConstructor(_active_board){}
@@ -804,11 +801,8 @@ bool Actions::CureConstructor::legal(){
         if(active_board ->active_player().hand.size()>=4){
             Players::Player& active_player = active_board ->active_player();
             int RED_count=0, BLUE_count=0, BLACK_count=0, YELLOW_count=0;
-            int min_needed = 4;
-            if(typeid(active_player.role)!=typeid(Players::Scientist)){
-                min_needed++;
-            } 
-            if(active_board ->active_player().hand.size()<min_needed){
+
+            if(active_board ->active_player().hand.size()<active_player.role.required_cure_cards){
                 return false;
             }
             for(Decks::PlayerCard card: active_player.hand){
@@ -818,25 +812,25 @@ bool Actions::CureConstructor::legal(){
                 switch(card.color){
                     case Map::BLUE:
                         BLUE_count++;
-                        if(BLUE_count==min_needed){
+                        if(BLUE_count==active_player.role.required_cure_cards){
                             return true;
                         }
                         break;
                     case Map::YELLOW:
                         YELLOW_count++;
-                        if(YELLOW_count==min_needed){
+                        if(YELLOW_count==active_player.role.required_cure_cards){
                             return true;
                         }
                         break;
                     case Map::BLACK:
                         BLACK_count++;
-                        if(BLACK_count==min_needed){
+                        if(BLACK_count==active_player.role.required_cure_cards){
                             return true;
                         }
                         break;
                     case Map::RED:
                         RED_count++;
-                        if(RED_count==min_needed){  
+                        if(RED_count==active_player.role.required_cure_cards){  
                             return true;
                         }
                         break;
@@ -894,14 +888,13 @@ int Actions::GiveConstructor::n_actions(){
         // Can only ever be # of other players on this city, otherwise whole hand * # of other players on this city
         int n_other_players_here = 0; 
         // For every player, check whether they're in the same position as active_player but aren't active_player
-        for(int p=0;p<active_board ->get_players().size();p++){
-            Players::Player& _other_player = active_board ->get_players()[p];
+        for(Players::Player& _other_player: active_board -> get_players()){
             // If they're in the same city...
             if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
                 n_other_players_here++;
             }
         }
-        if(typeid(active_player.role)==typeid(Players::Researcher)){
+        if(active_player.role.name=="Researcher"){
             return active_player.hand.size()*n_other_players_here;
         } else {
             return n_other_players_here;
@@ -916,7 +909,7 @@ Actions::Action* Actions::GiveConstructor::random_action(){
     Decks::CityCard card_to_give = NULL;
 
     // First randomize the card that active_player will give based on their role
-    if(typeid(active_player.role)==typeid(Players::Researcher)){
+    if(active_player.role.name=="Researcher"){
         Decks::PlayerCard card_to_give = active_player.hand[rand() % active_player.hand.size()];
     } else {
         Decks::PlayerCard card_to_give = Decks::CityCard(active_player.get_position());
@@ -924,8 +917,7 @@ Actions::Action* Actions::GiveConstructor::random_action(){
 
     // Check how many other players are here.
     int n_other_players_here = 0; // initialize at -1 since we'll iterate through all players and see active_player at current city
-    for(int p=0;p<active_board ->get_players().size();p++){
-        Players::Player& _other_player = active_board ->get_players()[p];
+    for(Players::Player& _other_player: active_board -> get_players()){
         // If they're in the same city...
         if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
             n_other_players_here++;
@@ -936,13 +928,12 @@ Actions::Action* Actions::GiveConstructor::random_action(){
     int which_player = rand() % n_other_players_here; // 0 ... (# of other players in city - 1)
     // Incremented value to track which of the other players on this city we're considering
     int track=0;
-    for(int p=0;p<active_board ->get_players().size();p++){
-        Players::Player& _other_player = active_board ->get_players()[p];
+    for(Players::Player& _other_player: active_board -> get_players()){
         // If the other player is here and isn't the active_player...
         if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
             // If track== the random value generated, return an action!
             if(track==which_player){
-                return new Actions::Give(*active_board, _other_player,card_to_give);
+                return new Actions::Give(*active_board, _other_player,card_to_give.index);
             }
             // Otherwise increment up track; it's a different player we want at this city.
             track++;
@@ -957,7 +948,7 @@ std::vector<Actions::Action*> Actions::GiveConstructor::all_actions(){
     Players::Player& active_player = active_board ->active_player();
     std::vector<Decks::PlayerCard> cards_to_give = {};
 
-    if(typeid(active_player.role)==typeid(Players::Researcher)){
+    if(active_player.role.name=="Researcher"){
         cards_to_give = active_player.hand;
     } else {
         cards_to_give = {Decks::CityCard(active_player.get_position())};
@@ -979,9 +970,9 @@ bool Actions::GiveConstructor::legal(){
     if(active_board ->get_turn_action()<4){
         Players::Player& active_player = active_board ->active_player();
         for(Players::Player& p: active_board ->get_players()){
-            if(p.get_position().index==active_player.get_position().index && typeid(p.role)!=typeid(active_player.role)){
+            if(p.get_position().index==active_player.get_position().index && active_player.role.name!=p.role.name){
                 if(active_player.hand.size()>0){
-                    if(typeid(active_player.role)==typeid(Players::Researcher)){
+                    if(active_player.role.name=="Researcher"){
                         return true;
                     } else {
                         for(Decks::PlayerCard card: active_player.hand){
@@ -1046,7 +1037,7 @@ int Actions::TakeConstructor::n_actions(){
             // If they're in the same city...
             if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
                 // and it's the researcher...
-                if(typeid(_other_player.role)==typeid(Players::Researcher)){
+                if(active_player.role.name=="Researcher"){
                     // then we could take any of their cards
                     n_actions+=_other_player.hand.size();
                 } else {
@@ -1084,7 +1075,7 @@ std::vector<Actions::Action*> Actions::TakeConstructor::all_actions(){
         Players::Player& _other_player = active_board ->get_players()[p];
 
         if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
-            if(typeid(_other_player.role)==typeid(Players::Researcher)){
+            if(active_player.role.name=="Researcher"){
                 for(int c=0;c<_other_player.hand.size();c++){
                     cards_to_take.push_back(_other_player.hand[c]);
                 }
@@ -1108,11 +1099,10 @@ std::vector<Actions::Action*> Actions::TakeConstructor::all_actions(){
 bool Actions::TakeConstructor::legal(){
     if(active_board ->get_turn_action()<4){
         Players::Player& active_player = active_board ->active_player();
-        for(int p=0;p<active_board ->get_players().size();p++){
-            Players::Player& _other_player = active_board ->get_players()[p];
+        for(Players::Player& _other_player: active_board -> get_players()){
 
             if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
-                if(typeid(_other_player.role)==typeid(Players::Researcher)){
+                if(_other_player.role.name=="Researcher"){
                     if(_other_player.hand.size()>0){
                         return true;
                     }
