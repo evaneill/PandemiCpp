@@ -27,7 +27,7 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
         }
     }
     if(verbose){
-        DEBUG_MSG("done!" << std::endl);
+        DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
     }
 
     // make sure infect card drawn counters are 0 when it's not infect stage of the game
