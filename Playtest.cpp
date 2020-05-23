@@ -1,6 +1,8 @@
 #include "game_files/GameLogic.h"
 #include "game_files/Debug.h"
 
+#include "scenarios/Scenarios.h"
+
 #include "agents/UniformRandomAgent.h"
 /*
 ... other agent declarations
@@ -17,7 +19,10 @@ void Play(std::vector<int> roles, int difficulty){
     
     // instantiate a game including setup
     DEBUG_MSG("done!" << std::endl << "About to create the game...");
-    GameLogic::Game the_game = GameLogic::Game(roles,difficulty,true);
+    // Use vanilla scenario to setup the board
+    Board::Board vanilla_board = Scenarios::VanillaGameScenario(roles,difficulty,true);
+    // Give the game to the GameLogic
+    GameLogic::Game the_game = GameLogic::Game(vanilla_board);
     DEBUG_MSG("done!" << std::endl << "About to create an agent...");
 
     // // Instantiate an agent pointer with abstract BaseClass

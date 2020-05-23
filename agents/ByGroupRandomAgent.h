@@ -1,5 +1,5 @@
-#ifndef UNIFORMRANDOM_AGENT_H
-#define UNIFORMRANDOM_AGENT_H
+#ifndef BYGROUPRANDOM_AGENT_H
+#define BYGROUPRANDOM_AGENT_H
 
 #include "../game_files/GameLogic.h"
 #include "../game_files/Actions.h"
@@ -9,9 +9,9 @@
 // Include new agents in the original Agents namespace; declared only when called
 namespace Agents
 {
-    class UniformRandomAgent: public BaseAgent{
+    class ByGroupRandomAgent: public BaseAgent{
     public:
-        UniformRandomAgent(GameLogic::Game& _active_game);
+        ByGroupRandomAgent(GameLogic::Game& _active_game);
         Actions::Action* generate_action(bool verbose = false);
         void take_step(bool verbose = false);
     };

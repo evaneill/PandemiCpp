@@ -7,8 +7,8 @@
 #include "Actions.h"
 #include "Debug.h"
 
-GameLogic::Game::Game(std::vector<int> roles, int difficulty,bool verbose): 
-    active_board(roles,difficulty),
+GameLogic::Game::Game(Board::Board _active_board, bool verbose): 
+    active_board(_active_board),
 
     // Link the active board to each constructor
     MoveCon(active_board),
@@ -52,11 +52,7 @@ GameLogic::Game::Game(std::vector<int> roles, int difficulty,bool verbose):
     StochasticCon(active_board)
     {
         if(verbose){
-            DEBUG_MSG("[Game::Game(...)] Instantiating Game Logic. Setting up the board..." << std::endl);
-        }
-        active_board.setup(verbose);
-        if(verbose){
-            DEBUG_MSG("[Game::Game(...)] ... success! Board set up" << std::endl);
+            DEBUG_MSG("[Game::Game(...)] Instantiating Game Logic..." << std::endl);
         }
 }
 

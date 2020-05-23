@@ -49,7 +49,7 @@ namespace GameLogic
 
         StochasticActions::StochasticActionConstructor StochasticCon;
     public:
-        Game(std::vector<int> roles, int difficulty,bool verbose = false);
+        Game(Board::Board _active_board, bool verbose=false);
 
         // Pull an action from a uniform distribution over ALL legal actions
         Actions::Action* get_random_action_uniform(bool verbose = false);
