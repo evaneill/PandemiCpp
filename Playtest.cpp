@@ -1,4 +1,5 @@
 #include "game_files/GameLogic.h"
+#include "game_files/Debug.h"
 
 #include "agents/RandomAgent.h"
 /*
@@ -15,13 +16,13 @@
 void Play(std::vector<int> roles, int difficulty){
     
     // instantiate a game including setup
-    std::cout << "done!" << std::endl << "About to create the game...";
+    DEBUG_MSG("done!" << std::endl << "About to create the game...");
     GameLogic::Game the_game = GameLogic::Game(roles,difficulty,true);
-    std::cout << "done!" << std::endl << "About to create an agent...";
+    DEBUG_MSG("done!" << std::endl << "About to create an agent...");
 
     // // Instantiate an agent pointer with abstract BaseClass
     Agents::BaseAgent* the_agent = new Agents::RandomAgent(the_game);
-    std::cout << "done!" << std::endl << "About to enter the game loop...";
+    DEBUG_MSG("done!" << std::endl << "About to enter the game loop...");
     // While the game isn't over (while maintaining sanity checks throughout)
     int decisions_made = 0;
     
@@ -30,9 +31,9 @@ void Play(std::vector<int> roles, int difficulty){
         the_agent -> take_step(true);
         decisions_made++;
     }
-    std::cout << std::endl << "game finished!" << std::endl << "The agent made " + std::to_string(decisions_made) + " decisions.\n";
+    DEBUG_MSG(std::endl << "game finished!" << std::endl << "The agent made " + std::to_string(decisions_made) + " decisions.\n");
 
-    std::cout << "The game ended with a reward of " << the_game.reward() << "\n";
+    DEBUG_MSG("The game ended with a reward of " << the_game.reward() << "\n");
 }
 
 int main(){
@@ -50,14 +51,14 @@ int main(){
     std::cout << std::endl << "===== STARTING CLOCK =====" << std::endl;
     auto start = std::chrono::high_resolution_clock::now(); 
     // 4 epidemic cards and quarantine specialist, scientist, and researcher
-    std::cout << "About to call Play({0,2,3},4)...";
+    DEBUG_MSG("About to call Play({0,2,3},4)...");
     Play({0,2,3},4);
 
-    std::cout << std::endl << "===== STOPPING CLOCK =====" << std::endl;
     auto stop = std::chrono::high_resolution_clock::now(); 
+    std::cout << std::endl << "===== STOPPING CLOCK =====" << std::endl;
 
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
-  
+    std::chrono::duration<double, std::milli> duration = stop - start;
+
     // To get the value of duration use the count() 
     // member function on the duration object 
 

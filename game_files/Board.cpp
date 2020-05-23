@@ -1,6 +1,7 @@
 #include "Board.h"
 #include "Decks.h"
 #include "Players.h"
+#include "Debug.h"
 
 #include <vector>
 
@@ -37,12 +38,12 @@ void Board::Board::setup(bool verbose){
         int max_pop = 0, first_player =0, player_idx = 0;
         for(Players::Player& p : players){
             if(verbose){
-                std::cout << std::endl << "[SETUP] Drawing cards for " << p.role.name << " : ";
+                DEBUG_MSG(std::endl << "[SETUP] Drawing cards for " << p.role.name << " : ");
             }
             for(int c=0; c<setup_cards;c++){
                 Decks::PlayerCard drawn_card = player_deck.draw(true); // true used for setup (i.e. draw from all non-epidemic cards)
                 if(verbose){
-                    std::cout << drawn_card.name << "(color " << drawn_card.color << ", index " << drawn_card.index << ") \t";
+                    DEBUG_MSG(drawn_card.name << "(color " << drawn_card.color << ", index " << drawn_card.index << ") \t");
                 }
                 if(!drawn_card.event){
                     if(drawn_card.population>max_pop){
@@ -53,14 +54,14 @@ void Board::Board::setup(bool verbose){
                 p.UpdateHand(drawn_card);
             }
             if(verbose){
-                std::cout << std::endl << "[SETUP] " << p.role.name << " has cards: ";
+                DEBUG_MSG(std::endl << "[SETUP] " << p.role.name << " has cards: ");
                 for(Decks::PlayerCard card: p.hand){
-                    std::cout << card.name << "; ";
+                    DEBUG_MSG(card.name << "; ");
                 }
                 for(Decks::PlayerCard card: p.event_cards){
-                    std::cout << card.name << "; ";
+                    DEBUG_MSG(card.name << "; ");
                 }
-                std::cout << std::endl;
+                DEBUG_MSG(std::endl);
             }
             player_idx++;
         }
@@ -72,7 +73,7 @@ void Board::Board::setup(bool verbose){
         // This is intended: when people play they'll sit down in a fixed order then learn who goes first.
         // Any randomization in roles should happen above the call to Board().
         if(verbose){
-            std::cout << std::endl << "[SETUP] First player is in position " << first_player << " (" << Players::Player(first_player).role.name << ")" << std::endl; 
+            DEBUG_MSG(std::endl << "[SETUP] First player is in position " << first_player << " (" << Players::Player(first_player).role.name << ")" << std::endl); 
         }
         turn = first_player;
 
@@ -82,7 +83,7 @@ void Board::Board::setup(bool verbose){
         // Now you have to infect the first 9 cities
         // for each of 1,2, and 3 disease cubes...
         if(verbose){
-            std::cout << std::endl << "[SETUP] INFECT STEP " << std::endl;
+            DEBUG_MSG(std::endl << "[SETUP] INFECT STEP " << std::endl);
         }
         for(int infect_count = 1 ; infect_count<4;infect_count++){
             // for 3 times
@@ -90,16 +91,16 @@ void Board::Board::setup(bool verbose){
                 // infect that city with infect_count # of cubes
                 Decks::InfectCard card_to_infect = infect_deck.draw();
                 if(verbose){
-                    std::cout << "[SETUP] infecting " << card_to_infect.name << " with " << infect_count << std::endl;
+                    DEBUG_MSG("[SETUP] infecting " << card_to_infect.name << " with " << infect_count << std::endl);
                 }
                 std::array<int,2> junk = infect_city(card_to_infect.index,card_to_infect.color,infect_count); // ignore the output here
             }
         }
         if(verbose){
             for(int col=0;col<4;col++){
-                std::cout << std::endl << "[SETUP] =====RESULT OF " << Map::COLORS[col] << " INFECTS =====" << std::endl; 
+                DEBUG_MSG(std::endl << "[SETUP] =====RESULT OF " << Map::COLORS[col] << " INFECTS =====" << std::endl); 
                 for(Map::City city: Map::CITIES){
-                    std::cout << "[SETUP] " << Map::COLORS[col] << ": " << city.name << " = " << disease_count[col][city.index] << std::endl;
+                    DEBUG_MSG("[SETUP] " << Map::COLORS[col] << ": " << city.name << " = " << disease_count[col][city.index] << std::endl);
                 }
             }
         }

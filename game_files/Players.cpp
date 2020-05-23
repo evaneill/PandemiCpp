@@ -5,6 +5,7 @@
 
 #include "Players.h"
 #include "Map.h"
+#include "Debug.h"
 
 Players::Player::Player(int role_id): 
     position(Map::CITIES[3]),
@@ -53,7 +54,7 @@ void Players::Player::UpdateHand(Decks::PlayerCard drawn_card){
     } else if(drawn_card.index>=Map::CITIES.size()){
         event_cards.push_back(drawn_card);
     } else {
-        std::cout << std::endl << "[Player::UpdateHand] [" << role.name << "] did not add card " << drawn_card.name << "(index " << drawn_card.index << ")!!!!" << std::endl;
+        DEBUG_MSG(std::endl << "[Player::UpdateHand] [" << role.name << "] did not add card " << drawn_card.name << "(index " << drawn_card.index << ")!!!!" << std::endl);
     }
 }
 
