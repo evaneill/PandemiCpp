@@ -99,4 +99,4 @@ Players::QuarantineSpecialist::QuarantineSpecialist(): Role("Quarantine Speciali
 Players::Medic::Medic(): Role("Medic",5){};
 Players::Scientist::Scientist(): Role("Scientist",4){};
 Players::Researcher::Researcher(): Role("Researcher",5){};
-Players::OperationsExpert::OperationsExpert(): Role("Operations Specialist",5){};
+Players::OperationsExpert::OperationsExpert(): Role("Operations Expert",5){};
