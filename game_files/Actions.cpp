@@ -1037,7 +1037,7 @@ int Actions::TakeConstructor::n_actions(){
             // If they're in the same city...
             if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
                 // and it's the researcher...
-                if(active_player.role.name=="Researcher"){
+                if(_other_player.role.name=="Researcher"){
                     // then we could take any of their cards
                     n_actions+=_other_player.hand.size();
                 } else {
@@ -1071,25 +1071,24 @@ std::vector<Actions::Action*> Actions::TakeConstructor::all_actions(){
     Players::Player& active_player = active_board ->active_player();
     std::vector<Decks::PlayerCard> cards_to_take = {};
 
-    for(int p=0;p<active_board ->get_players().size();p++){
-        Players::Player& _other_player = active_board ->get_players()[p];
+    for(Players::Player& _other_player : active_board -> get_players()){
 
         if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
-            if(active_player.role.name=="Researcher"){
-                for(int c=0;c<_other_player.hand.size();c++){
-                    cards_to_take.push_back(_other_player.hand[c]);
+            if(_other_player.role.name=="Researcher"){
+                for(Decks::PlayerCard card: _other_player.hand){
+                    cards_to_take.push_back(card);
                 }
             } else {
-                for(int c=0;c<_other_player.hand.size();c++){
-                    if(_other_player.hand[c].index==active_player.get_position().index){
-                        cards_to_take.push_back(Decks::CityCard(active_player.get_position()));
+                for(Decks::PlayerCard card: _other_player.hand){
+                    if(card.index==active_player.get_position().index){
+                        cards_to_take.push_back(card);
                     }
                 }
             }
             // Then for every card to take...
-            for(int c=0;c<cards_to_take.size();c++){
+            for(Decks::PlayerCard& card_to_take: cards_to_take){
                 // make it takeable from this player
-                full_list.push_back(new Actions::Take(*active_board,_other_player,_other_player.hand[c].index));
+                full_list.push_back(new Actions::Take(*active_board,_other_player,card_to_take.index));
             } 
         }
     }
@@ -1539,7 +1538,7 @@ Actions::Action* Actions::ForcedDiscardConstructor::random_action(){
     
     for(Players::Player& p: active_board ->get_players()){
         if(p.hand_full()){
-            // pick a can at random
+            // pick a card at random
             int card_to_discard_or_use = rand() % p.handsize(); 
 
             // If the random card is one of the city cards...
