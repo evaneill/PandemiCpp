@@ -171,7 +171,7 @@ std::array<int,2> Board::Board::infect_city(int city_idx, int col,int add){
     // Check for existence & adjacency of quarantine specialist, if the game has already been set up
     if(!SETUP){
         for(Players::Player& p: players){
-            if(typeid(p.role)==typeid(Players::QuarantineSpecialist)){
+            if(p.role.name=="Quarantine Specialist"){
                 // If they're in the same city
                 if(p.get_position().index==city_idx){
                     if(disease_count[col][city_idx]+add>3){
@@ -267,8 +267,20 @@ bool Board::Board::is_terminal(){
 };
 
 // The goal of this function is to check win/lose status. Broken status is handled by game logic above.
-// This should be entirely redundant
+// This should be partially made redundant by logic built into actions that can induce a win/loss
+// But redundancy for important things is good!
 void Board::Board::updatestatus(){
+    // First have to remove all cubes of cured diseases from position of medic, if existent
+    // It ONLY makes sense to put this here because I know that this will get called after ever agent AND stochastic action.
+    for(Players::Player& p: players){
+        if(p.role.name=="Medic"){
+            for(int col=0;col<4;col++){
+                if(cured[col]){
+                    disease_count[col][p.get_position().index]=0;
+                }
+            }
+        }
+    }
     if(std::accumulate(cured.begin(),cured.end(),0)==4){
         // the only way to win is to have 4 cured diseases
         won = true;
