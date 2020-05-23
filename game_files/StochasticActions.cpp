@@ -18,12 +18,14 @@ void StochasticActions::PlayerDeckDrawAction::execute(){
 
     // Get a new card
     Decks::PlayerCard new_card = active_board ->draw_playerdeck();
+    // assign the string for repr()
     card_drawn = new_card.name;
+
     if(new_card.index<Map::CITIES.size()){
         // Insert the identical city card in their hand
         active_player.UpdateHand(Decks::CityCard(new_card.index));
     } else if(new_card.index>=Map::CITIES.size() && new_card.index<(Map::CITIES.size()+3)){
-        // Or insert the identical 
+        // Or insert the the event card
         switch(new_card.index){
             case 48:
                 active_player.UpdateHand(Decks::EventCard(48,"Quiet Night"));
@@ -44,6 +46,8 @@ void StochasticActions::PlayerDeckDrawAction::execute(){
         // Logic of how many have been drawn has already been updated at this point in the deck
         Decks::InfectCard new_card = active_board -> draw_infectdeck_bottom();
         
+        card_drawn += " (" + new_card.name + " got drawn from bottom of infect deck)";
+
         bool quarantine_adjacent = false;
 
         // Check for existence & adjacency of quarantine specialist
@@ -78,6 +82,7 @@ void StochasticActions::PlayerDeckDrawAction::execute(){
     // update the game status if we've taken out the last card
     if(!active_board ->player_deck_nonempty()){
         active_board ->has_lost()=true;
+        active_board ->get_lost_reason() = "Ran out of player cards!";
     }
 }
 
@@ -139,8 +144,12 @@ void StochasticActions::InfectDrawAction::execute(){
                 outbreak_track = active_board ->infect(new_card.index,new_card.color,1);
 
                 // check for losing status on number of outbreaks & disease cube counts
-                if(!active_board ->outbreak_count_safe() || !active_board ->disease_count_safe()){
+                if(!active_board ->outbreak_count_safe()){
                     active_board ->has_lost()=true;
+                    active_board -> get_lost_reason() = "Have >7 outbreaks!";
+                } else if(!active_board ->disease_count_safe()){
+                    active_board ->has_lost()=true;
+                    active_board -> get_lost_reason() = "Have used >24 disease cubes of some color!";
                 }
             } 
 
