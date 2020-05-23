@@ -27,9 +27,15 @@ void Play(std::vector<int> roles, int difficulty){
     int decisions_made = 0;
     
     // While keeping track of sanity checks (at computational expense)
-    while(!the_game.is_terminal(true,false)){
-        the_agent -> take_step(true);
-        decisions_made++;
+    while(!the_game.is_terminal(true,true)){
+        // First resolve any necessary non-player transisitions (card draws, etc)
+        the_game.nonplayer_actions(true);
+        
+        // If these transitions haven't made the game terminal, then have the agent choose a transition
+        if(!the_game.is_terminal(true,true)){
+            the_agent -> take_step(true);
+            decisions_made++;
+        }
     }
     DEBUG_MSG(std::endl << "game finished!" << std::endl << "The agent made " + std::to_string(decisions_made) + " decisions.\n");
 

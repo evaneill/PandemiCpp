@@ -61,9 +61,9 @@ GameLogic::Game::Game(std::vector<int> roles, int difficulty,bool verbose):
 }
 
 void GameLogic::Game::nonplayer_actions(bool verbose){
-    // Designed to go until there there's either a required discard, OR non-player board transitions are complete
+    // Designed to go until there there's either a required discard, OR non-player board transitions are complete, OR something breaks or game is lost
     // Right now this SKIPS any use of event cards during draw phase!
-    while(StochasticCon.legal() && !ForcedDiscardCon.legal()){
+    while(StochasticCon.legal() && !ForcedDiscardCon.legal() && !is_terminal()){
         Actions::Action* next_action = StochasticCon.get_action();
         if(verbose){
             DEBUG_MSG("[Game::nonplayer_actions()] " << active_board.active_player().role.name << ": ");
@@ -81,9 +81,7 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
     //      counting player actions first
     //      taking a uniform int in [0,sum of total actions-1]
     //      going through the same action options in order until this falls within one of the ranges
-    
-    // Like with list_actions, gotta do the execution of any necessary game logic before listing out actions
-    nonplayer_actions(verbose);
+
     if(verbose){
         Players::Player& active_player = active_board.active_player();
         DEBUG_MSG("[Game:get_random_action_uniform] "<< active_player.role.name << " has hand: ");
@@ -135,9 +133,6 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
     // Goal is to choose FIRST uniformly over _types_ of actions
     // Then choose uniformly among legal actions of that type
 
-    // Have to execute game logic to determine possible actions
-    nonplayer_actions(verbose);
-
     if(ForcedDiscardCon.legal()){
         // ALWAYS return a choice of discard actions if it's possible.
         // Includes possible plays of event cards
@@ -156,7 +151,6 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
 }
 
 int GameLogic::Game::n_available_actions(bool verbose){
-    nonplayer_actions(verbose);
     int total_actions=0;
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
         total_actions+=(con_ptr -> n_actions());
@@ -166,9 +160,6 @@ int GameLogic::Game::n_available_actions(bool verbose){
 }
 
 std::vector<Actions::Action*> GameLogic::Game::list_actions(bool verbose){
-    // This represents a lazy execution of stochastic actions - waits until the next time any action is asked for before resolving any stochasticity/discard
-    nonplayer_actions(verbose);
-
     if(ForcedDiscardCon.legal()){
         // ALWAYS return a choice of discard actions if it's possible.
         // Includes possible plays of event cards
