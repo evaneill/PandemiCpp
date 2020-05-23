@@ -28,3 +28,5 @@ test_infectcity:
 playtest:
 	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp Playtest.cpp -o playtest.out
 	./playtest.out
+test:
+	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp $(TESTFILE).cpp -o $(TESTFILE).out
