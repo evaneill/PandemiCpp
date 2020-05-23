@@ -140,11 +140,28 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
     }
 
     std::vector<Actions::ActionConstructor*> legal_groups;
+    if(verbose){
+        DEBUG_MSG("[Game:get_random_action_bygroup()] "<< active_board.active_player().role.name << " has hand: ");
+        for(Decks::PlayerCard card: active_board.active_player().hand){
+            DEBUG_MSG(card.name << "; ");
+        }
+        for(Decks::PlayerCard card: active_board.active_player().event_cards){
+            DEBUG_MSG(card.name << "; ");
+        }
+        DEBUG_MSG(std::endl);
+    }
     for(int con=0;con<PlayerConstructorList.size();con++){
+        if(verbose){
+            DEBUG_MSG(std::endl << "[Game::get_random_action_bygroup()] considering " << PlayerConstructorList[con] -> get_movetype() <<"... ");
+        }
         if(PlayerConstructorList[con] -> legal()){
+            if(verbose){
+                DEBUG_MSG(" it's legal!");
+            }
             legal_groups.push_back(PlayerConstructorList[con]);
         }
     }
+
     int randomized = rand() % legal_groups.size();
 
     return legal_groups[randomized] -> random_action();

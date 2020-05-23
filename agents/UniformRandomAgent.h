@@ -9,9 +9,9 @@
 // Include new agents in the original Agents namespace; declared only when called
 namespace Agents
 {
-    class RandomAgent: public BaseAgent{
+    class UniformRandomAgent: public BaseAgent{
     public:
-        RandomAgent(GameLogic::Game& _active_game);
+        UniformRandomAgent(GameLogic::Game& _active_game);
         Actions::Action* generate_action(bool verbose = false);
         void take_step(bool verbose = false);
     };
