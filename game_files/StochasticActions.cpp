@@ -21,27 +21,13 @@ void StochasticActions::PlayerDeckDrawAction::execute(){
     // assign the string for repr()
     card_drawn = new_card.name;
 
-    if(new_card.index<Map::CITIES.size()){
+    if(!new_card.event && !new_card.epidemic){
         // Insert the identical city card in their hand
         active_player.UpdateHand(Decks::CityCard(new_card.index));
-    } else if(new_card.index>=Map::CITIES.size() && new_card.index<(Map::CITIES.size()+3)){
+    } else if(new_card.event){
         // Or insert the the event card
-        switch(new_card.index){
-            case 48:
-                active_player.UpdateHand(Decks::EventCard(48,"Quiet Night"));
-                break;
-            case 49:
-                active_player.UpdateHand(Decks::EventCard(49,"Government Grant"));
-                break;
-            case 50:
-                active_player.UpdateHand(Decks::EventCard(50,"Airlift"));
-                break;
-            default:
-                active_board ->broken()=true;
-                active_board ->broken_reasons().push_back("Card index drawn during player deck draw was " + std::to_string(new_card.index) + " (name: " + card_drawn+ " )");
-                break;
-        }
-    } else if(new_card.index>=(Map::CITIES.size()+3)){
+        active_player.UpdateHand(Decks::EventCard(new_card.index));
+    } else if(new_card.epidemic){
         // This must be an epidemic card
         // Logic of how many have been drawn has already been updated at this point in the deck
         Decks::InfectCard new_card = active_board -> draw_infectdeck_bottom();
@@ -52,7 +38,7 @@ void StochasticActions::PlayerDeckDrawAction::execute(){
 
         // Check for existence & adjacency of quarantine specialist
         for(Players::Player& p: active_board ->get_players()){
-            if(typeid(p.role)==typeid(Players::QuarantineSpecialist)){
+            if(p.role.name=="Quarantine Specialist"){
                 if(p.get_position().index==new_card.index){
                     quarantine_adjacent=true;
                 }
@@ -70,6 +56,9 @@ void StochasticActions::PlayerDeckDrawAction::execute(){
         }
 
         active_board ->readd_infect_discard();
+    } else {
+        active_board -> broken() = true;
+        active_board -> broken_reasons().push_back("[StochasticActions::PlayerDeckDraw()] drew unidentifiable card (index: " + std::to_string(new_card.index) + ", name: " + new_card.name + ", color: " +std::to_string(new_card.color)+")");
     }
     // If one player card was already drawn before this, then we've just drawn the second and we increment the game state
     if(active_board ->get_player_cards_drawn()>=1){

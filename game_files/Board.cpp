@@ -43,7 +43,7 @@ void Board::Board::setup(bool verbose){
             for(int c=0; c<setup_cards;c++){
                 Decks::PlayerCard drawn_card = player_deck.draw(true); // true used for setup (i.e. draw from all non-epidemic cards)
                 if(verbose){
-                    DEBUG_MSG(drawn_card.name << "(color " << drawn_card.color << ", index " << drawn_card.index << ") \t");
+                    DEBUG_MSG(drawn_card.name << " (color: " << drawn_card.color << ", index: " << drawn_card.index << ", pop: " << drawn_card.population <<") \t");
                 }
                 if(!drawn_card.event){
                     if(drawn_card.population>max_pop){
@@ -73,7 +73,7 @@ void Board::Board::setup(bool verbose){
         // This is intended: when people play they'll sit down in a fixed order then learn who goes first.
         // Any randomization in roles should happen above the call to Board().
         if(verbose){
-            DEBUG_MSG(std::endl << "[SETUP] First player is in position " << first_player << " (" << Players::Player(first_player).role.name << ")" << std::endl); 
+            DEBUG_MSG(std::endl << "[SETUP] First player is in position " << first_player << " (" << players[first_player].role.name << ")" << std::endl); 
         }
         turn = first_player;
 

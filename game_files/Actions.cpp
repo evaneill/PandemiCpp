@@ -910,9 +910,9 @@ Actions::Action* Actions::GiveConstructor::random_action(){
 
     // First randomize the card that active_player will give based on their role
     if(active_player.role.name=="Researcher"){
-        Decks::PlayerCard card_to_give = active_player.hand[rand() % active_player.hand.size()];
+        card_to_give = Decks::CityCard(active_player.hand[rand() % active_player.hand.size()].index);
     } else {
-        Decks::PlayerCard card_to_give = Decks::CityCard(active_player.get_position());
+        card_to_give = Decks::CityCard(active_player.get_position());
     }
 
     // Check how many other players are here.
@@ -1133,7 +1133,7 @@ Actions::Airlift::Airlift(Board::Board& _active_board,Players::Player& _using_pl
 
 void Actions::Airlift::execute(){
     target_player.set_position(Map::CITIES[target_city]);
-    using_player.removeCard(Decks::EventCard(50,"Airlift"));
+    using_player.removeCard(Decks::EventCard(50));
 }
 
 std::string Actions::Airlift::repr(){
@@ -1212,7 +1212,7 @@ Actions::GovernmentGrant::GovernmentGrant(Board::Board& _active_board,Players::P
 }
 
 void Actions::GovernmentGrant::execute(){
-    using_player.removeCard(Decks::EventCard(49,"Government Grant"));
+    using_player.removeCard(Decks::EventCard(49));
     std::vector<Map::City>& stations = active_board ->get_stations();
     
     // Add it to the vector of research station Map::City elements
@@ -1349,7 +1349,7 @@ Actions::QuietNight::QuietNight(Board::Board& _active_board,Players::Player& _us
 }
 
 void Actions::QuietNight::execute(){
-    using_player.removeCard(Decks::EventCard(48,"Quiet Night"));
+    using_player.removeCard(Decks::EventCard(48));
     active_board ->quiet_night_status() = true;
 }
 

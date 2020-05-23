@@ -16,13 +16,14 @@ namespace Decks
 	// Base class
 	class PlayerCard{
 	public:
-		std::string name;
+		std::string name="";
 		bool epidemic;
 		bool event;
-		int index;
-		int color; // only instantiated for CityCard
-		int population; // only instantiated for CityCard
-		PlayerCard() = default;
+		int index=-1;
+		int color=-1; // only instantiated for CityCard
+		int population=-1; // only instantiated for CityCard
+		PlayerCard(int card_idx);
+		PlayerCard()=default;
 
 		const bool operator == (PlayerCard& rhs) {return index == rhs.index && name == rhs.name && epidemic== rhs.epidemic && event==rhs.event;};
 	};
@@ -89,7 +90,7 @@ namespace Decks
 	class EventCard: public PlayerCard{
 
 	public:
-		EventCard(int index,std::string name);
+		EventCard(int index);
 	};
 
 	// All declarations for Infect Deck 

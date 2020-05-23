@@ -49,10 +49,10 @@ void Players::Player::UpdateHand(Decks::EventCard drawn_card){
 }
 
 void Players::Player::UpdateHand(Decks::PlayerCard drawn_card){
-    if(drawn_card.index<Map::CITIES.size()){
-        hand.push_back(drawn_card);
-    } else if(drawn_card.index>=Map::CITIES.size()){
-        event_cards.push_back(drawn_card);
+    if(!drawn_card.event && !drawn_card.epidemic){
+        hand.push_back(Decks::CityCard(drawn_card.index));
+    } else if(drawn_card.event){
+        event_cards.push_back(Decks::EventCard(drawn_card.index));
     } else {
         DEBUG_MSG(std::endl << "[Player::UpdateHand] [" << role.name << "] did not add card " << drawn_card.name << "(index " << drawn_card.index << ")!!!!" << std::endl);
     }
