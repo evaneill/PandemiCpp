@@ -15,11 +15,11 @@ Board::Board::Board(std::vector<int> roles, int _difficulty){
     player_deck = Decks::PlayerDeck(difficulty);
     infect_deck = Decks::InfectDeck();
 
-    SETUP=false;
+    IS_SETUP=false;
 }
 
 void Board::Board::setup(bool verbose){
-    if(!SETUP){
+    if(!IS_SETUP){
         int setup_cards;
         switch(players.size()){
             case 2:
@@ -128,7 +128,7 @@ void Board::Board::setup(bool verbose){
         BROKEN = true;
     }
     // set setup to true; won't allow setup() to be called again without breaking
-    SETUP = true;
+    IS_SETUP = true;
 }
 
 void Board::Board::reset_disease_count(){
@@ -174,7 +174,7 @@ std::array<int,2> Board::Board::infect_city(int city_idx, int col,int add){
     int blocked_outbreaks = 0;
 
     // Check for existence & adjacency of quarantine specialist, if the game has already been set up
-    if(!SETUP){
+    if(IS_SETUP){
         for(Players::Player& p: players){
             if(p.role.name=="Quarantine Specialist"){
                 // If they're in the same city
