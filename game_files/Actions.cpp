@@ -277,16 +277,16 @@ int Actions::ShuttleFlightConstructor::n_actions(){
 Actions::Action* Actions::ShuttleFlightConstructor::random_action(){
     int position  = active_board ->active_player().get_position().index;
     int random_position = rand() % active_board ->get_stations().size();
-    while(random_position==position){
+    while((*active_board).get_stations()[random_position].index==position){
         // The shuttle flight action says you can go to "any _other_ city" with a station. I interpret this to exclude the current city, unlike other actions.
         random_position = rand() % active_board ->get_stations().size(); 
     }
-    return new Actions::ShuttleFlight(*active_board,random_position);
+    return new Actions::ShuttleFlight(*active_board,active_board -> get_stations()[random_position]);
 }
 
 std::vector<Actions::Action*> Actions::ShuttleFlightConstructor::all_actions(){
     std::vector<Actions::Action*> full_list;
-    std::vector<Map::City>& stations = active_board ->get_stations();
+    std::vector<Map::City> stations = active_board ->get_stations();
 
     for(int n=0;n<stations.size();n++){
         if(stations[n].index!=active_board ->active_player().get_position().index){
@@ -426,6 +426,13 @@ Actions::Build::Build(Board::Board& _active_board,int _remove_station):
 void Actions::Build::execute(){
     Players::Player& active_player = active_board ->active_player();
     
+    // If the remove_station argument>=0 and so representing a station to remove
+    if(remove_station>=0){
+        // Should break catastrophically when remove_station isn't defined properly
+        // (Should be index of station to remove in active_board.stations)
+        active_board -> RemoveStation(remove_station);
+    }
+
     // Add it to the vector of research station Map::City elements
     active_board -> AddStation(Map::CITIES[active_player.get_position().index]);
 
@@ -434,19 +441,13 @@ void Actions::Build::execute(){
         active_player.removeCard(Decks::CityCard(active_player.get_position()));
     }
 
-    if(remove_station>=0){
-        // Should break catastrophically when remove_station isn't defined properly
-        // (Should be index of station to remove in active_board.stations)
-        active_board -> RemoveStation(remove_station);
-    }
-
     active_board ->get_turn_action()++;
 }
 
 std::string Actions::Build::repr(){
     std::string str_out = movetype+" at "+active_board ->active_player().get_position().name;
     if(remove_station>=0){
-        return str_out + " (remove the one at " + Map::CITIES[remove_station].name + ")";
+        return str_out + " (remove the one at " + Map::CITIES[active_board -> get_stations()[remove_station].index].name + ")";
     } else {
         return str_out;
     }
@@ -472,7 +473,7 @@ int Actions::BuildConstructor::n_actions(){
 }
 
 Actions::Action* Actions::BuildConstructor::random_action(){
-    if(active_board ->get_stations().size()==6){
+    if(active_board ->get_stations().size()>=6){
         return new Actions::Build(*active_board,rand() % active_board ->get_stations().size());
     } else {
         return new Actions::Build(*active_board,-1);
@@ -481,11 +482,12 @@ Actions::Action* Actions::BuildConstructor::random_action(){
 
 std::vector<Actions::Action*> Actions::BuildConstructor::all_actions(){
     std::vector<Actions::Action*> full_list;
-    std::vector<Map::City>& stations = active_board ->get_stations();
+    std::vector<Map::City> stations = active_board ->get_stations();
 
     if(stations.size()>=6){
         // Should never be >6 but just in case...
         for(int st=0;st<stations.size();st++){
+            // If this station isn't at your current location (shouldn't be possible when guarded by legal())
             if(stations[st].index!=active_board ->active_player().get_position().index){
                 full_list.push_back(new Actions::Build(*active_board,st));
             } 
@@ -512,14 +514,17 @@ bool Actions::BuildConstructor::legal(){
             }
         } else{
             for(Decks::PlayerCard c : active_player.hand){
+                // Then if there's a card representing the city they're in...
                 if(c.index==active_player.get_position().index){
                     bool already_station = false;
+                    // If no station is already on this city..
                     for(Map::City st: active_board ->get_stations()){
                         if(st.index==active_player.get_position().index){
                             already_station=true;
                             break;
                         }
                     }
+                    // then active_player can build a station
                     if(!already_station){
                         return true;
                     }
@@ -614,11 +619,13 @@ std::vector<Actions::Action*> Actions::TreatConstructor::all_actions(){
 }
 
 bool Actions::TreatConstructor::legal(){
-    Players::Player& active_player = active_board ->active_player();
-    std::array<std::array<int,48>,4>& disease_count = active_board ->get_disease_count();
-    for(int col;col<4;col++){
-        if(disease_count[col][active_player.get_position().index]>0){
-            return true;
+    // If it's a players turn...
+    if(active_board -> get_turn_action()<4){
+        Players::Player& active_player = active_board ->active_player();
+        for(int col;col<4;col++){
+            if(active_board ->get_disease_count()[col][active_player.get_position().index]>0){
+                return true;
+            }
         }
     }
     return false;
@@ -726,13 +733,10 @@ void Actions::Cure::execute(){
                         return;
                 }
             }
-        } else {
-            active_board -> broken()=true;
-            active_board ->broken_reasons().push_back("[Cure::execute()] CURE execute() was called but " + active_player.role.name + " isn't on a research station!");
         }
     }
     active_board ->broken()=true;
-    active_board ->broken_reasons().push_back("[Cure::execute()] CURE execute() was called but there don't seem to be enough of any card to cure...");
+    active_board ->broken_reasons().push_back("[Cure::execute()] CURE execute() was called but there don't seem to be enough of any card to cure, or they weren't at a research station...");
 }
 
 std::string Actions::Cure::repr(){
@@ -1224,7 +1228,6 @@ Actions::GovernmentGrant::GovernmentGrant(Board::Board& _active_board,Players::P
 
 void Actions::GovernmentGrant::execute(){
     using_player.removeCard(Decks::EventCard(49));
-    std::vector<Map::City>& stations = active_board ->get_stations();
     
     // Add it to the vector of research station Map::City elements
     active_board -> AddStation(Map::CITIES[target_city]);

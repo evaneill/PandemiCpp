@@ -123,7 +123,7 @@ namespace Board
         void reset_disease_count();
         void reset_outbreak_memory();
 
-        std::vector<Map::City>& get_stations(); // reference to research stations
+        std::vector<Map::City> get_stations(); // reference to research stations
         void AddStation(Map::City new_station);
         void RemoveStation(int station_list_idx);
                 

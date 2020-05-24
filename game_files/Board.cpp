@@ -106,7 +106,7 @@ void Board::Board::setup(bool verbose){
         }
 
          // Add Atlanta to list of research stations
-        research_stations.push_back(Map::CITIES[3]); 
+        AddStation(Map::CITIES[3]); 
         
         // Set a bunch of counters to 0 and statuses to false
         outbreak_count=0;
@@ -329,7 +329,7 @@ Players::Player& Board::Board::active_player(){
     return players[turn];
 }
 
-std::vector<Map::City>& Board::Board::get_stations(){
+std::vector<Map::City> Board::Board::get_stations(){
     return research_stations;
 }
 
