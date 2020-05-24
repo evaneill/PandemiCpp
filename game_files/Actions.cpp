@@ -1241,7 +1241,7 @@ void Actions::GovernmentGrant::execute(){
 }
 
 std::string Actions::GovernmentGrant::repr(){
-    std::string out_str = movetype + " at " + Map::CITIES[target_city].name;
+    std::string out_str = movetype + " " + using_player.role.name + " put a research station at " + Map::CITIES[target_city].name;
     if(remove_station>=0){
         out_str+=" (removed " + Map::CITIES[remove_station].name + ")";
     }
