@@ -431,7 +431,7 @@ void Actions::Build::execute(){
     stations.push_back(Map::CITIES[active_player.get_position().index]);
 
     //Check whether active player is Operations Expert. If not, discard necessary card.
-    if(active_player.role.name=="Operations Expert"){
+    if(active_player.role.name!="Operations Expert"){
         active_player.removeCard(Decks::CityCard(active_player.get_position()));
     }
 
