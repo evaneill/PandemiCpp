@@ -216,6 +216,9 @@ bool GameLogic::Game::is_terminal(bool sanity_check,bool verbose){
     if(sanity_check){
         SanityCheck::CheckBoard(active_board,verbose);
     }
+    // Have the board update any win/lose/broken status
+    active_board.updatestatus();
+
     bool broken = active_board.broken();
     if(broken && verbose){
         for(std::string reason: active_board.broken_reasons()){
@@ -240,4 +243,20 @@ int GameLogic::Game::reward(){
         active_board.broken_reasons().push_back("[Game::reward()] Asking for reward when win/lose aren't true");
         return -10000000;// NULL gets converted to 0 anyway; this should make it obvious something broke... hoepfully....
     }
+}
+
+std::vector<std::string> GameLogic::Game::terminal_reasons(){
+    std::vector<std::string> reasons;
+    if(active_board.has_won()){
+        reasons.push_back("Players won!");
+    }
+    if(active_board.has_lost()){
+        reasons.push_back(active_board.get_lost_reason());
+    }
+    if(active_board.broken()){
+        for(std::string reason: active_board.broken_reasons()){
+            reasons.push_back(reason);
+        }
+    }
+    return reasons;
 }

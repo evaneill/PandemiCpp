@@ -71,6 +71,8 @@ namespace GameLogic
         // Check for game status (true if win/loss/broken)
         // sanity check argument to include whether or not to go through all SanityCheck::CheckBoard() checks before determining terminal state.
         bool is_terminal(bool sanity_check=false,bool verbose=false);
+        // return a vector of reasons that the game is terminal, for diagnostics.
+        std::vector<std::string> terminal_reasons(); // 
 
         // game reward. Should return NULL if called on a non-terminal state.
         // Worth it to note that NULL + int is still an int, but can produce a runtime warning
