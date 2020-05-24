@@ -52,7 +52,8 @@ void StochasticActions::PlayerDeckDrawAction::execute(){
         }
         // If there's either no player or there is but they're not adjacent, infect
         if(!quarantine_adjacent){
-            active_board ->infect(new_card.index,new_card.color,3);
+            std::array<int,2> outbreak_status = active_board ->infect(new_card.index,new_card.color,3);
+            card_drawn += " (caused " + std::to_string(outbreak_status[0]) + " total outbreak(s) - "+std::to_string(outbreak_status[1])+" blocked)";
         }
 
         active_board ->readd_infect_discard();
