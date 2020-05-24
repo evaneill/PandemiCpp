@@ -582,11 +582,17 @@ int Actions::TreatConstructor::n_actions(){
     if(legal()){
         int n_actions = 0;
         Players::Player& active_player = active_board ->active_player();
-        for(int col=0;col<4;col++){
-            // Actions can only be called if there exist diseases of this color at player position
-            if(active_board ->get_disease_count()[col][active_player.get_position().index]>0){
-                n_actions++;
-            }
+        if(active_board ->get_disease_count()[Map::BLUE][active_player.get_position().index]>0){
+            n_actions++;
+        }
+        if(active_board ->get_disease_count()[Map::YELLOW][active_player.get_position().index]>0){
+            n_actions++;
+        }
+        if(active_board ->get_disease_count()[Map::BLACK][active_player.get_position().index]>0){
+            n_actions++;
+        }
+        if(active_board ->get_disease_count()[Map::RED][active_player.get_position().index]>0){
+            n_actions++;
         }
         return n_actions; // 1 for each color of disease on the position of the current city
     } else {
@@ -598,11 +604,17 @@ int Actions::TreatConstructor::n_actions(){
 Actions::Action* Actions::TreatConstructor::random_action(){
     std::vector<int> nonzero_colors = {};
     Players::Player& active_player = active_board ->active_player();
-    for(int col=0;col<4;col++){
-        // Actions can only be called if there exist diseases of this color at player position
-        if(active_board ->get_disease_count()[col][active_player.get_position().index]>0){
-            nonzero_colors.push_back(col);
-        }
+    if(active_board ->get_disease_count()[Map::BLUE][active_player.get_position().index]>0){
+        nonzero_colors.push_back(Map::BLUE);
+    }
+    if(active_board ->get_disease_count()[Map::YELLOW][active_player.get_position().index]>0){
+        nonzero_colors.push_back(Map::YELLOW);
+    }
+    if(active_board ->get_disease_count()[Map::BLACK][active_player.get_position().index]>0){
+        nonzero_colors.push_back(Map::BLACK);
+    }
+    if(active_board ->get_disease_count()[Map::RED][active_player.get_position().index]>0){
+        nonzero_colors.push_back(Map::RED);
     }
     return new Actions::Treat(*active_board,nonzero_colors[rand() % nonzero_colors.size()]);
 }
@@ -610,10 +622,20 @@ Actions::Action* Actions::TreatConstructor::random_action(){
 std::vector<Actions::Action*> Actions::TreatConstructor::all_actions(){
     std::vector<Actions::Action*> full_list;
     Players::Player& active_player = active_board ->active_player();
-    for(int col=0;col<4;col++){
-        if(active_board ->get_disease_count()[col][active_player.get_position().index]>0){
-            full_list.push_back(new Actions::Treat(*active_board,col));
-        }
+    if((*active_board).get_disease_count()[Map::BLUE][active_player.get_position().index]>0){
+        full_list.push_back(new Actions::Treat(*active_board,Map::BLUE));
+    }
+    // If I do it this way, then the fast-compiled version won't decide to skip a loop?
+    if((*active_board).get_disease_count()[Map::YELLOW][active_player.get_position().index]>0){
+        full_list.push_back(new Actions::Treat(*active_board,Map::YELLOW));
+    }
+    // If I do it this way, then the fast-compiled version won't decide to skip a loop?
+    if((*active_board).get_disease_count()[Map::BLACK][active_player.get_position().index]>0){
+        full_list.push_back(new Actions::Treat(*active_board,Map::BLACK));
+    }
+    // If I do it this way, then the fast-compiled version won't decide to skip a loop?
+    if((*active_board).get_disease_count()[Map::RED][active_player.get_position().index]>0){
+        full_list.push_back(new Actions::Treat(*active_board,Map::RED));
     }
     return full_list;
 }
@@ -622,10 +644,23 @@ bool Actions::TreatConstructor::legal(){
     // If it's a players turn...
     if(active_board -> get_turn_action()<4){
         Players::Player& active_player = active_board ->active_player();
-        for(int col;col<4;col++){
-            if(active_board ->get_disease_count()[col][active_player.get_position().index]>0){
-                return true;
-            }
+        // And there's a color that has >0 cubes at the present city, it's legal
+        
+        // If I do it this way, then the fast-compiled version won't decide to skip a loop?
+        if((*active_board).get_disease_count()[Map::BLUE][active_player.get_position().index]>0){
+            return true;
+        }
+        // If I do it this way, then the fast-compiled version won't decide to skip a loop?
+        if((*active_board).get_disease_count()[Map::YELLOW][active_player.get_position().index]>0){
+            return true;
+        }
+        // If I do it this way, then the fast-compiled version won't decide to skip a loop?
+        if((*active_board).get_disease_count()[Map::BLACK][active_player.get_position().index]>0){
+            return true;
+        }
+        // If I do it this way, then the fast-compiled version won't decide to skip a loop?
+        if((*active_board).get_disease_count()[Map::RED][active_player.get_position().index]>0){
+            return true;
         }
     }
     return false;
