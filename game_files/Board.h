@@ -20,10 +20,10 @@ namespace Board
         bool SETUP = false;
 
         // the players
-        std::vector<Players::Player> players;
+        std::vector<Players::Player> players = {};
 
         // where the research stations are
-        std::vector<Map::City> research_stations;
+        std::vector<Map::City> research_stations={};
 
         // player deck
         Decks::PlayerDeck player_deck;
@@ -80,6 +80,7 @@ namespace Board
 
         // Setup the board for play
         void setup(bool verbose=false);
+        void setup_player_deck();
 
         // Logic to draw from the player deck
         Decks::PlayerCard draw_playerdeck();
@@ -113,13 +114,19 @@ namespace Board
 
         // Check all gamestate variables and set win/lose/break as appropriate, if applicable
         void updatestatus();
+        void update_medic_position(); // Check whether there's a medic and they're on a city with a cured disease
+        void update_eradicated_status(); // Update eradicated status according to cure status and disease_count
 
         // functional additions (lots of them)
         Players::Player& active_player(); // reference to active player
-        std::vector<Map::City>& get_stations(); // reference to research stations
         std::array<std::array<int,48>,4>& get_disease_count(); // reference to disease count to increment
         void reset_disease_count();
         void reset_outbreak_memory();
+
+        std::vector<Map::City>& get_stations(); // reference to research stations
+        void AddStation(Map::City new_station);
+        void RemoveStation(int station_list_idx);
+                
         std::vector<bool>& get_eradicated();
         std::vector<bool>& get_cured(); // reference to cured status to update/use
         std::vector<Players::Player>& get_players();

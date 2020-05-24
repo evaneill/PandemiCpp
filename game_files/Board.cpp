@@ -67,7 +67,7 @@ void Board::Board::setup(bool verbose){
         }
 
         // Instantiate some class variables used for drawing hereon out.
-        player_deck.setup_shuffle_deck();
+        setup_player_deck();
 
         // The ensuing logic means that, though a random player goes first, the order is not shuffled from that given.
         // This is intended: when people play they'll sit down in a fixed order then learn who goes first.
@@ -104,6 +104,7 @@ void Board::Board::setup(bool verbose){
                 }
             }
         }
+
          // Add Atlanta to list of research stations
         research_stations.push_back(Map::CITIES[3]); 
         
@@ -137,6 +138,10 @@ void Board::Board::reset_disease_count(){
             disease_count[col][city.index]=0;
         }
     }
+}
+
+void Board::Board::setup_player_deck(){
+    player_deck.setup_shuffle_deck();
 }
 
 Decks::PlayerCard Board::Board::draw_playerdeck(){
@@ -266,21 +271,39 @@ bool Board::Board::is_terminal(){
     }
 };
 
+void Board::Board::update_medic_position(){
+    for(Players::Player& p: players){
+        // If any player is the medic
+        if(p.role.name=="Medic"){
+            for(int col=0;col<4;col++){
+                // and a disease is cured
+                if(cured[col]){
+                    // disease count of that color on their position should be 0
+                    disease_count[col][p.get_position().index]=0;
+                }
+            }
+        }
+    }
+}
+
+void Board::Board::update_eradicated_status(){
+    for(int col=0;col<4;col++){
+        // If the disease has a total of 0 cubes on the board and is cured...
+        if(std::accumulate(disease_count[col].begin(),disease_count[col].end(),0)==0 && cured[col]){
+            // then it's eradicated!
+            eradicated[col]=true;
+        }
+    }
+}
 // The goal of this function is to check win/lose status. Broken status is handled by game logic above.
 // This should be partially made redundant by logic built into actions that can induce a win/loss
 // But redundancy for important things is good!
 void Board::Board::updatestatus(){
     // First have to remove all cubes of cured diseases from position of medic, if existent
     // It ONLY makes sense to put this here because I know that this will get called after ever agent AND stochastic action.
-    for(Players::Player& p: players){
-        if(p.role.name=="Medic"){
-            for(int col=0;col<4;col++){
-                if(cured[col]){
-                    disease_count[col][p.get_position().index]=0;
-                }
-            }
-        }
-    }
+    update_medic_position();
+    update_eradicated_status();
+
     if(std::accumulate(cured.begin(),cured.end(),0)==4){
         // the only way to win is to have 4 cured diseases
         won = true;
@@ -308,6 +331,15 @@ Players::Player& Board::Board::active_player(){
 
 std::vector<Map::City>& Board::Board::get_stations(){
     return research_stations;
+}
+
+void Board::Board::AddStation(Map::City new_station){
+    research_stations.push_back(new_station);
+}
+
+void Board::Board::RemoveStation(int station_list_idx){
+    // Takes the index within the list of research_stations
+    research_stations.erase(research_stations.begin()+station_list_idx);
 }
 
 std::array<std::array<int,48>,4>& Board::Board::get_disease_count(){

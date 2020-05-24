@@ -425,10 +425,9 @@ Actions::Build::Build(Board::Board& _active_board,int _remove_station):
 
 void Actions::Build::execute(){
     Players::Player& active_player = active_board ->active_player();
-    std::vector<Map::City>& stations = active_board ->get_stations();
     
     // Add it to the vector of research station Map::City elements
-    stations.push_back(Map::CITIES[active_player.get_position().index]);
+    active_board -> AddStation(Map::CITIES[active_player.get_position().index]);
 
     //Check whether active player is Operations Expert. If not, discard necessary card.
     if(active_player.role.name!="Operations Expert"){
@@ -437,8 +436,8 @@ void Actions::Build::execute(){
 
     if(remove_station>=0){
         // Should break catastrophically when remove_station isn't defined properly
-        // (Should be index of station to remove in active_board ->stations)
-        active_board ->get_stations().erase(active_board ->get_stations().begin() + remove_station);
+        // (Should be index of station to remove in active_board.stations)
+        active_board -> RemoveStation(remove_station);
     }
 
     active_board ->get_turn_action()++;
@@ -484,7 +483,8 @@ std::vector<Actions::Action*> Actions::BuildConstructor::all_actions(){
     std::vector<Actions::Action*> full_list;
     std::vector<Map::City>& stations = active_board ->get_stations();
 
-    if(stations.size()==6){
+    if(stations.size()>=6){
+        // Should never be >6 but just in case...
         for(int st=0;st<stations.size();st++){
             if(stations[st].index!=active_board ->active_player().get_position().index){
                 full_list.push_back(new Actions::Build(*active_board,st));
@@ -635,94 +635,100 @@ void Actions::Cure::execute(){
     Players::Player& active_player = active_board ->active_player();
     int RED_count=0, BLUE_count=0, BLACK_count=0, YELLOW_count=0;
     std::vector<bool>& cured = active_board ->get_cured();
-
-    for(Decks::PlayerCard card: active_player.hand){
-        // Following logic relies on the fact that: 
-        //      hand limit is at most 7
-        //      If you've counted at least 4 of one color of a card, it must be the one this player can cure
-        switch(card.color){
-            case Map::BLUE:
-                BLUE_count++;
-                if(BLUE_count==active_player.role.required_cure_cards){
-                    for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first active_player.role.required_cure_cards cards from their hand of this color
-                        // I can't imagine rewriting this rn to account for all possible discards sets
-                        if(pcard.color==Map::BLUE && BLUE_count>0){
-                            active_player.removeCard(pcard);
-                            BLUE_count--;
+    for(Map::City st: active_board -> get_stations()){
+        if(st.index==active_player.get_position().index){
+            for(Decks::PlayerCard card: active_player.hand){
+                // Following logic relies on the fact that: 
+                //      hand limit is at most 7
+                //      If you've counted at least 4 of one color of a card, it must be the one this player can cure
+                switch(card.color){
+                    case Map::BLUE:
+                        BLUE_count++;
+                        if(BLUE_count==active_player.role.required_cure_cards){
+                            for(Decks::PlayerCard pcard: active_player.hand){
+                                // Remove the first active_player.role.required_cure_cards cards from their hand of this color
+                                // I can't imagine rewriting this rn to account for all possible discards sets
+                                if(pcard.color==Map::BLUE && BLUE_count>0){
+                                    active_player.removeCard(pcard);
+                                    BLUE_count--;
+                                }
+                            }
+                            cured[Map::BLUE]=true;
+                            // Check for whether or not this cure has won the game (this will be a redundant check)
+                            if(std::accumulate(cured.begin(),cured.end(),0)==4){
+                                active_board ->has_won()=true;
+                            }
+                            active_board ->get_turn_action()++;
+                            return;
                         }
-                    }
-                    cured[Map::BLUE]=true;
-                    // Check for whether or not this cure has won the game (this will be a redundant check)
-                    if(std::accumulate(cured.begin(),cured.end(),0)==4){
-                        active_board ->has_won()=true;
-                    }
-                    active_board ->get_turn_action()++;
-                    return;
-                }
-                break;
-            case Map::YELLOW:
-                YELLOW_count++;
-                if(YELLOW_count==active_player.role.required_cure_cards){
-                    for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first active_player.role.required_cure_cards cards from their hand of this color
-                        // I can't imagine rewriting this rn to account for all possible discards sets
-                        if(pcard.color==Map::YELLOW && YELLOW_count>0){
-                            active_player.removeCard(pcard);
-                            YELLOW_count--;
+                        break;
+                    case Map::YELLOW:
+                        YELLOW_count++;
+                        if(YELLOW_count==active_player.role.required_cure_cards){
+                            for(Decks::PlayerCard pcard: active_player.hand){
+                                // Remove the first active_player.role.required_cure_cards cards from their hand of this color
+                                // I can't imagine rewriting this rn to account for all possible discards sets
+                                if(pcard.color==Map::YELLOW && YELLOW_count>0){
+                                    active_player.removeCard(pcard);
+                                    YELLOW_count--;
+                                }
+                            }
+                            cured[Map::YELLOW]=true;
+                            if(std::accumulate(cured.begin(),cured.end(),0)==4){
+                                active_board ->has_won()=true;
+                            }
+                            active_board ->get_turn_action()++;
+                            return;
                         }
-                    }
-                    cured[Map::YELLOW]=true;
-                    if(std::accumulate(cured.begin(),cured.end(),0)==4){
-                        active_board ->has_won()=true;
-                    }
-                    active_board ->get_turn_action()++;
-                    return;
-                }
-                break;
-            case Map::BLACK:
-                BLACK_count++;
-                if(BLACK_count==active_player.role.required_cure_cards){
-                    for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first active_player.role.required_cure_cards cards from their hand of this color
-                        // I can't imagine rewriting this rn to account for all possible discards sets
-                        if(pcard.color==Map::BLACK && BLACK_count>0){
-                            active_player.removeCard(pcard);
-                            BLACK_count--;
+                        break;
+                    case Map::BLACK:
+                        BLACK_count++;
+                        if(BLACK_count==active_player.role.required_cure_cards){
+                            for(Decks::PlayerCard pcard: active_player.hand){
+                                // Remove the first active_player.role.required_cure_cards cards from their hand of this color
+                                // I can't imagine rewriting this rn to account for all possible discards sets
+                                if(pcard.color==Map::BLACK && BLACK_count>0){
+                                    active_player.removeCard(pcard);
+                                    BLACK_count--;
+                                }
+                            }
+                            cured[Map::BLACK]=true;
+                            if(std::accumulate(cured.begin(),cured.end(),0)==4){
+                                active_board ->has_won()=true;
+                            }
+                            active_board ->get_turn_action()++;
+                            return;
                         }
-                    }
-                    cured[Map::BLACK]=true;
-                    if(std::accumulate(cured.begin(),cured.end(),0)==4){
-                        active_board ->has_won()=true;
-                    }
-                    active_board ->get_turn_action()++;
-                    return;
-                }
-                break;
-            case Map::RED:
-                RED_count++;
-                if(RED_count==active_player.role.required_cure_cards){
-                    for(Decks::PlayerCard pcard: active_player.hand){
-                        // Remove the first active_player.role.required_cure_cards cards from their hand of this color
-                        // I can't imagine rewriting this rn to account for all possible discards sets
-                        if(pcard.color==Map::RED && RED_count>0){
-                            active_player.removeCard(pcard);
-                            RED_count--;
+                        break;
+                    case Map::RED:
+                        RED_count++;
+                        if(RED_count==active_player.role.required_cure_cards){
+                            for(Decks::PlayerCard pcard: active_player.hand){
+                                // Remove the first active_player.role.required_cure_cards cards from their hand of this color
+                                // I can't imagine rewriting this rn to account for all possible discards sets
+                                if(pcard.color==Map::RED && RED_count>0){
+                                    active_player.removeCard(pcard);
+                                    RED_count--;
+                                }
+                            }
+                            cured[Map::RED]=true;
+                            // If there are 4 cured diseases, then set game status to win!
+                            if(std::accumulate(cured.begin(),cured.end(),0)==4){
+                                active_board ->has_won()=true;
+                            }
+                            active_board ->get_turn_action()++;
+                            return;
                         }
-                    }
-                    cured[Map::RED]=true;
-                    // If there are 4 cured diseases, then set game status to win!
-                    if(std::accumulate(cured.begin(),cured.end(),0)==4){
-                        active_board ->has_won()=true;
-                    }
-                    active_board ->get_turn_action()++;
-                    return;
+                        break;
+                    default:
+                        active_board ->broken()=true;
+                        active_board ->broken_reasons().push_back("[Cure::execute()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
+                        return;
                 }
-                break;
-            default:
-                active_board ->broken()=true;
-                active_board ->broken_reasons().push_back("[Cure::execute()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
-                return;
+            }
+        } else {
+            active_board -> broken()=true;
+            active_board ->broken_reasons().push_back("[Cure::execute()] CURE execute() was called but " + active_player.role.name + " isn't on a research station!");
         }
     }
     active_board ->broken()=true;
@@ -740,25 +746,25 @@ std::string Actions::Cure::repr(){
         switch(card.color){
             case Map::BLUE:
                 BLUE_count++;
-                if(BLUE_count==active_player.role.required_cure_cards){
+                if(BLUE_count>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLUE]){
                     return movetype+" "+Map::COLORS[Map::BLUE];
                 }
                 break;
             case Map::YELLOW:
                 YELLOW_count++;
-                if(YELLOW_count==active_player.role.required_cure_cards){
+                if(YELLOW_count>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::YELLOW]){
                     return movetype+" "+Map::COLORS[Map::YELLOW];
                 }
                 break;
             case Map::BLACK:
                 BLACK_count++;
-                if(BLACK_count==active_player.role.required_cure_cards){
+                if(BLACK_count>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLACK]){
                     return movetype+" "+Map::COLORS[Map::BLACK];
                 }
                 break;
             case Map::RED:
                 RED_count++;
-                if(RED_count==active_player.role.required_cure_cards){
+                if(RED_count>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::RED]){
                     return movetype+" "+Map::COLORS[Map::RED];
                 }
                 break;
@@ -769,7 +775,7 @@ std::string Actions::Cure::repr(){
         }
     }
     active_board ->broken()=true;
-    active_board ->broken_reasons().push_back("[Cure::repr()] CURE repr() was called but there don't seem to be enough of any card to cure...");
+    active_board ->broken_reasons().push_back("[Cure::repr()] CURE repr() was called but there either weren't enough cards or the disease was already cured...");
 }
 
 Actions::CureConstructor::CureConstructor(Board::Board& _active_board): ActionConstructor(_active_board){}
@@ -797,47 +803,53 @@ std::vector<Actions::Action*> Actions::CureConstructor::all_actions(){
 }
 
 bool Actions::CureConstructor::legal(){
+    // If it's a players turn...
     if(active_board ->get_turn_action()<4){
-        if(active_board ->active_player().hand.size()>=4){
-            Players::Player& active_player = active_board ->active_player();
-            int RED_count=0, BLUE_count=0, BLACK_count=0, YELLOW_count=0;
+        Players::Player& active_player = active_board ->active_player();
+        //  And they have at least required_cure_cards cards...
+        if(active_player.hand.size()>=active_player.role.required_cure_cards){
+            for(Map::City st: active_board -> get_stations()){
+                // And they're at a research station...
+                if(st.index==active_player.get_position().index){
+                    // Then count the number of cards of each color that they have
+                    int RED_count=0, BLUE_count=0, BLACK_count=0, YELLOW_count=0;
 
-            if(active_board ->active_player().hand.size()<active_player.role.required_cure_cards){
-                return false;
-            }
-            for(Decks::PlayerCard card: active_player.hand){
-                // Following logic relies on the fact that: 
-                //      hand limit is at most 7
-                //      If you've counted at least minimum_needed (4 or 5) of one color of a card, it must be the one this player can cure
-                switch(card.color){
-                    case Map::BLUE:
-                        BLUE_count++;
-                        if(BLUE_count==active_player.role.required_cure_cards){
-                            return true;
+                    for(Decks::PlayerCard card: active_player.hand){
+                        // Then check that they have at least min_cards_required cards of a non-cured color
+                        // Following logic relies on the fact that: 
+                        //      hand limit is at most 7
+                        //      If you've counted at least minimum_needed (4 or 5) of one color of a card, it must be the one this player can cure
+                        switch(card.color){
+                            case Map::BLUE:
+                                BLUE_count++;
+                                if(BLUE_count==active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLUE]){
+                                    return true;
+                                }
+                                break;
+                            case Map::YELLOW:
+                                YELLOW_count++;
+                                if(YELLOW_count==active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::YELLOW]){
+                                    return true;
+                                }
+                                break;
+                            case Map::BLACK:
+                                BLACK_count++;
+                                if(BLACK_count==active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLACK]){
+                                    return true;
+                                }
+                                break;
+                            case Map::RED:
+                                RED_count++;
+                                if(RED_count==active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::RED]){  
+                                    return true;
+                                }
+                                break;
+                            default:
+                                active_board ->broken()=true;
+                                active_board ->broken_reasons().push_back("[Cure::legal()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
+                                return "BREAK";
                         }
-                        break;
-                    case Map::YELLOW:
-                        YELLOW_count++;
-                        if(YELLOW_count==active_player.role.required_cure_cards){
-                            return true;
-                        }
-                        break;
-                    case Map::BLACK:
-                        BLACK_count++;
-                        if(BLACK_count==active_player.role.required_cure_cards){
-                            return true;
-                        }
-                        break;
-                    case Map::RED:
-                        RED_count++;
-                        if(RED_count==active_player.role.required_cure_cards){  
-                            return true;
-                        }
-                        break;
-                    default:
-                        active_board ->broken()=true;
-                        active_board ->broken_reasons().push_back("[Cure::legal()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
-                        return "BREAK";
+                    }
                 }
             }
         }
@@ -1215,12 +1227,12 @@ void Actions::GovernmentGrant::execute(){
     std::vector<Map::City>& stations = active_board ->get_stations();
     
     // Add it to the vector of research station Map::City elements
-    stations.push_back(Map::CITIES[target_city]);
+    active_board -> AddStation(Map::CITIES[target_city]);
 
     if(remove_station>=0){
         // Should break catastrophically when remove_station isn't defined properly
         // (Should be index of station to remove in active_board ->stations)
-        active_board ->get_stations().erase(active_board ->get_stations().begin() + remove_station);
+        active_board ->RemoveStation(remove_station);
     }
 
 }
