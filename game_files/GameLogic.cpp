@@ -80,7 +80,7 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
 
     if(verbose){
         Players::Player& active_player = active_board.active_player();
-        DEBUG_MSG("[Game:get_random_action_uniform] "<< active_player.role.name << " has hand: ");
+        DEBUG_MSG("[Game::get_random_action_uniform()] "<< active_player.role.name << " is in " << active_player.get_position().name <<  " and has hand: ");
         for(Decks::PlayerCard card: active_player.hand){
             DEBUG_MSG(card.name << "; ");
         }
@@ -96,17 +96,17 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
     }
 
     if(verbose){
-        DEBUG_MSG("[Game:get_random_action_uniform] There are a total of " << n_available_actions() << " available actions according to n_available_actions()");
+        DEBUG_MSG("[Game::get_random_action_uniform()] There are a total of " << n_available_actions() << " available actions according to n_available_actions()");
     }
     // n_available_actions) includes nonzero additions where the group is legal
     int randomized = rand() % n_available_actions(verbose);
     if(verbose){
-        DEBUG_MSG(std::endl << "[Game:get_random_action_uniform] Chose random number: " << randomized << " to choose an action.");
+        DEBUG_MSG(std::endl << "[Game::get_random_action_uniform()] Chose random number: " << randomized << " to choose an action.");
     }
     // Under this scheme actions should appear uniformly
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
         if(verbose){
-            DEBUG_MSG(std::endl << "[Game:get_random_action_uniform] "<< (*con_ptr).get_movetype() << " being considered for random choice,");
+            DEBUG_MSG(std::endl << "[Game::get_random_action_uniform()] "<< (*con_ptr).get_movetype() << " being considered for random choice,");
             DEBUG_MSG(" which has " << con_ptr -> n_actions() << " possible actions.");
         }
         if(randomized <= (con_ptr -> n_actions())){
@@ -119,10 +119,10 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
         }
     }
     if(verbose){
-        DEBUG_MSG(std::endl << "[Game:get_random_action_uniform] considered ALL actions for random choice but algorithm failed!");
+        DEBUG_MSG(std::endl << "[Game::get_random_action_uniform()] considered ALL actions for random choice but algorithm failed!");
     }
     active_board.broken()=true;
-    active_board.broken_reasons().push_back("[Game:get_random_action_uniform] get_random_action_uniform got to end of execution without choosing an action");
+    active_board.broken_reasons().push_back("[Game::get_random_action_uniform()] get_random_action_uniform got to end of execution without choosing an action");
 }
 
 Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
@@ -137,7 +137,7 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
 
     std::vector<Actions::ActionConstructor*> legal_groups;
     if(verbose){
-        DEBUG_MSG("[Game:get_random_action_bygroup()] "<< active_board.active_player().role.name << " has hand: ");
+        DEBUG_MSG("[Game::get_random_action_bygroup()] " << active_board.active_player().role.name << " is in " << active_board.active_player().get_position().name <<  " and has hand: ");
         for(Decks::PlayerCard card: active_board.active_player().hand){
             DEBUG_MSG(card.name << "; ");
         }
@@ -182,9 +182,27 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(bool verbose){
     // If the logic has reached this point, then we're just letting the player (agent) play. Return action options.
     std::vector<Actions::Action*> full_out;
 
+    if(verbose){
+        Players::Player& active_player = active_board.active_player();
+        DEBUG_MSG("[Game::list_actions()] "<< active_player.role.name << " is in " << active_player.get_position().name <<  " and has hand: ");
+        for(Decks::PlayerCard card: active_player.hand){
+            DEBUG_MSG(card.name << "; ");
+        }
+        for(Decks::PlayerCard card: active_player.event_cards){
+            DEBUG_MSG(card.name << "; ");
+        }
+        DEBUG_MSG(std::endl);
+    }
+
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
+        if(verbose){
+            DEBUG_MSG(std::endl << "[Game::list_actions()] considering movetype " << con_ptr -> get_movetype() << "...");
+        }
         if(con_ptr -> legal()){
             std::vector<Actions::Action*> these_actions = (con_ptr -> all_actions());
+            if(verbose){
+                DEBUG_MSG("it's legal! There are " << these_actions.size() << " possible actions.");
+            }
             full_out.insert(full_out.end(),these_actions.begin(),these_actions.end());
         }
     }

@@ -71,7 +71,7 @@ Actions::Action* Actions::MoveConstructor::random_action(){
 std::vector<Actions::Action*> Actions::MoveConstructor::all_actions(){
     std::vector<int> neighbors = active_board ->active_player().get_position().neighbors;
     std::vector<Actions::Action*> full_list;
-    for(int n;n<neighbors.size();n++){
+    for(int n: neighbors){
         full_list.push_back(new Actions::Move(*active_board,Map::CITIES[n]));
     }
     return full_list;
