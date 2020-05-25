@@ -379,7 +379,7 @@ Actions::Action* Actions::OperationsExpertFlightConstructor::random_action(){
     // Randomly discarded city card
     int random_discard = rand() % active_board ->active_player().hand.size();
 
-    return new Actions::OperationsExpertFlight(*active_board,random_position,Decks::CityCard(random_discard));
+    return new Actions::OperationsExpertFlight(*active_board,random_position,Decks::CityCard(active_board -> active_player().hand[random_discard].index));
 }
 
 std::vector<Actions::Action*> Actions::OperationsExpertFlightConstructor::all_actions(){
