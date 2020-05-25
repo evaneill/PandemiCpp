@@ -36,7 +36,6 @@ Actions::Move::Move(Board::Board& _active_board, Map::City _to): Action(_active_
 void Actions::Move::execute(){
     Players::Player& active_player = active_board ->active_player();
     active_player.set_position(to);
-    // This logic checks for existence of the medic, and clears cubes of any eradicated disease at their location
 
     active_board ->get_turn_action()++;
 }
@@ -716,24 +715,36 @@ void Actions::Cure::execute(){
                 active_player.removeCureCardColor(Map::BLUE);
                 cured[Map::BLUE]=true;
                 active_board -> get_turn_action()++;
+                if(std::accumulate(active_board -> get_disease_count().begin(),active_board -> get_disease_count().begin(),0)==0){
+                    active_board ->get_eradicated()[Map::BLUE]=true;
+                }
                 return;
             }
             if(YELLOW_count>=min_required_cards){
                 active_player.removeCureCardColor(Map::YELLOW);
                 active_board -> get_turn_action()++;
                 cured[Map::YELLOW]=true;
+                if(std::accumulate(active_board -> get_disease_count().begin(),active_board -> get_disease_count().begin(),0)==0){
+                    active_board ->get_eradicated()[Map::YELLOW]=true;
+                }
                 return;
             }
             if(BLACK_count>=min_required_cards){
                 active_player.removeCureCardColor(Map::BLACK);
                 cured[Map::BLACK]=true;
                 active_board -> get_turn_action()++;
+                if(std::accumulate(active_board -> get_disease_count().begin(),active_board -> get_disease_count().begin(),0)==0){
+                    active_board ->get_eradicated()[Map::BLACK]=true;
+                }
                 return;
             }
             if(RED_count>=min_required_cards){
                 active_player.removeCureCardColor(Map::RED);
                 cured[Map::RED]=true;
                 active_board -> get_turn_action()++;
+                if(std::accumulate(active_board -> get_disease_count().begin(),active_board -> get_disease_count().begin(),0)==0){
+                    active_board ->get_eradicated()[Map::RED]=true;
+                }
                 return;
             }
         }
