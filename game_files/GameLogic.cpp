@@ -61,12 +61,15 @@ void GameLogic::Game::nonplayer_actions(bool verbose){
     // Right now this SKIPS any use of event cards during draw phase!
     while(StochasticCon.legal() && !ForcedDiscardCon.legal() && !is_terminal()){
         Actions::Action* next_action = StochasticCon.get_action();
-        if(verbose){
-            DEBUG_MSG("[Game::nonplayer_actions()] " << active_board.active_player().role.name << ": ");
-        }
+        
+        // Track statuses as they went into execute(), where active player name and quiet night status might change
+        bool was_quiet_night = active_board.quiet_night_status();
+        std::string player_name = active_board.active_player().role.name;
+        
         next_action -> execute();
-        if(verbose){
-            DEBUG_MSG(next_action -> repr() << std::endl);
+
+        if(verbose & !was_quiet_night){
+            DEBUG_MSG("[Game::nonplayer_actions()] " << player_name << ": " << next_action -> repr() << std::endl);
         }
     }
 }
