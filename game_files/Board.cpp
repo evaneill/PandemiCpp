@@ -131,6 +131,10 @@ void Board::Board::setup(bool verbose){
     IS_SETUP = true;
 }
 
+void Board::Board::is_setup(){
+    IS_SETUP=true;
+}
+
 void Board::Board::reset_disease_count(){
     // Set all of the disease counts to 0 (I didn't think I had to do this but...)
     for(int col=0;col<4;col++){

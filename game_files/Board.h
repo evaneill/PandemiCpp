@@ -81,6 +81,7 @@ namespace Board
         // Setup the board for play
         void setup(bool verbose=false);
         void setup_player_deck();
+        void is_setup();
 
         // Logic to draw from the player deck
         Decks::PlayerCard draw_playerdeck();

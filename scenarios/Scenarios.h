@@ -86,6 +86,7 @@ namespace Scenarios
             }
         }
 
+        new_board -> is_setup();
         return *new_board;
     }
 
