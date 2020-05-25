@@ -44,7 +44,7 @@ namespace Scenarios
 
     // A scenario designed to have an agent try lots of non-movement actions
     Board::Board& BusyBoardTest(bool verbose){
-        Board::Board* new_board = new Board::Board({1,2,3},4);
+        Board::Board* new_board = new Board::Board({2,3,4},4);
 
         // Put 6 research stations more-or-less next to eachother on the board somewhere;
         int random_city = rand() % Map::CITIES.size();
@@ -99,11 +99,24 @@ namespace Scenarios
         new_board -> setup_player_deck();
 
         // Do same ridiculous thing as BusyBoardTest to instantiate a lot of research stations
+        // Infect atlanta and neighbors of atlanta with >1 cubes to test TREAT effect updating with cure
         new_board -> AddStation(Map::CITIES[0]);
         (*new_board).AddStation(Map::CITIES[1]);
+        std::array<int,2> junk = new_board -> infect(1,0,2);
+        junk = new_board -> infect(1,1,2);
+        junk = new_board -> infect(1,2,2);
+        junk = new_board -> infect(1,3,2);
         (*new_board).AddStation(Map::CITIES[2]);
         (*new_board).AddStation(Map::CITIES[3]);
+        junk = new_board -> infect(3,0,2);
+        junk = new_board -> infect(3,1,2);
+        junk = new_board -> infect(3,2,2);
+        junk = new_board -> infect(3,3,2);
         (*new_board).AddStation(Map::CITIES[4]);
+        junk = new_board -> infect(4,0,2);
+        junk = new_board -> infect(4,1,2);
+        junk = new_board -> infect(4,2,2);
+        junk = new_board -> infect(4,3,2);
         (*new_board).AddStation(Map::CITIES[5]);
         (*new_board).AddStation(Map::CITIES[6]);
         (*new_board).AddStation(Map::CITIES[7]);
@@ -114,7 +127,10 @@ namespace Scenarios
         (*new_board).AddStation(Map::CITIES[12]);
         (*new_board).AddStation(Map::CITIES[13]);
         (*new_board).AddStation(Map::CITIES[14]);
-        (*new_board).AddStation(Map::CITIES[15]);
+        junk = new_board -> infect(14,0,2);
+        junk = new_board -> infect(14,1,2);
+        junk = new_board -> infect(14,2,2);
+        junk = new_board -> infect(14,3,2);
         (*new_board).AddStation(Map::CITIES[15]);
         (*new_board).AddStation(Map::CITIES[16]);
         (*new_board).AddStation(Map::CITIES[17]);
@@ -147,7 +163,7 @@ namespace Scenarios
         (*new_board).AddStation(Map::CITIES[44]);
         (*new_board).AddStation(Map::CITIES[45]);
         (*new_board).AddStation(Map::CITIES[46]);
-        (*new_board).AddStation(Map::CITIES[47]);
+        // (*new_board).AddStation(Map::CITIES[47]); // Don't put one at at least one city, or else the algorithm for GovernmentGrantConstructor.random_action() never terminates!
 
         // Give each player 7 cards of a distinct color
         // blue card player
