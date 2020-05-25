@@ -65,10 +65,10 @@ void GameLogic::Game::nonplayer_actions(bool verbose){
         // Track statuses as they went into execute(), where active player name and quiet night status might change
         bool was_quiet_night = active_board.quiet_night_status();
         std::string player_name = active_board.active_player().role.name;
-        
+
         next_action -> execute();
 
-        if(verbose & !was_quiet_night){
+        if(verbose && (!was_quiet_night || active_board.get_turn_action()==4 || (active_board.get_turn_action()==5 && active_board.get_infect_cards_drawn()==0))){
             DEBUG_MSG("[Game::nonplayer_actions()] " << player_name << ": " << next_action -> repr() << std::endl);
         }
     }

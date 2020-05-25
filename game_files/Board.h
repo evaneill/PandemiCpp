@@ -138,7 +138,7 @@ namespace Board
         int& get_player_cards_drawn();
         int& get_infect_cards_drawn();
         int& get_outbreak_count();
-        int& get_epidemic_count();
+        int get_epidemic_count();
         int& get_difficulty();
         int get_infection_rate(); // return the current infection rate according to kept index
         int& get_turn(); // return reference to whose turn it is

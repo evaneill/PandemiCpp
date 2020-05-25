@@ -120,6 +120,7 @@ void StochasticActions::InfectDrawAction::execute(){
                 if(typeid(p.role)==typeid(Players::QuarantineSpecialist)){
                     if(p.get_position().index==new_card.index){
                         QuarantineSpecialistBlocked=true;
+                        break;
                     }
                     for(int n: p.get_position().neighbors){
                         if(new_card.index==n){
@@ -142,24 +143,23 @@ void StochasticActions::InfectDrawAction::execute(){
                     active_board -> get_lost_reason() = "Have used >24 disease cubes of some color!";
                 }
             } 
+        }
+        // If we've drawn enough cards, move the board on to prepare for the next player round if we've drawn all the infect cards
+        if((active_board ->get_infect_cards_drawn())>=(active_board ->get_infection_rate()-1)){
+            // reset to player turn ("action 0")
+            active_board ->get_turn_action() = 0; 
 
-            // If we've drawn enough cards, move the board on to prepare for the next player round if we've drawn all the infect cards
-            if((active_board ->get_infect_cards_drawn())>=(active_board ->get_infection_rate()-1)){
-                // reset to player turn ("action 0")
-                active_board ->get_turn_action() = 0; 
+            // reset # infect cards drawn for next round
+            active_board ->get_infect_cards_drawn() = 0; 
 
-                // reset # infect cards drawn for next round
-                active_board ->get_infect_cards_drawn() = 0; 
+            // Increment the player turn by 1 (in a cyclic way)
+            active_board ->get_turn() = (active_board ->get_turn() + 1) % active_board ->get_players().size();
 
-                // Increment the player turn by 1 (in a cyclic way)
-                active_board ->get_turn() = (active_board ->get_turn() + 1) % active_board ->get_players().size();
-
-                // reset the next players "operations expert flight" boolean just in case
-                active_board ->active_player().used_OperationsExpertFlight=false;
-            } else {
-                // Otherwise just increment the number of infect cards drawn
-                active_board -> get_infect_cards_drawn()++;
-            }
+            // reset the next players "operations expert flight" boolean just in case
+            active_board ->active_player().used_OperationsExpertFlight=false;
+        } else {
+            // Otherwise just increment the number of infect cards drawn
+            active_board -> get_infect_cards_drawn()++;
         }
     } else {
         // Just skip the entire infect turn

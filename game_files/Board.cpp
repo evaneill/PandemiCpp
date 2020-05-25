@@ -390,7 +390,7 @@ int& Board::Board::get_outbreak_count(){
     return outbreak_count;
 }
 
-int& Board::Board::get_epidemic_count(){
+int Board::Board::get_epidemic_count(){
     return player_deck._epidemics_drawn();
 }
 
