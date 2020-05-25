@@ -44,7 +44,7 @@ namespace Scenarios
 
     // A scenario designed to have an agent try lots of non-movement actions
     Board::Board& BusyBoardTest(bool verbose){
-        Board::Board* new_board = new Board::Board({0,2,3},4);
+        Board::Board* new_board = new Board::Board({1,2,3},4);
 
         // Put 6 research stations more-or-less next to eachother on the board somewhere;
         int random_city = rand() % Map::CITIES.size();
@@ -87,6 +87,105 @@ namespace Scenarios
         }
 
         new_board -> is_setup();
+        return *new_board;
+    }
+
+    // A scenario designed to have an agent try lots of non-movement actions
+    Board::Board& CanWinTest(bool verbose){
+        Board::Board* new_board = new Board::Board({0,1,2,3},4);
+
+        new_board -> is_setup();
+        new_board -> reset_disease_count();
+        new_board -> setup_player_deck();
+
+        // Do same ridiculous thing as BusyBoardTest to instantiate a lot of research stations
+        new_board -> AddStation(Map::CITIES[0]);
+        (*new_board).AddStation(Map::CITIES[1]);
+        (*new_board).AddStation(Map::CITIES[2]);
+        (*new_board).AddStation(Map::CITIES[3]);
+        (*new_board).AddStation(Map::CITIES[4]);
+        (*new_board).AddStation(Map::CITIES[5]);
+        (*new_board).AddStation(Map::CITIES[6]);
+        (*new_board).AddStation(Map::CITIES[7]);
+        (*new_board).AddStation(Map::CITIES[8]);
+        (*new_board).AddStation(Map::CITIES[9]);
+        (*new_board).AddStation(Map::CITIES[10]);
+        (*new_board).AddStation(Map::CITIES[11]);
+        (*new_board).AddStation(Map::CITIES[12]);
+        (*new_board).AddStation(Map::CITIES[13]);
+        (*new_board).AddStation(Map::CITIES[14]);
+        (*new_board).AddStation(Map::CITIES[15]);
+        (*new_board).AddStation(Map::CITIES[15]);
+        (*new_board).AddStation(Map::CITIES[16]);
+        (*new_board).AddStation(Map::CITIES[17]);
+        (*new_board).AddStation(Map::CITIES[18]);
+        (*new_board).AddStation(Map::CITIES[19]);
+        (*new_board).AddStation(Map::CITIES[20]);
+        (*new_board).AddStation(Map::CITIES[21]);
+        (*new_board).AddStation(Map::CITIES[22]);
+        (*new_board).AddStation(Map::CITIES[23]);
+        (*new_board).AddStation(Map::CITIES[24]);
+        (*new_board).AddStation(Map::CITIES[25]);
+        (*new_board).AddStation(Map::CITIES[26]);
+        (*new_board).AddStation(Map::CITIES[27]);
+        (*new_board).AddStation(Map::CITIES[28]);
+        (*new_board).AddStation(Map::CITIES[29]);
+        (*new_board).AddStation(Map::CITIES[30]);
+        (*new_board).AddStation(Map::CITIES[31]);
+        (*new_board).AddStation(Map::CITIES[32]);
+        (*new_board).AddStation(Map::CITIES[33]);
+        (*new_board).AddStation(Map::CITIES[34]);
+        (*new_board).AddStation(Map::CITIES[35]);
+        (*new_board).AddStation(Map::CITIES[36]);
+        (*new_board).AddStation(Map::CITIES[37]);
+        (*new_board).AddStation(Map::CITIES[38]);
+        (*new_board).AddStation(Map::CITIES[39]);
+        (*new_board).AddStation(Map::CITIES[40]);
+        (*new_board).AddStation(Map::CITIES[41]);
+        (*new_board).AddStation(Map::CITIES[42]);
+        (*new_board).AddStation(Map::CITIES[43]);
+        (*new_board).AddStation(Map::CITIES[44]);
+        (*new_board).AddStation(Map::CITIES[45]);
+        (*new_board).AddStation(Map::CITIES[46]);
+        (*new_board).AddStation(Map::CITIES[47]);
+
+        // Give each player 7 cards of a distinct color
+        // blue card player
+        new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(6));
+        new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(7));
+        new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(8));
+        new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(9));
+        new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(10));
+        new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(11));
+        new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(12));
+
+        // yellow card player
+        new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(7+12));
+        new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(8+12));
+        new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(9+12));
+        new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(10+12));
+        new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(11+12));
+        new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(6+12));
+        new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(12+12));
+
+        // black card player
+        new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(6+24));
+        new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(7+24));
+        new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(8+24));
+        new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(9+24));
+        new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(10+24));
+        new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(11+24));
+        new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(12+24));
+
+        // red card player
+        new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(6+36));
+        new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(7+36));
+        new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(8+36));
+        new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(9+36));
+        new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(10+36));
+        new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(11+36));
+        new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(12+36));
+
         return *new_board;
     }
 
