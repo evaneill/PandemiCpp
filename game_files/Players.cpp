@@ -71,16 +71,34 @@ void Players::Player::set_position(int new_city){
 };
 
 void Players::Player::removeCard(Decks::PlayerCard card_to_remove){
-    for(int c=0;c<hand.size();c++){
-        if(hand[c].index==card_to_remove.index){
-            hand.erase(hand.begin()+c);
+    int hand_idx=0;
+    for(Decks::PlayerCard& card:hand){
+        if(card.index==card_to_remove.index){
+            hand.erase(hand.begin()+hand_idx);
             return;
         }
+        hand_idx++;
     }
-    for(int c=0;c<event_cards.size();c++){
-        if(event_cards[c].index==card_to_remove.index){
-            event_cards.erase(event_cards.begin()+c);
+    hand_idx=0;
+    for(Decks::PlayerCard& card:event_cards){
+        if(card.index==card_to_remove.index){
+            event_cards.erase(event_cards.begin()+hand_idx);
             return;
+        }
+        hand_idx++;
+    }
+}
+
+void Players::Player::removeCureCardColor(int col){
+    int checkpoint = 0;
+    int num_erased=0;
+    while(num_erased<role.required_cure_cards){
+        // Erase card indices from 
+        if(hand[checkpoint].color==col){
+            hand.erase(hand.begin()+checkpoint);
+            num_erased++;
+        } else{
+            checkpoint++;
         }
     }
 }

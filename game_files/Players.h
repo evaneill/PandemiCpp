@@ -52,6 +52,8 @@ namespace Players
 
         // get rid of the event or city card matching the one in the argument by logical ==
         void removeCard(Decks::PlayerCard card);
+        // Get rid of the last required_cure_cards cards of color col in player hand (called during Cure::execute())
+        void removeCureCardColor(int col);
 
         // Return the city representing current position
         Map::City get_position();
