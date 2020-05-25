@@ -714,18 +714,22 @@ void Actions::Cure::execute(){
             }
             if(BLUE_count>=min_required_cards){
                 active_player.removeCureCardColor(Map::BLUE);
+                cured[Map::BLUE]=true;
                 return;
             }
             if(YELLOW_count>=min_required_cards){
                 active_player.removeCureCardColor(Map::YELLOW);
+                cured[Map::YELLOW]=true;
                 return;
             }
             if(BLACK_count>=min_required_cards){
                 active_player.removeCureCardColor(Map::BLACK);
+                cured[Map::BLACK]=true;
                 return;
             }
             if(RED_count>=min_required_cards){
                 active_player.removeCureCardColor(Map::RED);
+                cured[Map::RED]=true;
                 return;
             }
         }
