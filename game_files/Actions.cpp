@@ -715,7 +715,7 @@ void Actions::Cure::execute(){
                 active_player.removeCureCardColor(Map::BLUE);
                 cured[Map::BLUE]=true;
                 active_board -> get_turn_action()++;
-                if(std::accumulate(active_board -> get_disease_count().begin(),active_board -> get_disease_count().begin(),0)==0){
+                if(std::accumulate(active_board -> get_disease_count()[Map::BLUE].begin(),active_board -> get_disease_count()[Map::BLUE].begin(),0)==0){
                     active_board ->get_eradicated()[Map::BLUE]=true;
                 }
                 return;
@@ -724,7 +724,7 @@ void Actions::Cure::execute(){
                 active_player.removeCureCardColor(Map::YELLOW);
                 active_board -> get_turn_action()++;
                 cured[Map::YELLOW]=true;
-                if(std::accumulate(active_board -> get_disease_count().begin(),active_board -> get_disease_count().begin(),0)==0){
+                if(std::accumulate(active_board -> get_disease_count()[Map::YELLOW].begin(),active_board -> get_disease_count()[Map::YELLOW].begin(),0)==0){
                     active_board ->get_eradicated()[Map::YELLOW]=true;
                 }
                 return;
@@ -733,7 +733,7 @@ void Actions::Cure::execute(){
                 active_player.removeCureCardColor(Map::BLACK);
                 cured[Map::BLACK]=true;
                 active_board -> get_turn_action()++;
-                if(std::accumulate(active_board -> get_disease_count().begin(),active_board -> get_disease_count().begin(),0)==0){
+                if(std::accumulate(active_board -> get_disease_count()[Map::BLACK].begin(),active_board -> get_disease_count()[Map::BLACK].begin(),0)==0){
                     active_board ->get_eradicated()[Map::BLACK]=true;
                 }
                 return;
@@ -742,7 +742,7 @@ void Actions::Cure::execute(){
                 active_player.removeCureCardColor(Map::RED);
                 cured[Map::RED]=true;
                 active_board -> get_turn_action()++;
-                if(std::accumulate(active_board -> get_disease_count().begin(),active_board -> get_disease_count().begin(),0)==0){
+                if(std::accumulate(active_board -> get_disease_count()[Map::RED].begin(),active_board -> get_disease_count()[Map::RED].begin(),0)==0){
                     active_board ->get_eradicated()[Map::RED]=true;
                 }
                 return;
