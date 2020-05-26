@@ -19,8 +19,11 @@ void Play(){
     
     // instantiate a game including setup
     DEBUG_MSG("done!" << std::endl << "About to create the game...");
-    // Use vanilla scenario to setup the board
-    Board::Board& forced_discard_board = Scenarios::ForcedDiscardScenario(true);
+    
+    // Use the forced discard scenario 
+    Scenarios::Scenario* forced_discard_scenario = new Scenarios::ForcedDiscardScenario();
+    Board::Board forced_discard_board = forced_discard_scenario -> make_board({0,1,2},4);
+    
     // Give the game to the GameLogic
     GameLogic::Game the_game = GameLogic::Game(forced_discard_board);
     DEBUG_MSG("done!" << std::endl << "About to create an agent...");

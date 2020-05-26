@@ -4,6 +4,7 @@
 #include "scenarios/Scenarios.h"
 
 #include "agents/UniformRandomAgent.h"
+#include "agents/ByGroupRandomAgent.h"
 /*
 ... other agent declarations
 */
@@ -20,13 +21,15 @@ void Play(std::vector<int> roles, int difficulty){
     // instantiate a game including setup
     DEBUG_MSG("done!" << std::endl << "About to create the game...");
     // Use vanilla scenario to setup the board
-    Board::Board vanilla_board = Scenarios::VanillaGameScenario(roles,difficulty,true);
+    Scenarios::Scenario* vanilla_scenario = new Scenarios::VanillaGameScenario();
+    Board::Board vanilla_board = vanilla_scenario -> make_board(roles,difficulty,true);
+    
     // Give the game to the GameLogic
     GameLogic::Game the_game = GameLogic::Game(vanilla_board);
     DEBUG_MSG("done!" << std::endl << "About to create an agent...");
 
     // // Instantiate an agent pointer with abstract BaseClass
-    Agents::BaseAgent* the_agent = new Agents::UniformRandomAgent(the_game);
+    Agents::BaseAgent* the_agent = new Agents::ByGroupRandomAgent(the_game);
     DEBUG_MSG("done!" << std::endl << "About to enter the game loop...");
     // While the game isn't over (while maintaining sanity checks throughout)
     int decisions_made = 0;

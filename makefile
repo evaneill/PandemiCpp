@@ -26,7 +26,7 @@ test_infectcity:
 	c++ -std=c++17 -o tests/infectcity_test.out game_files/Board.cpp tests/test_infectcity.cpp game_files/Map.cpp game_files/Decks.cpp game_files/Players.cpp
 	tests/infectcity_test.out
 playtest:
-	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp Playtest.cpp -o playtest.out
+	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp scenarios/*.cpp Playtest.cpp -o playtest.out
 	./playtest.out
 test:
-	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp $(TESTFILE).cpp -o $(TESTFILE).out
+	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp scenarios/*.cpp $(TESTFILE).cpp -o $(TESTFILE).out

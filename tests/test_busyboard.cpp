@@ -17,9 +17,11 @@
 
 void Play(){
     
-    // instantiate a game including setup. This should be referenced by all subsequent entities
+    // instantiate a game using the given scenario
     DEBUG_MSG("done!" << std::endl << "About to create the game...");
-    Board::Board busyboard_test = Scenarios::BusyBoardTest(true);
+    Scenarios::Scenario* my_scenario = new Scenarios::BusyBoardScenario();
+
+    Board::Board busyboard_test = my_scenario -> make_board({0,2,3},4);
     
     // Give the game to the GameLogic
     GameLogic::Game the_game = GameLogic::Game(busyboard_test);
@@ -27,7 +29,7 @@ void Play(){
 
     // // Instantiate an agent pointer with abstract BaseClass
     Agents::BaseAgent* the_agent = new Agents::ByGroupRandomAgent(the_game);
-    DEBUG_MSG("done!" << std::endl << "About to enter the game loop...");
+    DEBUG_MSG("done!" << std::endl << "About to enter the game loop..."<<std::endl);
     int decisions_made = 0;
     
     // IGNORE sanity checks since I'm giving players duplicate cards

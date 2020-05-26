@@ -19,7 +19,8 @@ void Play(){
     
     // instantiate a game including setup. This should be referenced by all subsequent entities
     DEBUG_MSG("done!" << std::endl << "About to create the game...");
-    Board::Board canwin_test = Scenarios::CanWinTest(true);
+    Scenarios::Scenario* try_to_win_scenario = new Scenarios::CanWinScenario();
+    Board::Board canwin_test = try_to_win_scenario -> make_board({0,1,2,3},4);// These arguments are actually ignored
     
     // Give the game to the GameLogic
     GameLogic::Game the_game = GameLogic::Game(canwin_test);
