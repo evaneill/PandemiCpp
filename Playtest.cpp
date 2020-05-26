@@ -1,7 +1,7 @@
 #include "game_files/GameLogic.h"
 #include "game_files/Debug.h"
 
-#include "scenarios/Scenarios.h"
+#include "../experimental_tools/Scenarios.h"
 
 #include "agents/UniformRandomAgent.h"
 #include "agents/ByGroupRandomAgent.h"
@@ -23,7 +23,7 @@ void Play(std::vector<int> roles, int difficulty){
     // Use vanilla scenario to setup the board
     Scenarios::Scenario* vanilla_scenario = new Scenarios::VanillaGameScenario();
     Board::Board vanilla_board = vanilla_scenario -> make_board(roles,difficulty,true);
-    
+
     // Give the game to the GameLogic
     GameLogic::Game the_game = GameLogic::Game(vanilla_board);
     DEBUG_MSG("done!" << std::endl << "About to create an agent...");
