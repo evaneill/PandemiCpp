@@ -152,6 +152,10 @@ Decks::PlayerCard Board::Board::draw_playerdeck(){
     return player_deck.draw();
 }
 
+int Board::Board::remaining_player_cards(){
+    return player_deck.remaining_cards();
+}
+
 Decks::InfectCard Board::Board::draw_infectdeck(){
     return infect_deck.draw();
 }
@@ -274,6 +278,18 @@ bool Board::Board::is_terminal(){
         return false;
     }
 };
+
+int Board::Board::win_lose(){
+    if(won){
+        return 1;
+    } else if(lost){
+        return 0;
+    } else {
+        // Right now this is actually only called by `Measurement`s
+        // Won't force the board to break just because a reward was requested at a bad time
+        return -100000;
+    }
+}
 
 void Board::Board::update_medic_position(){
     for(Players::Player& p: players){
@@ -406,15 +422,17 @@ int& Board::Board::get_turn(){
     return turn;
 }
 
+int Board::Board::disease_sum(int col){
+    int sum=0;
+    for(int city;city<Map::CITIES.size();city++){
+        sum+=disease_count[col][city];
+    }
+    return sum;
+}
+
 bool Board::Board::disease_count_safe(){
-    for(int col=0;col<4;col++){
-        int sum=0;
-        for(int city;city<Map::CITIES.size();city++){
-            sum+=disease_count[col][city];
-        }
-        if(sum>24){
-            return false;
-        }
+    if(disease_sum(Map::BLUE)>24 || disease_sum(Map::YELLOW)>24 || disease_sum(Map::BLACK)>24 || disease_sum(Map::RED)>24){
+        return false;
     }
     return true;
 }

@@ -11,11 +11,12 @@
 namespace Scenarios
 {
     class Scenario{
-    std::string name;
-    std::string description;
     public:
         Scenario(std::string name,std::string desc);
 
+        std::string name;
+        std::string description;
+        
         virtual Board::Board& make_board(std::vector<int> roles,int _difficulty,bool verbose=false)=0;
     };
     

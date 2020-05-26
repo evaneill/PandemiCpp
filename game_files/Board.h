@@ -112,6 +112,7 @@ namespace Board
 
         // is_terminal and valuation
         bool is_terminal();
+        int win_lose();
 
         // Check all gamestate variables and set win/lose/break as appropriate, if applicable
         void updatestatus();
@@ -121,6 +122,7 @@ namespace Board
         // functional additions (lots of them)
         Players::Player& active_player(); // reference to active player
         std::array<std::array<int,48>,4>& get_disease_count(); // reference to disease count to increment
+        int disease_sum(int col); // sum of disease cubes of a color
         void reset_disease_count();
         void reset_outbreak_memory();
 
@@ -135,7 +137,8 @@ namespace Board
         bool& has_won(); // reference to win status. Only modified in Action Actions::Cure
         bool& has_lost(); // reference to loss status. Only modified during stochasticity
         int& get_turn_action();
-        int& get_player_cards_drawn();
+        int& get_player_cards_drawn(); // Entry point for access to number of player cards drawn during player draw phase
+        int remaining_player_cards(); // Entry point for asking how many player cards are left in the deck
         int& get_infect_cards_drawn();
         int& get_outbreak_count();
         int get_epidemic_count();

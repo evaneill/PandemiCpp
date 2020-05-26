@@ -57,6 +57,7 @@ namespace Decks
 		
 		// This tracks losing status - very important! Determines winning/losing status.
 		bool isempty();
+		int remaining_cards();
 
 		// right now these are purely for testing purposes.
 		int _remaining_nonepi_cards();

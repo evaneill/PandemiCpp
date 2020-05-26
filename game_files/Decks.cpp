@@ -161,11 +161,15 @@ Decks::PlayerCard Decks::PlayerDeck::draw(bool setup){
 }
 
 bool Decks::PlayerDeck::isempty(){
-    if(remaining_nonepi_cards.size()==0 && epidemics_drawn==difficulty){
-        return true;
-    } else {
+    if(remaining_cards()>0){
         return false;
+    } else {
+        return true;
     }
+}
+
+int Decks::PlayerDeck::remaining_cards(){
+    return remaining_nonepi_cards.size()+difficulty-epidemics_drawn;
 }
 
 Decks::PlayerCard Decks::PlayerDeck::make_card_by_vector_index(int drop_index,bool setup){
