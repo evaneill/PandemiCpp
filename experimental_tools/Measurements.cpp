@@ -4,33 +4,52 @@
 #include "../game_files/Players.h"
 #include "../game_files/Decks.h"
 #include "../game_files/GameLogic.h"
+#include "../game_files/Board.h"
 
-Measurements::Measurement::Measurement(Board::Board& _active_board){
-    active_board = &_active_board;
-}
+Measurements::GameMeasurement::GameMeasurement(){}
+
+Measurements::MeasurementConstructor::MeasurementConstructor(){}
 
 // ===== Win-Lose measurements ===== 
-Measurements::WinLose::WinLose(Board::Board& _active_board):
-    Measurement(_active_board){
-        name="Win-Lose";
-        description="Final game reward";
+Measurements::WinLoseConstructor::WinLoseConstructor(){
+    name = "Win-Lose";
+    description = "Whether the agent won (1) or lost (0)";
+}
+Measurements::GameMeasurement* Measurements::WinLoseConstructor::construct_measure(Board::Board& active_board){
+    return new Measurements::WinLose(active_board);
+}
+
+std::vector<std::string> Measurements::WinLoseConstructor::get_value_keys(){
+    return {"GameWon"};
+}
+
+Measurements::WinLose::WinLose(Board::Board& _active_board){
+    active_board = &_active_board;
 }
 
 std::vector<double> Measurements::WinLose::get_values(){
     return {(double) active_board -> win_lose()};
 }
 
-std::vector<std::string> Measurements::WinLose::get_value_keys(){
-    return {"GameWon"};
-}
 // Doesn't need to do any updating
 void Measurements::WinLose::update(){}; 
 
 // ===== LoseStatus measurements ===== 
-Measurements::LoseStatus::LoseStatus(Board::Board& _active_board):
-    Measurement(_active_board){
-        name="Loss Status Variables";
-        description="Values of potentially loss-inducing board attributes";
+Measurements::LoseStatusConstructor::LoseStatusConstructor(){
+    name="Loss Status Variables";
+    description="Values of potentially loss-inducing board attributes";
+}
+
+Measurements::GameMeasurement* Measurements::LoseStatusConstructor::construct_measure(Board::Board& active_board){
+    return new Measurements::LoseStatus(active_board);
+}
+
+std::vector<std::string> Measurements::LoseStatusConstructor::get_value_keys(){
+    return {"OutbreakCount","PlayerCardsLeft","BlueDiseasePresent","YellowDiseasePresent","BlackDiseasePresent","RedDiseasePresent"};
+}
+
+Measurements::LoseStatus::LoseStatus(Board::Board& _active_board){
+    active_board = &_active_board;
 }
 
 std::vector<double> Measurements::LoseStatus::get_values(){
@@ -44,18 +63,25 @@ std::vector<double> Measurements::LoseStatus::get_values(){
     };
 }
 
-std::vector<std::string> Measurements::LoseStatus::get_value_keys(){
-    return {"OutbreakCount","PlayerCardsLeft","BlueDiseasePresent","YellowDiseasePresent","BlackDiseasePresent","RedDiseasePresent"};
-}
-
 // Doesn't need to do anything during update; just read out final status
 void Measurements::LoseStatus::update(){};
 
 // ===== GameTreeSize measurements ===== 
-Measurements::GameTreeSize::GameTreeSize(Board::Board& _active_board):
-    Measurement(_active_board){
-        name="Game Tree Variables";
-        description="Game Tree attributes including depth and branching factor";
+Measurements::GameTreeSizeConstructor::GameTreeSizeConstructor(){
+    name="Game Tree Variables";
+    description="Game Tree attributes including depth and branching factor";
+}
+
+Measurements::GameMeasurement* Measurements::GameTreeSizeConstructor::construct_measure(Board::Board& active_board){
+    return new Measurements::GameTreeSize(active_board);
+}
+
+std::vector<std::string> Measurements::GameTreeSizeConstructor::get_value_keys(){
+    return {"Depth","MinBranch","MaxBranch","AvgBranch","StdDevBranch"};
+}
+
+Measurements::GameTreeSize::GameTreeSize(Board::Board& _active_board){
+    active_board = &_active_board;
 }
 
 std::vector<double> Measurements::GameTreeSize::get_values(){
@@ -64,23 +90,30 @@ std::vector<double> Measurements::GameTreeSize::get_values(){
         sum+=val;
     }
     double average = ((double) sum)/((double) branching_factors.size());
-    // reset sum to calculate standard deviation
+
     double variance=0;
     for(int& val: branching_factors){
         variance+=std::pow(val-average,2);
     }
     
-    return {
-        (double) branching_factors.size(),
-        (double) *std::min_element(branching_factors.begin(),branching_factors.end()),
-        (double) *std::max_element(branching_factors.begin(),branching_factors.end()),
-        average,
-        std::sqrt(variance/((double) branching_factors.size())) // sqrt of variance = sqrt of ([1/N]SUM(x_i-u)^2)
-    };
-}
-
-std::vector<std::string> Measurements::GameTreeSize::get_value_keys(){
-    return {"Depth","MinBranch","MaxBranch","AvgBranch","StdDevBranch"};
+    if(branching_factors.size()>0){
+         return {
+            (double) branching_factors.size(),
+            (double) *std::min_element(branching_factors.begin(),branching_factors.end()),
+            (double) *std::max_element(branching_factors.begin(),branching_factors.end()),
+            average,
+            std::sqrt(variance/((double) branching_factors.size())) // sqrt of variance = sqrt of ([1/N]SUM(x_i-u)^2)
+        };
+    } else {
+         return {
+            (double) branching_factors.size(),
+            (double) 0,
+            (double) 0,
+            (double) 0,
+            (double) 0
+        };
+    }
+   
 }
 
 // Doesn't need to do much during update; just push on the current branching factor
@@ -90,10 +123,21 @@ void Measurements::GameTreeSize::update(){
 }
 
 // ===== EventCardUse measurements ===== 
-Measurements::EventCardUse::EventCardUse(Board::Board& _active_board):
-    Measurement(_active_board){
-        name="Event Card Usage";
-        description="Values to capture the usage of event cards by the agent";
+Measurements::EventCardUseConstructor::EventCardUseConstructor(){
+    name="Event Card Usage";
+    description="Values to capture the usage of event cards by the agent";
+}
+
+Measurements::GameMeasurement* Measurements::EventCardUseConstructor::construct_measure(Board::Board& active_board){
+    return new Measurements::EventCardUse(active_board);
+}
+
+std::vector<std::string> Measurements::EventCardUseConstructor::get_value_keys(){
+    return {"firstQuietNightPresence","QuietNightUse","firstAirliftPresence","AirliftUse","firstGovernmentGrantPresence","GovernmentGrantUse"};
+}
+
+Measurements::EventCardUse::EventCardUse(Board::Board& _active_board){
+    active_board = &_active_board;
 }
 
 std::vector<double> Measurements::EventCardUse::get_values(){
@@ -105,10 +149,6 @@ std::vector<double> Measurements::EventCardUse::get_values(){
         (double) firstGovernmentGrantPresence,
         (double) GovernmentGrantUse
     };
-}
-
-std::vector<std::string> Measurements::EventCardUse::get_value_keys(){
-    return {"firstQuietNightPresence","QuietNightUse","firstAirliftPresence","AirliftUse","firstGovernmentGrantPresence","GovernmentGrantUse"};
 }
 
 //  Unfortunately most of the work here is in updating
@@ -152,11 +192,22 @@ void Measurements::EventCardUse::update(){
     steps++;
 };
 
-// ===== LoseStatus measurements ===== 
-Measurements::CuredDisease::CuredDisease(Board::Board& _active_board):
-    Measurement(_active_board){
-        name="Cure Status";
-        description="Whether each disease is cured (1) or not (0)";
+// ===== CureDisease measurements ===== 
+Measurements::CuredDiseaseConstructor::CuredDiseaseConstructor(){
+    name="Cure Status";
+    description="Whether each disease is cured (1) or not (0)";
+}
+
+Measurements::GameMeasurement* Measurements::CuredDiseaseConstructor::construct_measure(Board::Board& active_board){
+    return new Measurements::CuredDisease(active_board);
+}
+
+std::vector<std::string> Measurements::CuredDiseaseConstructor::get_value_keys(){
+    return {"BlueCured","YellowCured","BlackCured","RedCured"};
+}
+
+Measurements::CuredDisease::CuredDisease(Board::Board& _active_board){
+    active_board = &_active_board;
 }
 
 std::vector<double> Measurements::CuredDisease::get_values(){
@@ -169,29 +220,32 @@ std::vector<double> Measurements::CuredDisease::get_values(){
     };
 }
 
-std::vector<std::string> Measurements::CuredDisease::get_value_keys(){
-    return {"BlueCured","YellowCured","BlackCured","RedCured"};
-}
-
 // Doesn't need to do anything during update; just read out final status
 void Measurements::CuredDisease::update(){};
 
 // ===== EpidemicsDrawn measurements ===== 
-Measurements::EpidemicsDrawn::EpidemicsDrawn(Board::Board& _active_board):
-    Measurement(_active_board){
-        name="Epidemics Drawn";
-        description="How many epidemic cards were drawn during the game";
+Measurements::EpidemicsDrawnConstructor::EpidemicsDrawnConstructor(){
+    name="Epidemics Drawn";
+    description="How many epidemic cards were drawn during the game";
 }
 
-std::vector<double> Measurements::CuredDisease::get_values(){
+Measurements::GameMeasurement* Measurements::EpidemicsDrawnConstructor::construct_measure(Board::Board& active_board){
+    return new Measurements::EpidemicsDrawn(active_board);
+}
+
+std::vector<std::string> Measurements::EpidemicsDrawnConstructor::get_value_keys(){
+    return {"EpidemicsDrawn"};
+}
+
+Measurements::EpidemicsDrawn::EpidemicsDrawn(Board::Board& _active_board){
+    active_board = &_active_board;
+}
+
+std::vector<double> Measurements::EpidemicsDrawn::get_values(){
     return {
         (double) active_board -> get_epidemic_count()
     };
 }
 
-std::vector<std::string> Measurements::CuredDisease::get_value_keys(){
-    return {"EpidemicsDrawn"};
-}
-
 // Doesn't need to do anything during update; just read out final status
-void Measurements::CuredDisease::update(){};
+void Measurements::EpidemicsDrawn::update(){};
