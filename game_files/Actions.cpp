@@ -1102,24 +1102,16 @@ std::vector<Actions::Action*> Actions::TakeConstructor::all_actions(){
     std::vector<Decks::PlayerCard> cards_to_take = {};
 
     for(Players::Player& _other_player : active_board -> get_players()){
-
+        // If the other player is at active_players position
         if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
-            if(_other_player.role.name=="Researcher"){
-                for(Decks::PlayerCard card: _other_player.hand){
-                    cards_to_take.push_back(card);
-                }
-            } else {
-                for(Decks::PlayerCard card: _other_player.hand){
-                    if(card.index==active_player.get_position().index){
-                        cards_to_take.push_back(card);
-                    }
+            // Then check through each card...
+            for(Decks::PlayerCard card: _other_player.hand){
+                // And if they're a researcher or the card index is the same as active_players position
+                if(card.index==active_player.get_position().index || _other_player.role.name=="Researcher"){
+                    // Then add it to the list
+                    full_list.push_back(new Actions::Take(*active_board,_other_player,card.index));
                 }
             }
-            // Then for every card to take...
-            for(Decks::PlayerCard& card_to_take: cards_to_take){
-                // make it takeable from this player
-                full_list.push_back(new Actions::Take(*active_board,_other_player,card_to_take.index));
-            } 
         }
     }
     return full_list;

@@ -90,10 +90,10 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
                 for(int k=c+1;k<p.event_cards.size();k++){
                     if(p.event_cards[c].index==p.event_cards[k].index){
                         if(verbose){
-                            DEBUG_MSG("[SANITYCHECK] ... player " << p.role.name << " has two of " << p.hand[c].name << "!" << std::endl);
+                            DEBUG_MSG("[SANITYCHECK] ... player " << p.role.name << " has two of " << p.event_cards[c].name << "!" << std::endl);
                         }
                         active_board.broken()=true;
-                        active_board.broken_reasons().push_back(p.role.name + " has two of the same event card: " + p.hand[c].name + " (event card " + std::to_string(c) + ") and "+ p.hand[k].name + "(event card "+std::to_string(k) + ")" );
+                        active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " has two of the same event card: " + p.event_cards[c].name + " (event card " + std::to_string(c) + ") and "+ p.event_cards[k].name + "(event card "+std::to_string(k) + ")" );
                     }
                 }
             }

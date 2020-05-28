@@ -43,7 +43,7 @@ Experiments::UniformRandomAgentGameExperiment::UniformRandomAgentGameExperiment(
     log_headers.push_back("BrokeReasons"); // Always track any reasons the board broke
 
     // Play 1000 games
-    n_games=1000;
+    n_games=10000;
 }
 
 void Experiments::UniformRandomAgentGameExperiment::write_header(){
@@ -142,10 +142,7 @@ void Experiments::UniformRandomAgentGameExperiment::run(){
         for(Measurements::MeasurementConstructor* con: measureCons){
             game_measures.push_back(con -> construct_measure(*game_board));
         }
-
-        if(games_played%50==0){
-            DEBUG_MSG("[UniformRandomAgentGameExperiment::run()] beginning game " << games_played << std::endl);
-        }
+        
         int steps=0;
         while(!the_game -> is_terminal(true,false)){
             // First resolve any necessary non-player transisitions (card draws, etc)
@@ -194,8 +191,6 @@ void Experiments::UniformRandomAgentGameExperiment::run(){
 
     // Write the entire contents of the experiments all at once into a csv (REMOVE any file that existed before)
     write_experiment(output_str);
-
-    DEBUG_MSG("[UniformRandomAgentGameExperiment::run()] beginning of output_str: " << std::endl << output_str.substr(0,1000) << std::endl);
 
     // Append the end time to the header before finishing
     // Thanks stackoverflow, again
