@@ -175,7 +175,7 @@ int Decks::PlayerDeck::remaining_cards(){
 Decks::PlayerCard Decks::PlayerDeck::make_card_by_vector_index(int drop_index,bool setup){
 
     int idx;
-    if(drop_index>Map::CITIES.size()){
+    if(drop_index>Map::CITIES.size() && !setup){
         idx= drop_index;
     } else {
         idx = remaining_nonepi_cards[drop_index];
