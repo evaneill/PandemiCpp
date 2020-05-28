@@ -47,7 +47,7 @@ Experiments::UniformRandomAgentGameExperiment::UniformRandomAgentGameExperiment(
 }
 
 void Experiments::UniformRandomAgentGameExperiment::write_header(){
-    std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::trunc);
+    std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::trunc);
 
     header << "Experiment Name: " << experiment_name << std::endl;
     header << "Experiment Description: " << description << std::endl << std::endl;
@@ -78,19 +78,18 @@ void Experiments::UniformRandomAgentGameExperiment::write_header(){
     header << "Start Time: " << str << std::endl;
     // End of stackoverflow copypasta
 
+
     header.close();
 }
 
 void Experiments::UniformRandomAgentGameExperiment::append_header(std::string extras){
-    std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::app);
-
+    std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::app);
     header << extras;
-
     header.close();
 }
 
 void Experiments::UniformRandomAgentGameExperiment::write_experiment(std::string data){
-    std::ofstream logfile(Experiments::OUTPUT_DIR + fileheader + ".csv",std::ios::trunc);
+    std::ofstream logfile(Experiments::OUTPUT_DIR + fileheader + ".csv",std::ios::out | std::ios::trunc);
     logfile << data;
     logfile.close();
 }
@@ -105,7 +104,11 @@ void Experiments::UniformRandomAgentGameExperiment::run(){
     // Start  maintaining output file in memory, then dump at the end of the experiment
     
     // Write the header line with log_headers, starting with "Game" in the leftmost column
-    std::string output_str = "Game";
+    std::string output_str;
+    // Reserve ~2x the amount of space it needs (a double will be represented by 10 chars w/ comma after, including period)
+    output_str.reserve(n_games*measureCons.size()*20);
+
+    output_str+= "Game";
     for(std::string key: log_headers){
         output_str+= ","+key;
     }
@@ -157,11 +160,8 @@ void Experiments::UniformRandomAgentGameExperiment::run(){
                 steps++;
                 // Have the agent take a step
                 the_agent -> take_step();
-            }  else {
-                DEBUG_MSG("[UniformRandomAgentGameExperiment::run()] Game is terminal after nonplayer_action() after " << steps << " steps." << std::endl);
             }
         } 
-        DEBUG_MSG("[UniformRandomAgentGameExperiment::run()] terminal outside of while(!terminal) loop after " << steps << " steps." << std::endl);
         // At the end of the game, write out the resulting measures to the output_str
         for(Measurements::GameMeasurement* meas: game_measures){
             std::vector<double> output_values = meas -> get_values();
@@ -210,7 +210,6 @@ void Experiments::UniformRandomAgentGameExperiment::run(){
     std::string str(buffer);
 
     append_header("End Time: "+str);
-
 }
 
 int main(){

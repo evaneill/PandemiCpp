@@ -8,7 +8,7 @@
 namespace Experiments
 {
 
-    inline const std::string OUTPUT_DIR = "../results/";
+    inline const std::string OUTPUT_DIR = "results/";
 
     class Experiment{
     public:
