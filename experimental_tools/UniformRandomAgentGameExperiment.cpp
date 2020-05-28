@@ -40,6 +40,7 @@ Experiments::UniformRandomAgentGameExperiment::UniformRandomAgentGameExperiment(
             log_headers.push_back(key);
         }
     }
+    log_headers.push_back("BrokeReasons"); // Always track any reasons the board broke
 
     // Play 1000 games
     n_games=1000;
@@ -48,27 +49,18 @@ Experiments::UniformRandomAgentGameExperiment::UniformRandomAgentGameExperiment(
 void Experiments::UniformRandomAgentGameExperiment::write_header(){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::trunc);
 
-    DEBUG_MSG("Experiment Name: " << experiment_name << std::endl);
     header << "Experiment Name: " << experiment_name << std::endl;
-    DEBUG_MSG("Experiment Description: " << description << std::endl << std::endl);
     header << "Experiment Description: " << description << std::endl << std::endl;
     
-    DEBUG_MSG("Scenario Name: " << (*scenario).name << std::endl);
     header << "Scenario Name: " << (*scenario).name << std::endl;
-    DEBUG_MSG("Scenario Description: " << (*scenario).description << std::endl << std::endl);
     header << "Scenario Description: " << (*scenario).description << std::endl << std::endl;
     
-    DEBUG_MSG("Agent Name: " << agent_name << std::endl);
     header << "Agent Name: " << agent_name << std::endl;
-    DEBUG_MSG("==========================================" << std::endl);
     header << "==========================================" << std::endl;
-    DEBUG_MSG("=========== Measurements Taken ===========" << std::endl<< std::endl);
     header << "=========== Measurements Taken ===========" << std::endl<< std::endl;
 
     for(Measurements::MeasurementConstructor* con: measureCons){
-        DEBUG_MSG("Measurement Name: " << (*con).name << std::endl);
         header << "Measurement Name: " << (*con).name << std::endl;
-        DEBUG_MSG("Measurement Description: " << (*con).description << std::endl << std::endl);
         header << "Measurement Description: " << (*con).description << std::endl << std::endl;
     }
 
@@ -83,7 +75,6 @@ void Experiments::UniformRandomAgentGameExperiment::write_header(){
     strftime(buffer,sizeof(buffer),"%d-%m-%Y %H:%M:%S",timeinfo);
     std::string str(buffer);
 
-    DEBUG_MSG("Start Time: " << str << std::endl);
     header << "Start Time: " << str << std::endl;
     // End of stackoverflow copypasta
 
@@ -91,7 +82,6 @@ void Experiments::UniformRandomAgentGameExperiment::write_header(){
 }
 
 void Experiments::UniformRandomAgentGameExperiment::append_header(std::string extras){
-    DEBUG_MSG(extras);
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::app);
 
     header << extras;
@@ -149,9 +139,11 @@ void Experiments::UniformRandomAgentGameExperiment::run(){
         for(Measurements::MeasurementConstructor* con: measureCons){
             game_measures.push_back(con -> construct_measure(*game_board));
         }
+
         if(games_played%50==0){
             DEBUG_MSG("[UniformRandomAgentGameExperiment::run()] beginning game " << games_played << std::endl);
         }
+        int steps=0;
         while(!the_game -> is_terminal(true,false)){
             // First resolve any necessary non-player transisitions (card draws, etc)
             the_game -> nonplayer_actions();
@@ -162,15 +154,28 @@ void Experiments::UniformRandomAgentGameExperiment::run(){
                 for(Measurements::GameMeasurement* meas: game_measures){
                     meas -> update();
                 }
+                steps++;
                 // Have the agent take a step
                 the_agent -> take_step();
-            }   
-        }
+            }  else {
+                DEBUG_MSG("[UniformRandomAgentGameExperiment::run()] Game is terminal after nonplayer_action() after " << steps << " steps." << std::endl);
+            }
+        } 
+        DEBUG_MSG("[UniformRandomAgentGameExperiment::run()] terminal outside of while(!terminal) loop after " << steps << " steps." << std::endl);
         // At the end of the game, write out the resulting measures to the output_str
         for(Measurements::GameMeasurement* meas: game_measures){
             std::vector<double> output_values = meas -> get_values();
             for(double& val: output_values){
                 output_str+=","+std::to_string(val);
+            }
+        }
+        output_str+=",";
+
+        // Brokenness might need a new entry-point
+        if(the_game ->reward()<0){
+            std::vector<std::string> broke_reasons = the_game -> terminal_reasons();
+            for(std::string& reason: broke_reasons){
+                output_str+=reason+";";
             }
         }
         output_str+="\r\n";
@@ -190,7 +195,7 @@ void Experiments::UniformRandomAgentGameExperiment::run(){
     // Write the entire contents of the experiments all at once into a csv (REMOVE any file that existed before)
     write_experiment(output_str);
 
-    DEBUG_MSG("[UniformRandomAgentGameExperiment::run()] beginning of output_str: " << output_str.substr(0,50) << std::endl);
+    DEBUG_MSG("[UniformRandomAgentGameExperiment::run()] beginning of output_str: " << std::endl << output_str.substr(0,1000) << std::endl);
 
     // Append the end time to the header before finishing
     // Thanks stackoverflow, again

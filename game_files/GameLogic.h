@@ -14,8 +14,8 @@ namespace GameLogic
 {
     // This class is built to be the sole entity through which an agent interacts with the game
     class Game{
-        // This is NOT a reference or pointer. All constructed actions and action constructors point to this board.
-        Board::Board active_board;
+        // Pointer to a board
+        Board::Board* active_board;
 
         // "Vanilla" move constructors
 
@@ -49,7 +49,7 @@ namespace GameLogic
 
         StochasticActions::StochasticActionConstructor StochasticCon;
     public:
-        Game(Board::Board _active_board, bool verbose=false);
+        Game(Board::Board& _active_board, bool verbose=false);
 
         // Pull an action from a uniform distribution over ALL legal actions
         Actions::Action* get_random_action_uniform(bool verbose = false);

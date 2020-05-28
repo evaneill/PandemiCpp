@@ -7,29 +7,29 @@
 #include "Actions.h"
 #include "Debug.h"
 
-GameLogic::Game::Game(Board::Board _active_board, bool verbose): 
-    active_board(_active_board),
+GameLogic::Game::Game(Board::Board& _active_board, bool verbose): 
+    active_board(&_active_board),
 
     // Link the active board to each constructor
-    MoveCon(active_board),
-    DirectFlightCon(active_board),
-    CharterFlightCon(active_board),
-    ShuttleFlightCon(active_board),
-    OperationsExpertFlightCon(active_board),
-    BuildCon(active_board),
-    TreatCon(active_board),
-    CureCon(active_board),
-    GiveCon(active_board),
-    TakeCon(active_board),
-    DoNothingCon(active_board),
+    MoveCon(*active_board),
+    DirectFlightCon(*active_board),
+    CharterFlightCon(*active_board),
+    ShuttleFlightCon(*active_board),
+    OperationsExpertFlightCon(*active_board),
+    BuildCon(*active_board),
+    TreatCon(*active_board),
+    CureCon(*active_board),
+    GiveCon(*active_board),
+    TakeCon(*active_board),
+    DoNothingCon(*active_board),
 
     // Do the same with the forced discard constructor
-    ForcedDiscardCon(active_board),
+    ForcedDiscardCon(*active_board),
 
     // Do the same with event card action constructors
-    AirliftCon(active_board),
-    GovernmentGrantCon(active_board),
-    QuietNightCon(active_board),
+    AirliftCon(*active_board),
+    GovernmentGrantCon(*active_board),
+    QuietNightCon(*active_board),
     
     // Instantiate the list of references to the constructors
     PlayerConstructorList({
@@ -49,7 +49,7 @@ GameLogic::Game::Game(Board::Board _active_board, bool verbose):
             &QuietNightCon}),
 
     // Instantiate the stochastic action constructor
-    StochasticCon(active_board)
+    StochasticCon(*active_board)
     {
         if(verbose){
             DEBUG_MSG("[Game::Game(...)] Instantiating Game Logic..." << std::endl);
@@ -63,12 +63,12 @@ void GameLogic::Game::nonplayer_actions(bool verbose){
         Actions::Action* next_action = StochasticCon.get_action();
         
         // Track statuses as they went into execute(), where active player name and quiet night status might change
-        bool was_quiet_night = active_board.quiet_night_status();
-        std::string player_name = active_board.active_player().role.name;
+        bool was_quiet_night = (*active_board).quiet_night_status();
+        std::string player_name = (*active_board).active_player().role.name;
 
         next_action -> execute();
 
-        if(verbose && (!was_quiet_night || active_board.get_turn_action()==4 || (active_board.get_turn_action()==5 && active_board.get_infect_cards_drawn()==0))){
+        if(verbose && (!was_quiet_night || (*active_board).get_turn_action()==4 || ((*active_board).get_turn_action()==5 && (*active_board).get_infect_cards_drawn()==0))){
             DEBUG_MSG("[Game::nonplayer_actions()] " << player_name << ": " << next_action -> repr() << std::endl);
         }
     }
@@ -82,7 +82,7 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
     //      going through the same action options in order until this falls within one of the ranges
 
     if(verbose){
-        Players::Player& active_player = active_board.active_player();
+        Players::Player& active_player = (*active_board).active_player();
         DEBUG_MSG("[Game::get_random_action_uniform()] "<< active_player.role.name << " is in " << active_player.get_position().name <<  " and has hand: ");
         for(Decks::PlayerCard card: active_player.hand){
             DEBUG_MSG(card.name << "; ");
@@ -124,8 +124,8 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
     if(verbose){
         DEBUG_MSG(std::endl << "[Game::get_random_action_uniform()] considered ALL actions for random choice but algorithm failed!");
     }
-    active_board.broken()=true;
-    active_board.broken_reasons().push_back("[Game::get_random_action_uniform()] get_random_action_uniform got to end of execution without choosing an action");
+    (*active_board).broken()=true;
+    (*active_board).broken_reasons().push_back("[Game::get_random_action_uniform()] get_random_action_uniform got to end of execution without choosing an action");
 }
 
 Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
@@ -140,11 +140,11 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
 
     std::vector<Actions::ActionConstructor*> legal_groups;
     if(verbose){
-        DEBUG_MSG("[Game::get_random_action_bygroup()] " << active_board.active_player().role.name << " is in " << active_board.active_player().get_position().name <<  " and has hand: ");
-        for(Decks::PlayerCard card: active_board.active_player().hand){
+        DEBUG_MSG("[Game::get_random_action_bygroup()] " << (*active_board).active_player().role.name << " is in " << (*active_board).active_player().get_position().name <<  " and has hand: ");
+        for(Decks::PlayerCard card: (*active_board).active_player().hand){
             DEBUG_MSG(card.name << "; ");
         }
-        for(Decks::PlayerCard card: active_board.active_player().event_cards){
+        for(Decks::PlayerCard card: (*active_board).active_player().event_cards){
             DEBUG_MSG(card.name << "; ");
         }
         DEBUG_MSG(std::endl);
@@ -186,7 +186,7 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(bool verbose){
     std::vector<Actions::Action*> full_out;
 
     if(verbose){
-        Players::Player& active_player = active_board.active_player();
+        Players::Player& active_player = (*active_board).active_player();
         DEBUG_MSG("[Game::list_actions()] "<< active_player.role.name << " is in " << active_player.get_position().name <<  " and has hand: ");
         for(Decks::PlayerCard card: active_player.hand){
             DEBUG_MSG(card.name << "; ");
@@ -217,47 +217,47 @@ bool GameLogic::Game::is_terminal(bool sanity_check,bool verbose){
     // sanity_check does some logical checking of the game state to enforce brokenness
     // costs some computation, which is why it's optional.
     if(sanity_check){
-        SanityCheck::CheckBoard(active_board,verbose);
+        SanityCheck::CheckBoard(*active_board,verbose);
     }
-    // Have the board update any win/lose/broken status
-    active_board.updatestatus();
+    // Have the board update any win/lose/broken status (this is an intentional redundancy)
+    (*active_board).updatestatus();
 
-    bool broken = active_board.broken();
+    bool broken = (*active_board).broken();
     if(broken && verbose){
-        for(std::string reason: active_board.broken_reasons()){
+        for(std::string reason: (*active_board).broken_reasons()){
             DEBUG_MSG(std::endl << "[Game::is_terminal()] Game broke! One reason: " << reason);
         }
     }
-    bool won = active_board.has_won();
-    bool lost = active_board.has_lost();
+    bool won = (*active_board).has_won();
+    bool lost = (*active_board).has_lost();
     if(lost && verbose){
-        DEBUG_MSG(std::endl << "[Game::is_terminal()] LOST! because " <<  active_board.get_lost_reason());
+        DEBUG_MSG(std::endl << "[Game::is_terminal()] LOST! because " <<  (*active_board).get_lost_reason() << std::endl);
     }
     return won || lost || broken;
 }
 
 int GameLogic::Game::reward(){
-    if(active_board.has_lost()){
+    if((*active_board).has_lost()){
         return 0;
-    } else if(active_board.has_won()){
+    } else if((*active_board).has_won()){
         return 1;
     } else {
-        active_board.broken()=true;
-        active_board.broken_reasons().push_back("[Game::reward()] Asking for reward when win/lose aren't true");
+        (*active_board).broken()=true;
+        (*active_board).broken_reasons().push_back("[Game::reward()] Asking for reward when win/lose aren't true");
         return -10000000;// NULL gets converted to 0 anyway; this should make it obvious something broke... hoepfully....
     }
 }
 
 std::vector<std::string> GameLogic::Game::terminal_reasons(){
     std::vector<std::string> reasons;
-    if(active_board.has_won()){
+    if((*active_board).has_won()){
         reasons.push_back("Players won!");
     }
-    if(active_board.has_lost()){
-        reasons.push_back(active_board.get_lost_reason());
+    if((*active_board).has_lost()){
+        reasons.push_back((*active_board).get_lost_reason());
     }
-    if(active_board.broken()){
-        for(std::string reason: active_board.broken_reasons()){
+    if((*active_board).broken()){
+        for(std::string reason: (*active_board).broken_reasons()){
             reasons.push_back(reason);
         }
     }
