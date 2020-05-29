@@ -171,6 +171,9 @@ int GameLogic::Game::n_available_actions(bool verbose){
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
         total_actions+=(con_ptr -> n_actions());
     }
+    if(total_actions==0 && ForcedDiscardCon.legal()){
+        return ForcedDiscardCon.n_actions();
+    }
 
     return  total_actions;
 }
