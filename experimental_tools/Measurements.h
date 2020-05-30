@@ -115,8 +115,14 @@ namespace Measurements
         GameMeasurement* construct_measure(Board::Board& active_board);
     };
 
-    // To track how many diseases were cured in the game
+    // To track how many diseases were cured in the game. Trackers indicate turn on which each was cured, or -1 if never cured.
     class CuredDisease: public GameMeasurement{
+        int BlueCured = -1;
+        int YellowCured = -1;
+        int BlackCured = -1;
+        int RedCured = -1;
+
+        int steps=0;
     public:
         CuredDisease(Board::Board& _active_board);
 

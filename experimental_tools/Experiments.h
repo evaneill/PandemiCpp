@@ -1,4 +1,5 @@
 #include "../game_files/GameLogic.h"
+#include "../game_files/Board.h"
 
 #include "Scenarios.h"
 #include "Measurements.h"
@@ -25,32 +26,44 @@ namespace Experiments
         // Output column headers
         std::vector<std::string> log_headers = {};
 
-        // Scenario name & description (for header file)
+        // Scenario 
         Scenarios::Scenario* scenario;
 
         // Experiment name (for header file)
-        std::string experiment_name; // E.g. "UCTAgentWinScenario"
+        std::string experiment_name; // E.g. "UniformRandomAgentGameScenario"
         std::string description; // E.g. "For evaluating success of agents in trying to..."
 
         // number of games that aget
         int n_games=0;
 
-        virtual void run()=0;
-
         // Functional methods
+        
+        // For writing results
         virtual void write_header()=0;
         virtual void append_header(std::string extras)=0;
         virtual void write_experiment(std::string data)=0;
+
+        // For giving objects to the RunExperiment() method
+        virtual Board::Board* get_board()=0;
+        virtual Agents::BaseAgent* get_agent(GameLogic::Game* game)=0;
+        virtual std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board)=0;
+
     };
+
+    // A function to take an experiment and run it.
+    // This is it's own standalone just because the internal functionality is practically always the same
+    void RunExperiment(Experiment* exp);
 
     class UniformRandomAgentGameExperiment: public Experiment{
     public:
         UniformRandomAgentGameExperiment();
 
-        void run();
-
         void write_header();
         void append_header(std::string extras);
         void write_experiment(std::string data);
+        
+        Board::Board* get_board();
+        Agents::BaseAgent* get_agent(GameLogic::Game* game);
+        std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
     };
 }

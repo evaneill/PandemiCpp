@@ -31,4 +31,4 @@ playtest:
 test:
 	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp experimental_tools/*.cpp $(TESTFILE).cpp -o $(TESTFILE).out
 experiment:
-	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ -I experimental_tools/ game_files/*.cpp agents/*.cpp experimental_tools/Measurements.cpp experimental_tools/Scenarios.cpp $(EXPERIMENT).cpp -o $(EXPERIMENT).out
+	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ -I experimental_tools/ game_files/*.cpp agents/*.cpp experimental_tools/*.cpp $(EXPERIMENT).cpp -o $(EXPERIMENT).out

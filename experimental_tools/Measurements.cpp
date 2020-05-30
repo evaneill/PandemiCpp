@@ -212,16 +212,22 @@ Measurements::CuredDisease::CuredDisease(Board::Board& _active_board){
 
 std::vector<double> Measurements::CuredDisease::get_values(){
     return {
-        // I _think_ booleans get converted to 0/1 on casting to double
-        (double) active_board -> get_cured()[Map::BLUE],
-        (double) active_board -> get_cured()[Map::YELLOW],
-        (double) active_board -> get_cured()[Map::BLACK],
-        (double) active_board -> get_cured()[Map::RED],
+        (double) BlueCured,
+        (double) YellowCured,
+        (double) BlackCured,
+        (double) RedCured
     };
 }
 
-// Doesn't need to do anything during update; just read out final status
-void Measurements::CuredDisease::update(){};
+// Update according to any "new" cured diseases.
+void Measurements::CuredDisease::update(){
+    if(active_board -> get_cured()[Map::BLUE] && BlueCured<0){BlueCured = steps;}
+    if(active_board -> get_cured()[Map::YELLOW] && YellowCured<0){YellowCured = steps;}
+    if(active_board -> get_cured()[Map::BLACK] && BlackCured<0){BlackCured = steps;}
+    if(active_board -> get_cured()[Map::RED] && RedCured<0){RedCured = steps;}
+
+    steps++;
+};
 
 // ===== EpidemicsDrawn measurements ===== 
 Measurements::EpidemicsDrawnConstructor::EpidemicsDrawnConstructor(){
@@ -248,4 +254,4 @@ std::vector<double> Measurements::EpidemicsDrawn::get_values(){
 }
 
 // Doesn't need to do anything during update; just read out final status
-void Measurements::EpidemicsDrawn::update(){};
+void Measurements::EpidemicsDrawn::update(){}
