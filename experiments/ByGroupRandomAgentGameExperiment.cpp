@@ -3,23 +3,23 @@
 #include <chrono>
 #include <ctime>
 
-#include "../agents/UniformRandomAgent.h"
+#include "../agents/ByGroupRandomAgent.h"
 
 #include "../experimental_tools/Experiments.h"
 #include "../experimental_tools/Scenarios.h"
 #include "../experimental_tools/Measurements.h"
 
-Experiments::UniformRandomAgentGameExperiment::UniformRandomAgentGameExperiment(){
+Experiments::ByGroupRandomAgentGameExperiment::ByGroupRandomAgentGameExperiment(){
     // Hard-code a description for this experiment
-    experiment_name = "UniformRandomAgentExperiment";
-    description = "Test a random agent with a team of Medic, Scientist, Researcher with 4-epidemic difficulty. Keep all available measurements";
+    experiment_name = "ByGroupRandomAgentExperiment";
+    description = "Test a random (random over action types) agent with a team of Medic, Scientist, Researcher with 4-epidemic difficulty. Keep all available measurements";
 
-    fileheader = "UniformRandomAgentExperiment";// .header ,.csv
+    fileheader = "ByGroupRandomAgentExperiment";// .header ,.csv
     
     // Use the scenario to setup some variables
     scenario = new Scenarios::VanillaGameScenario();
 
-    agent_name = "Uniform Random Agent";
+    agent_name = "By Group Random Agent";
 
     // Define measurements on the active board
     // As I write this, these are all the possible measurements
@@ -47,7 +47,7 @@ Experiments::UniformRandomAgentGameExperiment::UniformRandomAgentGameExperiment(
     n_games=100000;
 }
 
-void Experiments::UniformRandomAgentGameExperiment::write_header(){
+void Experiments::ByGroupRandomAgentGameExperiment::write_header(){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::trunc);
 
     header << "Experiment Name: " << experiment_name << std::endl;
@@ -83,27 +83,27 @@ void Experiments::UniformRandomAgentGameExperiment::write_header(){
     header.close();
 }
 
-void Experiments::UniformRandomAgentGameExperiment::append_header(std::string extras){
+void Experiments::ByGroupRandomAgentGameExperiment::append_header(std::string extras){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::app);
     header << extras;
     header.close();
 }
 
-void Experiments::UniformRandomAgentGameExperiment::write_experiment(std::string data){
+void Experiments::ByGroupRandomAgentGameExperiment::write_experiment(std::string data){
     std::ofstream logfile(Experiments::OUTPUT_DIR + fileheader + ".csv",std::ios::out | std::ios::trunc);
     logfile << data;
     logfile.close();
 }
 
-Board::Board* Experiments::UniformRandomAgentGameExperiment::get_board(){
+Board::Board* Experiments::ByGroupRandomAgentGameExperiment::get_board(){
     return &(*scenario).make_board({1,2,3},4);
 }
 
-Agents::BaseAgent* Experiments::UniformRandomAgentGameExperiment::get_agent(GameLogic::Game* game){
-    return new Agents::UniformRandomAgent(*game);
+Agents::BaseAgent* Experiments::ByGroupRandomAgentGameExperiment::get_agent(GameLogic::Game* game){
+    return new Agents::ByGroupRandomAgent(*game);
 }
 
-std::vector<Measurements::GameMeasurement*> Experiments::UniformRandomAgentGameExperiment::get_game_measures(Board::Board* game){
+std::vector<Measurements::GameMeasurement*> Experiments::ByGroupRandomAgentGameExperiment::get_game_measures(Board::Board* game){
     std::vector<Measurements::GameMeasurement*> game_measures = {};
 
     for(Measurements::MeasurementConstructor* con: measureCons){
@@ -113,7 +113,7 @@ std::vector<Measurements::GameMeasurement*> Experiments::UniformRandomAgentGameE
 }
 
 int main(){
-    Experiments::Experiment* experiment = new Experiments::UniformRandomAgentGameExperiment();
+    Experiments::Experiment* experiment = new Experiments::ByGroupRandomAgentGameExperiment();
     
     // ===== Seed rand() =====
     // ===== Thank you stackoverflow =====

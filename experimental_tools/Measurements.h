@@ -155,6 +155,23 @@ namespace Measurements
         GameMeasurement* construct_measure(Board::Board& active_board);
     };
 
+    // To track how many epidemics are drawn in the game
+    class ResearchStations: public GameMeasurement{
+    public:
+        ResearchStations(Board::Board& _active_board);
+
+        std::vector<double> get_values();
+        void update();
+    };
+
+    class ResearchStationsConstructor: public MeasurementConstructor{
+    public:
+        ResearchStationsConstructor();
+
+        std::vector<std::string> get_value_keys();
+        GameMeasurement* construct_measure(Board::Board& active_board);
+    };
+
 }
 
 #endif

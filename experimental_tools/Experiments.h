@@ -66,4 +66,17 @@ namespace Experiments
         Agents::BaseAgent* get_agent(GameLogic::Game* game);
         std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
     };
+
+    class ByGroupRandomAgentGameExperiment: public Experiment{
+    public:
+        ByGroupRandomAgentGameExperiment();
+
+        void write_header();
+        void append_header(std::string extras);
+        void write_experiment(std::string data);
+        
+        Board::Board* get_board();
+        Agents::BaseAgent* get_agent(GameLogic::Game* game);
+        std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+    };
 }

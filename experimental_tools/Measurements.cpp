@@ -195,7 +195,7 @@ void Measurements::EventCardUse::update(){
 // ===== CureDisease measurements ===== 
 Measurements::CuredDiseaseConstructor::CuredDiseaseConstructor(){
     name="Cure Status";
-    description="Whether each disease is cured (1) or not (0)";
+    description="Whether each disease is cured (<step at which it was cured>) or not (<-1>)";
 }
 
 Measurements::GameMeasurement* Measurements::CuredDiseaseConstructor::construct_measure(Board::Board& active_board){
@@ -255,3 +255,30 @@ std::vector<double> Measurements::EpidemicsDrawn::get_values(){
 
 // Doesn't need to do anything during update; just read out final status
 void Measurements::EpidemicsDrawn::update(){}
+
+// ===== ResearchStations measurements ===== 
+Measurements::ResearchStationsConstructor::ResearchStationsConstructor(){
+    name="Number of Research Stations";
+    description="How many research stations are on the board at game end";
+}
+
+Measurements::GameMeasurement* Measurements::ResearchStationsConstructor::construct_measure(Board::Board& active_board){
+    return new Measurements::ResearchStations(active_board);
+}
+
+std::vector<std::string> Measurements::ResearchStationsConstructor::get_value_keys(){
+    return {"ResearchStations"};
+}
+
+Measurements::ResearchStations::ResearchStations(Board::Board& _active_board){
+    active_board = &_active_board;
+}
+
+std::vector<double> Measurements::ResearchStations::get_values(){
+    return {
+        (double) active_board -> get_stations().size()
+    };
+}
+
+// Doesn't need to do anything during update; just read out final status
+void Measurements::ResearchStations::update(){}
