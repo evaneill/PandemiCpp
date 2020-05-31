@@ -1203,7 +1203,7 @@ int Actions::AirliftConstructor::n_actions(){
         int n_actions= (Map::CITIES.size()-1)*active_board->get_players().size();
         // Go through players and remove either size of neighbors AND one for its last position OR just size of neighbors
         for(Players::Player& p : active_board -> get_players()){
-            if(p.get_last_position()>=0 && !isneighbor(p.get_last_position(),p.get_last_position())){
+            if(p.get_last_position()>=0 && !isneighbor(p.get_position().index,p.get_last_position())){
                 n_actions-=(1+p.get_position().neighbors.size());
             } else {
                 n_actions-=(p.get_position().neighbors.size());
