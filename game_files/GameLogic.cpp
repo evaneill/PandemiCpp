@@ -21,7 +21,8 @@ GameLogic::Game::Game(Board::Board& _active_board, bool verbose):
     CureCon(*active_board),
     GiveCon(*active_board),
     TakeCon(*active_board),
-    DoNothingCon(*active_board),
+
+    DoNothingCon(*active_board), // (will be treated a little differently than other player actions)
 
     // Do the same with the forced discard constructor
     ForcedDiscardCon(*active_board),
@@ -43,7 +44,6 @@ GameLogic::Game::Game(Board::Board& _active_board, bool verbose):
             &CureCon,
             &GiveCon,
             &TakeCon,
-            &DoNothingCon,
             &AirliftCon,
             &GovernmentGrantCon,
             &QuietNightCon}),
@@ -121,6 +121,11 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
             }
         }
     }
+    // If you can get through all the "potentially relevant" actions and still have 1 left over, then it was meant to be that we'll do nothing instead
+    if(randomized<=DoNothingCon.n_actions()){
+        return DoNothingCon.random_action();
+    }
+    // If there's still stuff left over then there's a problem...
     if(verbose){
         DEBUG_MSG(std::endl << "[Game::get_random_action_uniform()] considered ALL actions for random choice but algorithm failed!");
     }
@@ -138,7 +143,6 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
         return ForcedDiscardCon.random_action();
     }
 
-    std::vector<Actions::ActionConstructor*> legal_groups;
     if(verbose){
         DEBUG_MSG("[Game::get_random_action_bygroup()] " << (*active_board).active_player().role.name << " is in " << (*active_board).active_player().get_position().name <<  " and has hand: ");
         for(Decks::PlayerCard card: (*active_board).active_player().hand){
@@ -149,27 +153,31 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
         }
         DEBUG_MSG(std::endl);
     }
-    for(int con=0;con<PlayerConstructorList.size();con++){
-        if(verbose){
-            DEBUG_MSG(std::endl << "[Game::get_random_action_bygroup()] considering " << PlayerConstructorList[con] -> get_movetype() <<"... ");
-        }
-        if(PlayerConstructorList[con] -> legal()){
-            if(verbose){
-                DEBUG_MSG(" it's legal!");
-            }
-            legal_groups.push_back(PlayerConstructorList[con]);
-        }
+
+    int max_n_actions =PlayerConstructorList.size();
+    if(!TreatCon.legal() && !CureCon.legal()){
+        max_n_actions++;
     }
 
-    int randomized = rand() % legal_groups.size();
-
-    return legal_groups[randomized] -> random_action();
+    int randomized = rand() % max_n_actions;
+    while(true){
+        if(randomized==PlayerConstructorList.size()){
+            return DoNothingCon.random_action();
+        } else if(PlayerConstructorList[randomized] -> legal()){
+            return PlayerConstructorList[randomized] -> random_action();
+        } else {
+            randomized = rand() % max_n_actions;
+        }
+    }
 }
 
 int GameLogic::Game::n_available_actions(bool verbose){
     int total_actions=0;
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
         total_actions+=(con_ptr -> n_actions());
+    }
+    if(!TreatCon.legal() && !CureCon.legal()){
+        total_actions+=DoNothingCon.n_actions();
     }
     if(total_actions==0 && ForcedDiscardCon.legal()){
         return ForcedDiscardCon.n_actions();
@@ -211,6 +219,17 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(bool verbose){
             }
             full_out.insert(full_out.end(),these_actions.begin(),these_actions.end());
         }
+    }
+    
+    // Only put DoNothing in action list if you can't cure or treat
+    if(verbose){
+        DEBUG_MSG(std::endl << "[Game::list_actions()] considering movetype " << DoNothingCon.get_movetype() << "...");
+    }
+    if(!TreatCon.legal() && !CureCon.legal()){
+        if(verbose){
+            DEBUG_MSG("it's legal! There are " << DoNothingCon.n_actions() << " possible actions.");
+        }
+        full_out.push_back(DoNothingCon.random_action());
     }
     return full_out;
 

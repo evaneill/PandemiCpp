@@ -38,7 +38,7 @@ namespace GameLogic
         Actions::QuietNightConstructor QuietNightCon;
 
         // For algorithmic ease of access, to hold all player actions (including event cards)
-        const std::array<Actions::ActionConstructor*,14> PlayerConstructorList;
+        const std::array<Actions::ActionConstructor*,13> PlayerConstructorList;
 
         // ForcedDiscardAction (not voluntary, and not part of num_actions consideration from player turn perspective)
         
@@ -77,6 +77,9 @@ namespace GameLogic
         // game reward. Should return NULL if called on a non-terminal state.
         // Worth it to note that NULL + int is still an int, but can produce a runtime warning
         int reward();
+
+        // Board pointer for affixing to actions as necessary
+        Board::Board* get_board_ptr();
     };
 }
 

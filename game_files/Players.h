@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <array>
 
 #include "Decks.h"
 #include "Map.h"
@@ -25,6 +26,11 @@ namespace Players
         // Map::City position of player.
         Map::City position; 
 
+        // Track count of each color of card for perhaps easier tracking
+        // (though increasing number of ways to introduce inconsistency in state transitions...)
+        std::array<int,4> color_count;
+
+        int last_position=-1; // Track last position to reduce search
     public:
         Player(int role_id);
         Player();
@@ -45,6 +51,7 @@ namespace Players
         // Set the position to a new city
         void set_position(Map::City new_city);
         void set_position(int new_city); // new_city index
+        void reset_last_position(int old_position=-1); // Change last_position tracker to old_position (by default remove tracking status)
 
         // Whether or not the player currently has at least 7 cards
         bool hand_full();
@@ -54,9 +61,12 @@ namespace Players
         void removeCard(Decks::PlayerCard card);
         // Get rid of the last required_cure_cards cards of color col in player hand (called during Cure::execute())
         void removeCureCardColor(int col);
+        // Check number of each color of card they have
+        std::array<int,4> get_color_count();
 
         // Return the city representing current position
         Map::City get_position();
+        int get_last_position();
 
         // To track whether or not they've jumped from a research station to somewhere else
         // <DANGER!> Relies on game logic to use properly ONLY for operations expert.

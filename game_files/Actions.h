@@ -45,6 +45,7 @@ namespace Actions
             <DirectFlight> by discarding a held city card
             <CharterFlight> by discarding the card of the city you're in to move anywhere.
             <ShuttleFlight> by traveling between research stations
+            <OperationsExpertFlight> (for OE only) by discarding a card at a research station to go anywhere, once per turn
 
             <Build> a research station
 
@@ -241,7 +242,6 @@ namespace Actions
     // ===== PLAYER ACTION CONSTRUCTORS =====
     class MoveConstructor: public ActionConstructor{
         const std::string movetype = "MOVE"; // technically "Drive/Ferry"
-        std::vector<int> legal_moves; // adjacent city indices
     public:
         MoveConstructor(Board::Board& active_board);
 

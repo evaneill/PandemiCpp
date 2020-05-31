@@ -10,7 +10,7 @@
 Players::Player::Player(int role_id): 
     position(Map::CITIES[3]),
     hand({}),
-    used_OperationsExpertFlight(false) 
+    used_OperationsExpertFlight(false)
     {
     // Make it work for now with a hard-coded reference to roles
     // Should only matter at game instantiation! So get it write once in an agent test and it's always right.
@@ -33,7 +33,10 @@ Players::Player::Player(int role_id):
         default:
             role = Role(NULL,0); // Should break the game quickly on a bad input
     }
-    
+    color_count[Map::BLUE]=0;
+    color_count[Map::YELLOW]=0;
+    color_count[Map::BLACK]=0;
+    color_count[Map::RED]=0;
 }
 
 bool Players::Player::hand_full(){
@@ -42,6 +45,7 @@ bool Players::Player::hand_full(){
 
 void Players::Player::UpdateHand(Decks::CityCard drawn_card){
     hand.push_back(drawn_card);
+    color_count[drawn_card.color]++;
 }
 
 void Players::Player::UpdateHand(Decks::EventCard drawn_card){
@@ -51,6 +55,7 @@ void Players::Player::UpdateHand(Decks::EventCard drawn_card){
 void Players::Player::UpdateHand(Decks::PlayerCard drawn_card){
     if(!drawn_card.event && !drawn_card.epidemic){
         hand.push_back(Decks::CityCard(drawn_card.index));
+        color_count[drawn_card.color]++;
     } else if(drawn_card.event){
         event_cards.push_back(Decks::EventCard(drawn_card.index));
     } else {
@@ -62,6 +67,10 @@ int Players::Player::handsize(){
     return hand.size()+event_cards.size();
 }
 
+std::array<int,4> Players::Player::get_color_count(){
+    return color_count;
+}
+
 void Players::Player::set_position(Map::City new_city){
     position = new_city;
 };
@@ -70,11 +79,16 @@ void Players::Player::set_position(int new_city){
     position = Map::CITIES[new_city];
 };
 
+void Players::Player::reset_last_position(int old_position){
+    last_position=old_position;
+};
+
 void Players::Player::removeCard(Decks::PlayerCard card_to_remove){
     int hand_idx=0;
     for(Decks::PlayerCard& card:hand){
         if(card.index==card_to_remove.index){
             hand.erase(hand.begin()+hand_idx);
+            color_count[card.color]--;
             return;
         }
         hand_idx++;
@@ -97,6 +111,7 @@ void Players::Player::removeCureCardColor(int col){
         if(hand[checkpoint].color==col){
             hand.erase(hand.begin()+checkpoint);
             num_erased++;
+            color_count[col]--;
         } else{
             checkpoint++;
         }
@@ -105,6 +120,10 @@ void Players::Player::removeCureCardColor(int col){
 
 Map::City Players::Player::get_position(){
     return position;
+}
+
+int Players::Player::get_last_position(){
+    return last_position;
 }
 
 Players::Role::Role(std::string _name,int req_cure_cards){

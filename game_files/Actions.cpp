@@ -10,6 +10,28 @@
 #include "Map.h"
 #include "Players.h"
 
+// ==== Pure Utility functions =====
+
+// Neighbor test: is index 1 a neighbor of index 2?
+bool isneighbor(int city_idx1, int city_idx2){
+    // If either is being fed a last_position=-1
+    if(city_idx1<0 || city_idx2<0){
+        // Then there is no neighbor
+        return false;
+    }
+    // neighbors of city_idx2
+    std::vector<int>& neighbors = Map::CITIES[city_idx2].neighbors;
+
+    for(int& neighbor: neighbors){
+        // If a neighbor is city_idx1, then...
+        if(neighbor==city_idx1){
+            return true;
+        }
+    }
+    return false;
+}
+// ========================
+
 // ===== ACTION PARENT CLASS =====
 Actions::Action::Action(Board::Board& _active_board){
     active_board = &_active_board;
@@ -35,6 +57,9 @@ Actions::Move::Move(Board::Board& _active_board, Map::City _to): Action(_active_
 
 void Actions::Move::execute(){
     Players::Player& active_player = active_board ->active_player();
+    // Set last_position tracker to current position index
+    active_player.reset_last_position(active_player.get_position().index);
+
     active_player.set_position(to);
 
     active_board ->get_turn_action()++;
@@ -44,10 +69,7 @@ std::string Actions::Move::repr(){
     return movetype+" to "+to.name;
 }
 
-Actions::MoveConstructor::MoveConstructor(Board::Board& _active_board): ActionConstructor(_active_board){
-    Map::City current_city = active_board ->active_player().get_position();
-    legal_moves = current_city.neighbors;
-}
+Actions::MoveConstructor::MoveConstructor(Board::Board& _active_board): ActionConstructor(_active_board){}
 
 std::string Actions::MoveConstructor::get_movetype(){
     return movetype;
@@ -55,7 +77,13 @@ std::string Actions::MoveConstructor::get_movetype(){
 
 int Actions::MoveConstructor::n_actions(){
     if(legal()){
-        return active_board ->active_player().get_position().neighbors.size();
+        std::vector<int> legal_moves = {};
+        for(int& neighbor: active_board -> active_player().get_position().neighbors){
+            if(neighbor!=active_board->active_player().get_last_position() || active_board->active_player().get_position().index==17){
+                legal_moves.push_back(neighbor);
+            }
+        }
+        return legal_moves.size();
     } else{
         return 0;
     }
@@ -63,15 +91,25 @@ int Actions::MoveConstructor::n_actions(){
 
 Actions::Action* Actions::MoveConstructor::random_action(){
     Players::Player& active_player = active_board ->active_player();
-    int chosen_neighbor = active_player.get_position().neighbors[rand() % active_player.get_position().neighbors.size()];
-    return new Actions::Move(*active_board,Map::CITIES[chosen_neighbor]);
+    std::vector<int> legal_moves={};
+    for(int neighbor: active_player.get_position().neighbors){
+        // make an exception for being in santiago to prevent being trapped for the rest of the turn
+        // (Santiago has ONE neighbor, and preventing a move back to it is slightly suboptimal)
+        if(neighbor!=active_board->active_player().get_last_position() || active_player.get_position().index==17){
+            legal_moves.push_back(neighbor);
+        }
+    }
+    int chosen_neighbor = rand() % legal_moves.size();
+    return new Actions::Move(*active_board,Map::CITIES[legal_moves[chosen_neighbor]]);
 }
 
 std::vector<Actions::Action*> Actions::MoveConstructor::all_actions(){
     std::vector<int> neighbors = active_board ->active_player().get_position().neighbors;
     std::vector<Actions::Action*> full_list;
-    for(int n: neighbors){
-        full_list.push_back(new Actions::Move(*active_board,Map::CITIES[n]));
+    for(int neighbor: active_board->active_player().get_position().neighbors){
+        if(neighbor!=active_board->active_player().get_last_position() || active_board -> active_player().get_position().index==17){
+            full_list.push_back(new Actions::Move(*active_board,Map::CITIES[neighbor]));
+        }
     }
     return full_list;
 }
@@ -88,18 +126,16 @@ bool Actions::MoveConstructor::legal(){
 // ========================
 
 // ===== DIRECTFLIGHT =====
-Actions::DirectFlight::DirectFlight(Board::Board& _active_board,int hand_idx): 
+Actions::DirectFlight::DirectFlight(Board::Board& _active_board,int city_idx): 
     Action(_active_board), 
-    citycard(_active_board.active_player().hand[hand_idx]){
-    movetype = "DIRECTFLIGHT";
-}
-
-Actions::DirectFlight::DirectFlight(Board::Board& _active_board,Decks::CityCard _citycard): Action(_active_board), citycard(_citycard){
+    citycard(Decks::CityCard(city_idx)){
     movetype = "DIRECTFLIGHT";
 }
 
 void Actions::DirectFlight::execute(){
     Players::Player& active_player = active_board ->active_player();
+
+    active_player.reset_last_position(active_player.get_position().index);
 
     // Set position to city represented by card
     active_player.set_position(Map::CITIES[citycard.index]);
@@ -122,8 +158,15 @@ std::string Actions::DirectFlightConstructor::get_movetype(){
 
 int Actions::DirectFlightConstructor::n_actions(){
     if(legal()){
-            // # of city cards in hand
-        return active_board ->active_player().hand.size();
+        Players::Player& active_player = active_board -> active_player();
+
+        int n_actions=0;
+        for(Decks::PlayerCard& card: active_player.hand){
+            if(!isneighbor(card.index,active_player.get_position().index) && card.index!=active_player.get_position().index && card.index!=active_player.get_last_position()){
+                n_actions++;
+            }
+        }
+        return n_actions;
     } else { 
         return 0;
     }
@@ -131,19 +174,25 @@ int Actions::DirectFlightConstructor::n_actions(){
 }
 Actions::Action* Actions::DirectFlightConstructor::random_action(){
     Players::Player& active_player = active_board ->active_player();
-    return new Actions::DirectFlight(*active_board,rand() % active_player.hand.size());
+    std::vector<int> neighbors = active_player.get_position().neighbors;
+    int chosen_card = rand() % active_player.hand.size();
+
+    while(isneighbor(active_player.hand[chosen_card].index,active_player.get_position().index) || active_player.hand[chosen_card].index==active_player.get_position().index || active_player.hand[chosen_card].index==active_player.get_last_position()){
+        // make sure it's not a neighbor, current position, or last position
+        chosen_card = rand() % active_player.hand.size();
+    }
+    return new Actions::DirectFlight(*active_board,active_player.hand[chosen_card].index);
 }
 
 std::vector<Actions::Action*> Actions::DirectFlightConstructor::all_actions(){
-    std::vector<Decks::PlayerCard>& player_hand = active_board ->active_player().hand;
-    std::vector<Actions::Action*> full_list;
-    int player_position = active_board ->active_player().get_position().index;
-    for(int n;n<player_hand.size();n++){
-        // Keep the search naive - possibly allow a player to discard to "fly" to their current city!
-        // So here I just compare integers, which _should_ usually work I think
-        // if(player_hand[n].index != player_position){
-        full_list.push_back(new Actions::DirectFlight(*active_board,n));
-        // }
+    std::vector<Actions::Action*> full_list = {};
+
+    Players::Player& active_player = active_board -> active_player();
+
+    for(Decks::PlayerCard& card: active_player.hand){
+        if(!isneighbor(card.index,active_player.get_position().index) && card.index!=active_player.get_position().index && card.index!=active_player.get_last_position()){
+            full_list.push_back(new Actions::DirectFlight(*active_board,card.index));
+        }
     }
     return full_list;
 }
@@ -151,8 +200,17 @@ std::vector<Actions::Action*> Actions::DirectFlightConstructor::all_actions(){
 bool Actions::DirectFlightConstructor::legal(){
     std::vector<Decks::PlayerCard>& player_hand = active_board ->active_player().hand;
     // If it's during the player turn phase and they have city cards to discard, then it's legal
-    if(active_board ->get_turn_action()<4 && player_hand.size()>0){
-        return true;
+    if(active_board ->get_turn_action()<4){
+        Players::Player& active_player = active_board -> active_player();
+
+        for(Decks::PlayerCard& card: active_player.hand){
+            if(!isneighbor(card.index,active_player.get_position().index) 
+                && card.index!=active_player.get_position().index 
+                && card.index!=active_player.get_last_position()){
+                return true;
+            }
+        }
+        return false;
     } else {
         return false;
     }
@@ -172,6 +230,9 @@ Actions::CharterFlight::CharterFlight(Board::Board& _active_board,Map::City _tar
 
 void Actions::CharterFlight::execute(){
     Players::Player& active_player = active_board ->active_player();
+
+    // Set last_position to previous position
+    active_player.reset_last_position(active_player.get_position().index);
 
     // Remove from player hand
     active_player.removeCard(Decks::CityCard(active_player.get_position()));
@@ -194,7 +255,14 @@ std::string Actions::CharterFlightConstructor::get_movetype(){
 
 int Actions::CharterFlightConstructor::n_actions(){
     if(legal()){
-        return Map::CITIES.size(); // In intentionally dumb implementation, can discard to stay at current location.
+        Players::Player& active_player = active_board -> active_player();
+        if(active_player.get_last_position()>=0 && !isneighbor(active_player.get_last_position(),active_player.get_last_position())){
+            // If the last position is set and it isn't a neighbor, then we can't go to it (-1), our current position (-1), or any neighbor (-neighbors.size())
+            return Map::CITIES.size()-2-active_player.get_position().neighbors.size();
+        } else {
+            // Otherwise there's either no last_position or it's a neighbor. In either case remove all neighbors and current position
+            return Map::CITIES.size() - 1 - active_player.get_position().neighbors.size();
+        }
     } else{
         return 0;
     }
@@ -203,19 +271,22 @@ int Actions::CharterFlightConstructor::n_actions(){
 
 Actions::Action* Actions::CharterFlightConstructor::random_action(){
     Players::Player& active_player = active_board ->active_player();
-    int random_position = rand() % Map::CITIES.size(); // can go to current location.
-    // while(random_position==active_player.get_position().index){
-    //     random_position = rand() % Map::CITIES.size(); // keep choosin' until you're not staying where you are.
-    // }
+    std::vector<int> neighbors = active_player.get_position().neighbors;
+
+    int random_position = rand() % Map::CITIES.size(); // choose a random city to go to
+    while(isneighbor(random_position,active_player.get_position().index) || random_position==active_player.get_position().index || random_position==active_player.get_last_position()){
+        random_position = rand() % Map::CITIES.size(); 
+    }
     return new Actions::CharterFlight(*active_board,random_position);
 }
 
 std::vector<Actions::Action*> Actions::CharterFlightConstructor::all_actions(){
     std::vector<Actions::Action*> full_list;
-    // SEARCH OPTIMIZATION: DONT ALLOW USE FOR GOING TO NEIGHBORS
-    // For now keep search naive, though with NULL action being unique.
+    Players::Player& active_player = active_board -> active_player();
     for(int n;n<Map::CITIES.size();n++){
-        full_list.push_back(new Actions::CharterFlight(*active_board,Map::CITIES[n]));
+        if(!isneighbor(n,active_player.get_position().index) && n!=active_player.get_position().index && n!=active_player.get_last_position()){
+            full_list.push_back(new Actions::CharterFlight(*active_board,Map::CITIES[n]));
+        }
     }
     // Get rid of the position of the player. (Left out for now)
     // full_list.erase(full_list.begin()+active_board ->active_player().get_position().index);
@@ -249,6 +320,8 @@ Actions::ShuttleFlight::ShuttleFlight(Board::Board& _active_board,Map::City _tar
 void Actions::ShuttleFlight::execute(){
     Players::Player& active_player = active_board ->active_player();
 
+    active_player.reset_last_position(active_player.get_position().index);
+
     // Set position to city represented by target_station
     active_player.set_position(target_station);
 
@@ -267,7 +340,13 @@ std::string Actions::ShuttleFlightConstructor::get_movetype(){
 
 int Actions::ShuttleFlightConstructor::n_actions(){
     if(legal()){
-        return active_board ->get_stations().size()-1;
+        int n_actions=0;
+        for(Map::City st: active_board -> get_stations()){
+            if(st.index!=active_board->active_player().get_position().index && st.index!=active_board->active_player().get_last_position()){
+                n_actions++;
+            }
+        }
+        return n_actions;
     } else {
         return 0;
     }
@@ -276,7 +355,7 @@ int Actions::ShuttleFlightConstructor::n_actions(){
 Actions::Action* Actions::ShuttleFlightConstructor::random_action(){
     int position  = active_board ->active_player().get_position().index;
     int random_position = rand() % active_board ->get_stations().size();
-    while((*active_board).get_stations()[random_position].index==position){
+    while((*active_board).get_stations()[random_position].index==position || (*active_board).get_stations()[random_position].index==active_board->active_player().get_last_position()){
         // The shuttle flight action says you can go to "any _other_ city" with a station. I interpret this to exclude the current city, unlike other actions.
         random_position = rand() % active_board ->get_stations().size(); 
     }
@@ -288,7 +367,7 @@ std::vector<Actions::Action*> Actions::ShuttleFlightConstructor::all_actions(){
     std::vector<Map::City> stations = active_board ->get_stations();
 
     for(int n=0;n<stations.size();n++){
-        if(stations[n].index!=active_board ->active_player().get_position().index){
+        if(stations[n].index!=active_board ->active_player().get_position().index && stations[n].index!=active_board -> active_player().get_last_position()){
             full_list.push_back(new Actions::ShuttleFlight(*active_board,stations[n]));
         } 
     }
@@ -300,7 +379,7 @@ bool Actions::ShuttleFlightConstructor::legal(){
     if(active_board ->get_turn_action()<4){
         if(active_board ->get_stations().size()>1){
             for(Map::City st: active_board ->get_stations()){
-                if(st.index==active_player.get_position().index){
+                if(st.index==active_player.get_position().index && st.index!=active_player.get_last_position()){
                     return true;
                 }
             }
@@ -338,6 +417,8 @@ Actions::OperationsExpertFlight::OperationsExpertFlight(Board::Board& _active_bo
 void Actions::OperationsExpertFlight::execute(){
     Players::Player& active_player = active_board ->active_player();
 
+    active_player.reset_last_position(active_player.get_position().index);
+
     active_player.used_OperationsExpertFlight=true;
 
     // Remove discard_card from hand
@@ -361,8 +442,14 @@ std::string Actions::OperationsExpertFlightConstructor::get_movetype(){
 
 int Actions::OperationsExpertFlightConstructor::n_actions(){
     if(legal()){
-        // SEARCH OPTIMIZATION: discard according to uncured colors or something only
-        return Map::CITIES.size()*active_board ->active_player().hand.size();// all cities * number of possible discard cards
+        Players::Player& active_player = active_board -> active_player();
+        if(active_player.get_last_position()>=0 && !isneighbor(active_player.get_last_position(),active_player.get_last_position())){
+            // If the last position is set and it isn't a neighbor, then we can't go to it (-1), our current position (-1), or any neighbor (-neighbors.size()). multiply by hand size (# of discards)
+            return (Map::CITIES.size()-2-active_player.get_position().neighbors.size()) * active_player.hand.size();
+        } else {
+            // Otherwise there's either no last_position or it's a neighbor. In either case remove all neighbors and current position. multiply by hand size (# of discards)
+            return (Map::CITIES.size() - 1 - active_player.get_position().neighbors.size()) * active_player.hand.size();
+        }
     } else {
         return 0;
     }
@@ -370,10 +457,15 @@ int Actions::OperationsExpertFlightConstructor::n_actions(){
 }
 
 Actions::Action* Actions::OperationsExpertFlightConstructor::random_action(){
-    int position  = active_board ->active_player().get_position().index;
+    Players::Player& active_player = active_board -> active_player();
+    
+    int position  = active_player.get_position().index;
     
     // Random destination
     int random_position = rand() % Map::CITIES.size();
+    while(random_position==position || random_position==active_player.get_last_position() || isneighbor(random_position,position)){
+        random_position = rand() % Map::CITIES.size();
+    }
 
     // Randomly discarded city card
     int random_discard = rand() % active_board ->active_player().hand.size();
@@ -384,10 +476,14 @@ Actions::Action* Actions::OperationsExpertFlightConstructor::random_action(){
 std::vector<Actions::Action*> Actions::OperationsExpertFlightConstructor::all_actions(){
     std::vector<Actions::Action*> full_list;
     std::vector<Decks::PlayerCard>& hand = active_board ->active_player().hand;
+    Players::Player& active_player = active_board -> active_player();
+
     for(int n;n<Map::CITIES.size();n++){
-        for(int c=0; c<hand.size();c++){
-            full_list.push_back(new Actions::OperationsExpertFlight(*active_board,n,hand[c].index));
-        } 
+        if(!isneighbor(n,active_player.get_position().index) && n!=active_player.get_position().index && n!=active_player.get_last_position()){
+            for(int c=0; c<hand.size();c++){
+                full_list.push_back(new Actions::OperationsExpertFlight(*active_board,n,hand[c].index));
+            } 
+        }
     }
     return full_list;
 }
@@ -425,6 +521,9 @@ Actions::Build::Build(Board::Board& _active_board,int _remove_station):
 void Actions::Build::execute(){
     Players::Player& active_player = active_board ->active_player();
     
+    // Player has "done something" -> now it doesn't matter what the last position was
+    active_player.reset_last_position();
+
     // If the remove_station argument>=0 and so representing a station to remove
     if(remove_station>=0){
         // Should break catastrophically when remove_station isn't defined properly
@@ -545,6 +644,9 @@ Actions::Treat::Treat(Board::Board& _active_board,int _color):
 void Actions::Treat::execute(){
     Players::Player& active_player = active_board ->active_player();
     
+    // Player has "done something" -> now it doesn't matter what the last position was
+    active_player.reset_last_position();
+    
     if(active_player.role.name=="Medic" || active_board ->get_cured()[color]){
         active_board ->get_disease_count()[color][active_player.get_position().index]=0;
     } else {
@@ -562,13 +664,13 @@ void Actions::Treat::execute(){
 
 std::string Actions::Treat::repr(){
     Players::Player& active_player = active_board ->active_player();
-    int n_cured;
+    int n_treated;
     if(active_player.role.name=="Medic" || active_board ->get_cured()[color]){
-        n_cured = active_board ->get_disease_count()[color][active_player.get_position().index];
+        n_treated = active_board ->get_disease_count()[color][active_player.get_position().index];
     } else {
-        n_cured = 1;
+        n_treated = 1;
     }
-    return movetype+" " + std::to_string(n_cured) +" "+ Map::COLORS[color] +" on "+active_player.get_position().name;
+    return movetype+" " + std::to_string(n_treated) +" "+ Map::COLORS[color] +" on "+active_player.get_position().name;
 }
 
 Actions::TreatConstructor::TreatConstructor(Board::Board& _active_board): ActionConstructor(_active_board){}
@@ -675,73 +777,48 @@ Actions::Cure::Cure(Board::Board& _active_board):
 void Actions::Cure::execute(){
     Players::Player& active_player = active_board ->active_player();
 
-    int BLUE_count=0;
-    int YELLOW_count=0;
-    int BLACK_count=0;
-    int RED_count=0;
+    // Player has "done something" -> now it doesn't matter what the last position was
+    active_player.reset_last_position();
 
     std::vector<bool>& cured = active_board ->get_cured();
 
     for(Map::City st: active_board -> get_stations()){
         if(st.index==active_player.get_position().index){
-            int min_required_cards = active_player.role.required_cure_cards;
-            for(Decks::PlayerCard card: active_player.hand){
-                // Following logic relies on the fact that: 
-                //      hand limit is at most 7
-                //      If you've counted at least 4 of one color of a card, it must be the one this player can cure
-                switch(card.color){
-                    case Map::BLUE:
-                        BLUE_count++;
-                        break;
-                    case Map::YELLOW:
-                        YELLOW_count++;
-                        break;
-                    case Map::BLACK:
-                        BLACK_count++;
-                        break;
-                    case Map::RED:
-                        RED_count++;
-                        break;
-                    default:
-                        active_board ->broken()=true;
-                        active_board ->broken_reasons().push_back("[Cure::execute()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
-                        return;
-                }
-                if(BLUE_count>=min_required_cards || YELLOW_count>=min_required_cards || BLACK_count>=min_required_cards || RED_count>=min_required_cards){
-                    break;
-                }
-            }
-            if(BLUE_count>=min_required_cards){
+            if(active_player.get_color_count()[Map::BLUE]>=active_player.role.required_cure_cards && !cured[Map::BLUE]){
                 active_player.removeCureCardColor(Map::BLUE);
                 cured[Map::BLUE]=true;
                 active_board -> get_turn_action()++;
+                // Update eradicated status if there is no disease of this color on the board
                 if(std::accumulate(active_board -> get_disease_count()[Map::BLUE].begin(),active_board -> get_disease_count()[Map::BLUE].begin(),0)==0){
                     active_board ->get_eradicated()[Map::BLUE]=true;
                 }
                 return;
             }
-            if(YELLOW_count>=min_required_cards){
+            if(active_player.get_color_count()[Map::YELLOW]>=active_player.role.required_cure_cards && !cured[Map::YELLOW]){
                 active_player.removeCureCardColor(Map::YELLOW);
                 active_board -> get_turn_action()++;
                 cured[Map::YELLOW]=true;
+                // Update eradicated status if there is no disease of this color on the board
                 if(std::accumulate(active_board -> get_disease_count()[Map::YELLOW].begin(),active_board -> get_disease_count()[Map::YELLOW].begin(),0)==0){
                     active_board ->get_eradicated()[Map::YELLOW]=true;
                 }
                 return;
             }
-            if(BLACK_count>=min_required_cards){
+            if(active_player.get_color_count()[Map::BLACK]>=active_player.role.required_cure_cards && !cured[Map::BLACK]){
                 active_player.removeCureCardColor(Map::BLACK);
                 cured[Map::BLACK]=true;
                 active_board -> get_turn_action()++;
+                // Update eradicated status if there is no disease of this color on the board
                 if(std::accumulate(active_board -> get_disease_count()[Map::BLACK].begin(),active_board -> get_disease_count()[Map::BLACK].begin(),0)==0){
                     active_board ->get_eradicated()[Map::BLACK]=true;
                 }
                 return;
             }
-            if(RED_count>=min_required_cards){
+            if(active_player.get_color_count()[Map::RED]>=active_player.role.required_cure_cards && !cured[Map::RED]){
                 active_player.removeCureCardColor(Map::RED);
                 cured[Map::RED]=true;
                 active_board -> get_turn_action()++;
+                // Update eradicated status if there is no disease of this color on the board
                 if(std::accumulate(active_board -> get_disease_count()[Map::RED].begin(),active_board -> get_disease_count()[Map::RED].begin(),0)==0){
                     active_board ->get_eradicated()[Map::RED]=true;
                 }
@@ -755,42 +832,18 @@ void Actions::Cure::execute(){
 
 std::string Actions::Cure::repr(){
     Players::Player& active_player = active_board ->active_player();
-    int RED_count=0, BLUE_count=0, BLACK_count=0, YELLOW_count=0;
 
-    for(Decks::PlayerCard& card: active_player.hand){
-    // Following logic relies on the fact that: 
-    //      hand limit is at most 7
-    //      If you've counted at least 4 of one color of a card, it must be the one this player can cure
-        switch(card.color){
-            case Map::BLUE:
-                BLUE_count++;
-                if(BLUE_count>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLUE]){
-                    return movetype+" "+Map::COLORS[Map::BLUE];
-                }
-                break;
-            case Map::YELLOW:
-                YELLOW_count++;
-                if(YELLOW_count>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::YELLOW]){
-                    return movetype+" "+Map::COLORS[Map::YELLOW];
-                }
-                break;
-            case Map::BLACK:
-                BLACK_count++;
-                if(BLACK_count>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLACK]){
-                    return movetype+" "+Map::COLORS[Map::BLACK];
-                }
-                break;
-            case Map::RED:
-                RED_count++;
-                if(RED_count>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::RED]){
-                    return movetype+" "+Map::COLORS[Map::RED];
-                }
-                break;
-            default:
-                active_board ->broken()=true;
-                active_board ->broken_reasons().push_back("[Cure::repr()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
-                return "BREAK";
-        }
+    if(active_player.get_color_count()[Map::BLUE]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLUE]){
+        return movetype+" "+Map::COLORS[Map::BLUE];
+    }
+    if(active_player.get_color_count()[Map::YELLOW]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::YELLOW]){
+        return movetype+" "+Map::COLORS[Map::YELLOW];
+    }
+    if(active_player.get_color_count()[Map::BLACK]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLACK]){
+        return movetype+" "+Map::COLORS[Map::BLACK];
+    }
+    if(active_player.get_color_count()[Map::RED]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::RED]){
+        return movetype+" "+Map::COLORS[Map::RED];
     }
     active_board ->broken()=true;
     active_board ->broken_reasons().push_back("[Cure::repr()] CURE repr() was called but there either weren't enough cards or the disease was already cured...");
@@ -824,50 +877,16 @@ bool Actions::CureConstructor::legal(){
     // If it's a players turn...
     if(active_board ->get_turn_action()<4){
         Players::Player& active_player = active_board ->active_player();
-        //  And they have at least required_cure_cards cards...
-        if(active_player.hand.size()>=active_player.role.required_cure_cards){
+        // and they have the required cards for an uncured color
+        if((active_player.get_color_count()[Map::BLUE]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::BLUE])||
+            (active_player.get_color_count()[Map::YELLOW]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::YELLOW]) ||
+            (active_player.get_color_count()[Map::BLACK]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::BLACK]) ||
+            (active_player.get_color_count()[Map::RED]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::RED])){
             for(Map::City st: active_board -> get_stations()){
                 // And they're at a research station...
                 if(st.index==active_player.get_position().index){
-                    // Then count the number of cards of each color that they have
-                    int RED_count=0, BLUE_count=0, BLACK_count=0, YELLOW_count=0;
-
-                    for(Decks::PlayerCard card: active_player.hand){
-                        // Then check that they have at least min_cards_required cards of a non-cured color
-                        // Following logic relies on the fact that: 
-                        //      hand limit is at most 7
-                        //      If you've counted at least minimum_needed (4 or 5) of one color of a card, it must be the one this player can cure
-                        switch(card.color){
-                            case Map::BLUE:
-                                BLUE_count++;
-                                if(BLUE_count==active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLUE]){
-                                    return true;
-                                }
-                                break;
-                            case Map::YELLOW:
-                                YELLOW_count++;
-                                if(YELLOW_count==active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::YELLOW]){
-                                    return true;
-                                }
-                                break;
-                            case Map::BLACK:
-                                BLACK_count++;
-                                if(BLACK_count==active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLACK]){
-                                    return true;
-                                }
-                                break;
-                            case Map::RED:
-                                RED_count++;
-                                if(RED_count==active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::RED]){  
-                                    return true;
-                                }
-                                break;
-                            default:
-                                active_board ->broken()=true;
-                                active_board ->broken_reasons().push_back("[Cure::legal()] The color of a card in the players hand (name:"+card.name + ", color: " +std::to_string(card.color)+", index: " +std::to_string(card.index) + ") doesn't match known colors");
-                                return "BREAK";
-                        }
-                    }
+                    // Then they can cure
+                    return true;
                 }
             }
         }
@@ -895,6 +914,10 @@ Actions::Give::Give(Board::Board& _active_board, Players::Player& _other_player,
 
 void Actions::Give::execute(){
     Players::Player& active_player = active_board ->active_player();
+
+    // Player has "done something" -> now it doesn't matter what the last position was
+    active_player.reset_last_position();
+
     active_player.removeCard(card_to_give);
 
     other_player.UpdateHand(card_to_give);
@@ -1038,6 +1061,10 @@ Actions::Take::Take(Board::Board& _active_board, Players::Player& _other_player,
 
 void Actions::Take::execute(){
     Players::Player& active_player = active_board ->active_player();
+
+    // Player has "done something" -> now it doesn't matter what the last position was
+    active_player.reset_last_position();
+
     other_player.removeCard(card_to_take);
 
     active_player.UpdateHand(card_to_take);
@@ -1153,6 +1180,9 @@ Actions::Airlift::Airlift(Board::Board& _active_board,Players::Player& _using_pl
 }
 
 void Actions::Airlift::execute(){
+    // Target player last_position better be updated
+    target_player.reset_last_position(target_player.get_position().index);
+
     target_player.set_position(Map::CITIES[target_city]);
     using_player.removeCard(Decks::EventCard(50));
 }
@@ -1169,8 +1199,17 @@ std::string Actions::AirliftConstructor::get_movetype(){
 
 int Actions::AirliftConstructor::n_actions(){
     if(legal()){
-        // Always # of players * # of cities actions
-        return active_board ->get_players().size()*Map::CITIES.size();
+        // Initialize as "every player can move to every other city but their current position"
+        int n_actions= (Map::CITIES.size()-1)*active_board->get_players().size();
+        // Go through players and remove either size of neighbors AND one for its last position OR just size of neighbors
+        for(Players::Player& p : active_board -> get_players()){
+            if(p.get_last_position()>=0 && !isneighbor(p.get_last_position(),p.get_last_position())){
+                n_actions-=(1+p.get_position().neighbors.size());
+            } else {
+                n_actions-=(p.get_position().neighbors.size());
+            }
+        }
+        return n_actions;
     } else {
         return 0;
     }
@@ -1179,12 +1218,15 @@ int Actions::AirliftConstructor::n_actions(){
 Actions::Action* Actions::AirliftConstructor::random_action(){
     Players::Player& _target_player = active_board ->get_players()[rand() % active_board ->get_players().size()];
     // Use dumb loop to find the player that's using this action.
-    for(int p=0;p<active_board ->get_players().size();p++){
-        Players::Player& _using_player = active_board ->get_players()[p];
+    for(Players::Player& _using_player: active_board -> get_players()){
         // Look for Airlift in the player's event_cards
         for(int e=0;e<_using_player.event_cards.size();e++){
             if(_using_player.event_cards[e].name=="Airlift" && _using_player.event_cards[e].index==50){
-                return new Actions::Airlift(*active_board,_using_player,_target_player,rand() % Map::CITIES.size());
+                int random_city = rand() % Map::CITIES.size();
+                while(random_city==_target_player.get_position().index || isneighbor(random_city,_target_player.get_position().index) || random_city==_target_player.get_last_position()){
+                    random_city = rand() % Map::CITIES.size();
+                }
+                return new Actions::Airlift(*active_board,_using_player,_target_player,random_city);
             }
         }
     }
@@ -1194,15 +1236,21 @@ Actions::Action* Actions::AirliftConstructor::random_action(){
 
 std::vector<Actions::Action*> Actions::AirliftConstructor::all_actions(){
     std::vector<Actions::Action*> full_list;
-    for(int p=0;p<active_board ->get_players().size();p++){
-        Players::Player& _using_player = active_board ->get_players()[p];
+    for(Players::Player _using_player : active_board -> get_players()){
         // Look for Airlift in the player's event_cards
         for(int e=0;e<_using_player.event_cards.size();e++){
+            // If we found the airlift-holder...
             if(_using_player.event_cards[e].name=="Airlift" && _using_player.event_cards[e].index==50){
-                for(int c=0;c<Map::CITIES.size();c++){
-                    for(int pl=0;pl<active_board ->get_players().size();pl++){
-                        full_list.push_back(new Actions::Airlift(*active_board,_using_player,active_board ->get_players()[pl],c));
+                // Then for every possible target player...
+                for(Players::Player& _target_player : active_board -> get_players()){
+                    for(int city=0;city<Map::CITIES.size();city++){
+                        // for every city that's not a neighbor of the target player, their current position, or last position...
+                        if(!isneighbor(city,_target_player.get_position().index) && city!=_target_player.get_position().index && city!=_target_player.get_last_position()){
+                            // add an action.
+                            full_list.push_back(new Actions::Airlift(*active_board,_using_player,_target_player,city));
+                        }
                     }
+                    
                 }
             }
         }
@@ -1211,6 +1259,7 @@ std::vector<Actions::Action*> Actions::AirliftConstructor::all_actions(){
 }
 
 bool Actions::AirliftConstructor::legal(){
+    // The legality guard is always true when the card is held by a player. 
     for(Players::Player& pl : active_board ->get_players()){
         for(Decks::PlayerCard e : pl.event_cards){
             if(e.name=="Airlift" && e.index==50){
@@ -1262,12 +1311,10 @@ std::string Actions::GovernmentGrantConstructor::get_movetype(){
 
 int Actions::GovernmentGrantConstructor::n_actions(){
     if(legal()){
-        // Always # of players * # of cities actions
         if(active_board ->get_stations().size()==6){
-            return 6*Map::CITIES.size();
-        } else{
-            return Map::CITIES.size() - active_board ->get_stations().size();
-        }
+            return 6*(Map::CITIES.size()-6); // can place a new station at any of 48-6 locations, and remove any of 6 current stations
+        } else
+            return Map::CITIES.size() - active_board ->get_stations().size(); // can place anywhere there isn't a station currently
     } else {
         return 0;
     }
@@ -1280,16 +1327,16 @@ Actions::Action* Actions::GovernmentGrantConstructor::random_action(){
     // Loop until 4 sure target_city isn't already occupied by a research station
     while(already_station){
         already_station = false; 
-        for(int c=0;c<active_board ->get_stations().size();c++){
-            if(active_board ->get_stations()[c].index==target_city){
+        for(Map::City& st: active_board -> get_stations()){
+            if(st.index==target_city){
                 target_city = Map::CITIES[rand() % Map::CITIES.size()].index;
                 already_station=true;
                 break;
             }
         }
     }
-    for(int p=0;p<active_board ->get_players().size();p++){
-        Players::Player& this_player = active_board ->get_players()[p];
+
+    for(Players::Player& this_player : active_board -> get_players()){
         for(int e=0;e<this_player.event_cards.size();e++){
             if(this_player.event_cards[e].index==49  && this_player.event_cards[e].name=="Government Grant"){
                 if(active_board ->get_stations().size()==6){
@@ -1309,30 +1356,30 @@ std::vector<Actions::Action*> Actions::GovernmentGrantConstructor::all_actions()
     //      - It's not in the same position as any existing station
 
     std::vector<Actions::Action*> full_list;
-    for(int p=0;p<active_board ->get_players().size();p++){
-        Players::Player& _using_player = active_board ->get_players()[p];
+    for(Players::Player& _using_player: active_board -> get_players()){
+        // Find the using player by looking through event cards
         for(int e=0;e<_using_player.event_cards.size();e++){
             if(_using_player.event_cards[e].index==49 && _using_player.event_cards[e].name=="Government Grant"){ // Index of government grant
                 if(active_board ->get_stations().size()==6){
-                    for(int c=0;c<Map::CITIES.size();c++){
+                    for(int city=0;city<Map::CITIES.size();city++){
                         bool already_exists = false;
-                        for(int st=0;st<active_board ->get_stations().size();st++){
-                            if(c==active_board ->get_stations()[st].index){
+                        for(Map::City& st: active_board->get_stations()){
+                            if(city==st.index){
                                 already_exists=true;
                                 break;
                             }   
                         }
                         if(!already_exists){
                             for(int st=0;st<active_board ->get_stations().size();st++){
-                                full_list.push_back(new Actions::GovernmentGrant(*active_board,_using_player,c,st));
+                                full_list.push_back(new Actions::GovernmentGrant(*active_board,_using_player,city,st));
                             }  
                         }
                     }
                 } else {
                     for(int c=0;c<Map::CITIES.size();c++){
                         bool already_exists=false;
-                        for(int st=0;st<active_board ->get_stations().size();st++){
-                            if(c==active_board ->get_stations()[st].index){
+                        for(Map::City& st: active_board->get_stations()){
+                            if(c==st.index){
                                 already_exists=true;
                                 break;
                             } 
@@ -1422,6 +1469,7 @@ std::vector<Actions::Action*> Actions::QuietNightConstructor::all_actions(){
 }
 
 bool Actions::QuietNightConstructor::legal(){
+    // Only bar using this ON the infect step
     if(active_board ->get_turn_action()!=5){
         for(Players::Player& pl : active_board ->get_players()){
             for(Decks::PlayerCard e : pl.event_cards){
@@ -1646,3 +1694,5 @@ bool Actions::ForcedDiscardConstructor::legal(){
     }
     return false;
 }
+
+

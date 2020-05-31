@@ -155,6 +155,11 @@ void StochasticActions::InfectDrawAction::execute(){
             // Increment the player turn by 1 (in a cyclic way)
             active_board ->get_turn() = (active_board ->get_turn() + 1) % active_board ->get_players().size();
 
+            // Reset player position memory
+            for(Players::Player& p : active_board -> get_players()){
+                p.reset_last_position();
+            }
+            
             // reset the next players "operations expert flight" boolean just in case
             active_board ->active_player().used_OperationsExpertFlight=false;
         } else {
@@ -174,6 +179,11 @@ void StochasticActions::InfectDrawAction::execute(){
 
         // reset the next players "operations expert flight" boolean just in case
         active_board ->active_player().used_OperationsExpertFlight=false;
+
+        // Reset player position memory
+        for(Players::Player& p : active_board -> get_players()){
+            p.reset_last_position();
+        }
 
         active_board ->quiet_night_status()=false;
     }
