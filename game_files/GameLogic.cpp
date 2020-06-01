@@ -99,6 +99,21 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
         return ForcedDiscardCon.random_action();
     }
 
+    // For hard rollouts - always return cure in the case that the board is "not that bad"
+    if(CureCon.legal()){
+        // If no disease has >=15 cubes on the board
+        if(active_board -> disease_sum(Map::BLUE)<15 && active_board -> disease_sum(Map::YELLOW)<15 && active_board -> disease_sum(Map::BLACK)<15 && active_board -> disease_sum(Map::RED)<15){
+            // And theres <=3 outbreaks
+            if(active_board->get_outbreak_count()<=3){
+                // Then ALWAYS cure when it's possible
+                if(verbose){
+                    DEBUG_MSG("[Game::get_random_action_uniform()] Returning Cure since it's available and the board doesn't need a lot of attention (hard rollout criterion)");
+                }
+                return CureCon.random_action();
+            }
+        }
+    }
+
     if(verbose){
         DEBUG_MSG("[Game::get_random_action_uniform()] There are a total of " << n_available_actions() << " available actions according to n_available_actions()");
     }
@@ -144,6 +159,21 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
         return ForcedDiscardCon.random_action();
     }
 
+    // For hard rollouts - always return cure in the case that the board is "not that bad"
+    if(CureCon.legal()){
+        // If no disease has >=15 cubes on the board
+        if(active_board -> disease_sum(Map::BLUE)<15 && active_board -> disease_sum(Map::YELLOW)<15 && active_board -> disease_sum(Map::BLACK)<15 && active_board -> disease_sum(Map::RED)<15){
+            // And theres <=3 outbreaks
+            if(active_board->get_outbreak_count()<=3){
+                // Then ALWAYS cure when it's possible
+                if(verbose){
+                    DEBUG_MSG("[Game::get_random_action_bygroup()] Returning Cure since it's available and the board doesn't need a lot of attention (hard rollout criterion)");
+                }
+                return CureCon.random_action();
+            }
+        }
+    }
+    
     if(verbose){
         DEBUG_MSG("[Game::get_random_action_bygroup()] " << (*active_board).active_player().role.name << " is in " << (*active_board).active_player().get_position().name <<  " and has hand: ");
         for(Decks::PlayerCard card: (*active_board).active_player().hand){
