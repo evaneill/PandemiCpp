@@ -30,7 +30,8 @@ Experiments::ByGroupRandomAgentGameExperiment::ByGroupRandomAgentGameExperiment(
         new Measurements::EpidemicsDrawnConstructor(),
         new Measurements::CuredDiseaseConstructor(),
         new Measurements::ResearchStationsConstructor(),
-        new Measurements::GameTreeSizeConstructor()
+        new Measurements::GameTreeSizeConstructor(),
+        new Measurements::TimeTakenConstructor(),
     };
 
     // Define the log headers by pushing all the keys together in they same order they'll be evaluated
