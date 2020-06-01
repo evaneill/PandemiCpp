@@ -17,8 +17,8 @@ namespace Decks
 	class PlayerCard{
 	public:
 		std::string name="";
-		bool epidemic;
-		bool event;
+		bool epidemic=false;
+		bool event=false;
 		int index=-1;
 		int color=-1; // only instantiated for CityCard
 		int population=-1; // only instantiated for CityCard

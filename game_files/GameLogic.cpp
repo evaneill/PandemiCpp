@@ -90,6 +90,7 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
         for(Decks::PlayerCard card: active_player.event_cards){
             DEBUG_MSG(card.name << "; ");
         }
+        DEBUG_MSG(" (color count BLUE: "<<(*active_board).active_player().get_color_count()[Map::BLUE]<< ", YELLOW: " << (*active_board).active_player().get_color_count()[Map::YELLOW] << ", BLACK: " << (*active_board).active_player().get_color_count()[Map::BLACK] << ", RED: " << (*active_board).active_player().get_color_count()[Map::RED] << ")");
         DEBUG_MSG(std::endl);
     }
     if(ForcedDiscardCon.legal()){
@@ -151,6 +152,7 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
         for(Decks::PlayerCard card: (*active_board).active_player().event_cards){
             DEBUG_MSG(card.name << "; ");
         }
+        DEBUG_MSG(" (color count BLUE: "<<(*active_board).active_player().get_color_count()[Map::BLUE]<< ", YELLOW: " << (*active_board).active_player().get_color_count()[Map::YELLOW] << ", BLACK: " << (*active_board).active_player().get_color_count()[Map::BLACK] << ", RED: " << (*active_board).active_player().get_color_count()[Map::RED] << ")");
         DEBUG_MSG(std::endl);
     }
 
@@ -161,11 +163,23 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
 
     int randomized = rand() % max_n_actions;
     while(true){
+        if(verbose){
+            DEBUG_MSG("[get_random_action_bygroup()] Inside the action generation loop! Trying random number " << randomized << " (which is ");
+        }
         if(randomized==PlayerConstructorList.size()){
+            if(verbose){
+                DEBUG_MSG(DoNothingCon.get_movetype() << ")" <<std::endl);
+            }
             return DoNothingCon.random_action();
         } else if(PlayerConstructorList[randomized] -> legal()){
+            if(verbose){
+                DEBUG_MSG(PlayerConstructorList[randomized] -> get_movetype() << ", and is legal!)" <<std::endl);
+            }
             return PlayerConstructorList[randomized] -> random_action();
         } else {
+            if(verbose){
+                DEBUG_MSG(PlayerConstructorList[randomized] -> get_movetype() << ", and isn't legal...)" <<std::endl);
+            }
             randomized = rand() % max_n_actions;
         }
     }

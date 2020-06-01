@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include <array>
 
 #include "Players.h"
 #include "Map.h"
@@ -33,10 +34,6 @@ Players::Player::Player(int role_id):
         default:
             role = Role(NULL,0); // Should break the game quickly on a bad input
     }
-    color_count[Map::BLUE]=0;
-    color_count[Map::YELLOW]=0;
-    color_count[Map::BLACK]=0;
-    color_count[Map::RED]=0;
 }
 
 bool Players::Player::hand_full(){
@@ -45,7 +42,6 @@ bool Players::Player::hand_full(){
 
 void Players::Player::UpdateHand(Decks::CityCard drawn_card){
     hand.push_back(drawn_card);
-    color_count[drawn_card.color]++;
 }
 
 void Players::Player::UpdateHand(Decks::EventCard drawn_card){
@@ -55,11 +51,10 @@ void Players::Player::UpdateHand(Decks::EventCard drawn_card){
 void Players::Player::UpdateHand(Decks::PlayerCard drawn_card){
     if(!drawn_card.event && !drawn_card.epidemic){
         hand.push_back(Decks::CityCard(drawn_card.index));
-        color_count[drawn_card.color]++;
     } else if(drawn_card.event){
         event_cards.push_back(Decks::EventCard(drawn_card.index));
     } else {
-        DEBUG_MSG(std::endl << "[Player::UpdateHand] [" << role.name << "] did not add card " << drawn_card.name << "(index " << drawn_card.index << ")!!!!" << std::endl);
+        DEBUG_MSG(std::endl << "[Player::UpdateHand()] [" << role.name << "] did not add card " << drawn_card.name << "(index " << drawn_card.index << ")!!!!" << std::endl);
     }
 }
 
@@ -68,7 +63,27 @@ int Players::Player::handsize(){
 }
 
 std::array<int,4> Players::Player::get_color_count(){
-    return color_count;
+    int BLUE_count=0,YELLOW_count=0,BLACK_count=0,RED_count=0;
+    for(Decks::PlayerCard& card: hand){
+        switch(card.color){
+            case Map::BLUE:
+                BLUE_count++;
+                break;
+            case Map::YELLOW:
+                YELLOW_count++;
+                break;
+            case Map::BLACK:
+                BLACK_count++;
+                break;
+            case Map::RED:
+                RED_count++;
+                break;
+            default:
+                DEBUG_MSG("[Player::get_color_count()] Encountered a card in " << role.name << " hand with no color! (color: " << card.color << ", name: " << card.name << ")" <<std::endl);
+                break;
+        }
+    }
+    return {BLUE_count,YELLOW_count,BLACK_count,RED_count};
 }
 
 void Players::Player::set_position(Map::City new_city){
@@ -88,7 +103,6 @@ void Players::Player::removeCard(Decks::PlayerCard card_to_remove){
     for(Decks::PlayerCard& card:hand){
         if(card.index==card_to_remove.index){
             hand.erase(hand.begin()+hand_idx);
-            color_count[card.color]--;
             return;
         }
         hand_idx++;
@@ -111,7 +125,6 @@ void Players::Player::removeCureCardColor(int col){
         if(hand[checkpoint].color==col){
             hand.erase(hand.begin()+checkpoint);
             num_erased++;
-            color_count[col]--;
         } else{
             checkpoint++;
         }

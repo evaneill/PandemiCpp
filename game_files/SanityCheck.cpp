@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <string>
+#include <array>
 
 void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
 
@@ -24,7 +25,7 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
                     DEBUG_MSG("[SANITYCHECK] ... " << Map::CITIES[city].name << " has " << active_board.get_disease_count()[col][city] << " " << Map::COLORS[col] << " cubes on it! that's bad." << std::endl);
                 }
                 active_board.broken()=true;
-                active_board.broken_reasons().push_back(Map::CITIES[city].name+ " has " + std::to_string(active_board.get_disease_count()[col][city]) + " " + Map::COLORS[col] +" cubes");
+                active_board.broken_reasons().push_back("[SANITYCHECK] " + Map::CITIES[city].name+ " has " + std::to_string(active_board.get_disease_count()[col][city]) + " " + Map::COLORS[col] +" cubes");
             }
         }
     }
@@ -42,7 +43,7 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
                 DEBUG_MSG("[SANITYCHECK] ... but on turn-action " << active_board.get_turn_action() << " the counter is >0!" << std::endl);
             }
             active_board.broken()=true;
-            active_board.broken_reasons().push_back("infect_cards_drawn is "+std::to_string(active_board.get_infect_cards_drawn())+" but should be 0 since its stage + " + std::to_string(active_board.get_turn_action()) );
+            active_board.broken_reasons().push_back("[SANITYCHECK] infect_cards_drawn is "+std::to_string(active_board.get_infect_cards_drawn())+" but should be 0 since its stage + " + std::to_string(active_board.get_turn_action()) );
         }
     }
     if(verbose){
@@ -59,7 +60,7 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
                 DEBUG_MSG("[SANITYCHECK] ... but on turn-action " << active_board.get_turn_action() << " the counter is >0!" << std::endl);
             }
             active_board.broken()=true;
-            active_board.broken_reasons().push_back("player_cards_drawn is "+std::to_string(active_board.get_player_cards_drawn())+" but should be 0 since its stage + " + std::to_string(active_board.get_turn_action()) );
+            active_board.broken_reasons().push_back("[SANITYCHECK] player_cards_drawn is "+std::to_string(active_board.get_player_cards_drawn())+" but should be 0 since its stage + " + std::to_string(active_board.get_turn_action()) );
         }
     }
     if(verbose){
@@ -80,7 +81,7 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
                             DEBUG_MSG("[SANITYCHECK] ... player " << p.role.name << " has two of " << p.hand[c].name << "!" << std::endl);
                         }
                         active_board.broken()=true;
-                        active_board.broken_reasons().push_back(p.role.name + " has two of the same city card: " + p.hand[c].name + " (card " + std::to_string(c) + ") and "+ p.hand[k].name + "(card "+std::to_string(k) + ")" );
+                        active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " has two of the same city card: " + p.hand[c].name + " (card " + std::to_string(c) + ") and "+ p.hand[k].name + "(card "+std::to_string(k) + ")" );
                     }
                 }
             }
@@ -114,7 +115,7 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
                 DEBUG_MSG("... but " << p.role.name << " has " << p.handsize() << " cards!" << std::endl);
             }
             active_board.broken()=true;
-            active_board.broken_reasons().push_back(p.role.name+" has " +std::to_string(p.handsize()) + " cards! ("+std::to_string(p.hand.size())+" city cards and " +std::to_string(p.event_cards.size()) + " event cards)");
+            active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name+" has " +std::to_string(p.handsize()) + " cards! ("+std::to_string(p.hand.size())+" city cards and " +std::to_string(p.event_cards.size()) + " event cards)");
         }
     }
     if(verbose){
@@ -130,10 +131,27 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
             DEBUG_MSG("[SANITYCHECK] ... but there are " << active_board.get_epidemic_count() << " epidemics, even though difficulty is " << active_board.get_difficulty() << std::endl);
         }
         active_board.broken()=true;
-        active_board.broken_reasons().push_back("Difficulty is " + std::to_string(active_board.get_difficulty()) + " and "+ std::to_string(active_board.get_epidemic_count())+" epidemics have been drawn");
+        active_board.broken_reasons().push_back("[SANITYCHECK] Difficulty is " + std::to_string(active_board.get_difficulty()) + " and "+ std::to_string(active_board.get_epidemic_count())+" epidemics have been drawn");
     }
     if(verbose){
         DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
     }
-    
+
+    // Make sure no players position is the same as their last_position (shouldn't be possible by design)
+    if(verbose){
+        DEBUG_MSG(std::endl <<  "[SANITYCHECK] Checking that no player position is their last_position" << std::endl);
+    }
+    for(Players::Player& p: active_board.get_players()){
+        if(p.get_position().index==p.get_last_position()){
+            if(verbose){
+                DEBUG_MSG("[SANITYCHECK] ... but " << p.role.name << " is at  " << p.get_position().name << " even though their last position is recorded as " << Map::CITIES[p.get_last_position()].name << std::endl);
+            }
+            active_board.broken()=true;
+            active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " is at  " + p.get_position().name + " even though their last position is recorded as " + Map::CITIES[p.get_last_position()].name);
+        }
+    }
+    if(verbose){
+        DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
+    }
+
 }

@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <array>
 
 #include "Actions.h"
 #include "Board.h"
@@ -210,10 +211,8 @@ bool Actions::DirectFlightConstructor::legal(){
                 return true;
             }
         }
-        return false;
-    } else {
-        return false;
-    }
+    } 
+    return false;
 }
 // ========================
 
@@ -366,9 +365,9 @@ std::vector<Actions::Action*> Actions::ShuttleFlightConstructor::all_actions(){
     std::vector<Actions::Action*> full_list;
     std::vector<Map::City> stations = active_board ->get_stations();
 
-    for(int n=0;n<stations.size();n++){
-        if(stations[n].index!=active_board ->active_player().get_position().index && stations[n].index!=active_board -> active_player().get_last_position()){
-            full_list.push_back(new Actions::ShuttleFlight(*active_board,stations[n]));
+    for(Map::City& st: stations){
+        if(st.index!=active_board ->active_player().get_position().index && st.index!=active_board -> active_player().get_last_position()){
+            full_list.push_back(new Actions::ShuttleFlight(*active_board,st));
         } 
     }
     return full_list;
@@ -376,11 +375,19 @@ std::vector<Actions::Action*> Actions::ShuttleFlightConstructor::all_actions(){
 
 bool Actions::ShuttleFlightConstructor::legal(){
     Players::Player& active_player = active_board ->active_player();
+    // if it's the player turn
     if(active_board ->get_turn_action()<4){
+        // and there's at least 2 stations
         if(active_board ->get_stations().size()>1){
             for(Map::City st: active_board ->get_stations()){
-                if(st.index==active_player.get_position().index && st.index!=active_player.get_last_position()){
-                    return true;
+                // and the player is at a station
+                if(st.index==active_player.get_position().index){
+                    for(Map::City other_st : active_board-> get_stations()){
+                        // and at least one of the other stations isn't their previous position...
+                        if(other_st.index!=active_player.get_last_position() && other_st.index!=st.index){
+                            return true;
+                        }
+                    }
                 }
             }
         }
@@ -784,7 +791,9 @@ void Actions::Cure::execute(){
 
     for(Map::City st: active_board -> get_stations()){
         if(st.index==active_player.get_position().index){
-            if(active_player.get_color_count()[Map::BLUE]>=active_player.role.required_cure_cards && !cured[Map::BLUE]){
+            std::array<int,4> color_count = active_player.get_color_count();
+
+            if(color_count[Map::BLUE]>=active_player.role.required_cure_cards && !cured[Map::BLUE]){
                 active_player.removeCureCardColor(Map::BLUE);
                 cured[Map::BLUE]=true;
                 active_board -> get_turn_action()++;
@@ -794,7 +803,7 @@ void Actions::Cure::execute(){
                 }
                 return;
             }
-            if(active_player.get_color_count()[Map::YELLOW]>=active_player.role.required_cure_cards && !cured[Map::YELLOW]){
+            if(color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !cured[Map::YELLOW]){
                 active_player.removeCureCardColor(Map::YELLOW);
                 active_board -> get_turn_action()++;
                 cured[Map::YELLOW]=true;
@@ -804,7 +813,7 @@ void Actions::Cure::execute(){
                 }
                 return;
             }
-            if(active_player.get_color_count()[Map::BLACK]>=active_player.role.required_cure_cards && !cured[Map::BLACK]){
+            if(color_count[Map::BLACK]>=active_player.role.required_cure_cards && !cured[Map::BLACK]){
                 active_player.removeCureCardColor(Map::BLACK);
                 cured[Map::BLACK]=true;
                 active_board -> get_turn_action()++;
@@ -814,7 +823,7 @@ void Actions::Cure::execute(){
                 }
                 return;
             }
-            if(active_player.get_color_count()[Map::RED]>=active_player.role.required_cure_cards && !cured[Map::RED]){
+            if(color_count[Map::RED]>=active_player.role.required_cure_cards && !cured[Map::RED]){
                 active_player.removeCureCardColor(Map::RED);
                 cured[Map::RED]=true;
                 active_board -> get_turn_action()++;
@@ -833,16 +842,18 @@ void Actions::Cure::execute(){
 std::string Actions::Cure::repr(){
     Players::Player& active_player = active_board ->active_player();
 
-    if(active_player.get_color_count()[Map::BLUE]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLUE]){
+    std::array<int,4> color_count = active_player.get_color_count();
+
+    if(color_count[Map::BLUE]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLUE]){
         return movetype+" "+Map::COLORS[Map::BLUE];
     }
-    if(active_player.get_color_count()[Map::YELLOW]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::YELLOW]){
+    if(color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::YELLOW]){
         return movetype+" "+Map::COLORS[Map::YELLOW];
     }
-    if(active_player.get_color_count()[Map::BLACK]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLACK]){
+    if(color_count[Map::BLACK]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLACK]){
         return movetype+" "+Map::COLORS[Map::BLACK];
     }
-    if(active_player.get_color_count()[Map::RED]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::RED]){
+    if(color_count[Map::RED]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::RED]){
         return movetype+" "+Map::COLORS[Map::RED];
     }
     active_board ->broken()=true;
@@ -877,11 +888,14 @@ bool Actions::CureConstructor::legal(){
     // If it's a players turn...
     if(active_board ->get_turn_action()<4){
         Players::Player& active_player = active_board ->active_player();
-        // and they have the required cards for an uncured color
-        if((active_player.get_color_count()[Map::BLUE]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::BLUE])||
-            (active_player.get_color_count()[Map::YELLOW]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::YELLOW]) ||
-            (active_player.get_color_count()[Map::BLACK]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::BLACK]) ||
-            (active_player.get_color_count()[Map::RED]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::RED])){
+
+        std::array<int,4> color_count = active_player.get_color_count();
+
+        // and they have the required cards for an uncured color        
+        if((color_count[Map::BLUE]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::BLUE]) ||
+            (color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::YELLOW]) ||
+            (color_count[Map::BLACK]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::BLACK]) ||
+            (color_count[Map::RED]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::RED])){
             for(Map::City st: active_board -> get_stations()){
                 // And they're at a research station...
                 if(st.index==active_player.get_position().index){
@@ -1617,36 +1631,12 @@ Actions::Action* Actions::ForcedDiscardConstructor::random_action(){
             } else {
                 // Otherwise the random card chosen is one of the event cards.
                 // In this case use existing constructors to choose a random action to return.
-
-                // This used to be a switch but apparently case statements are forced to share a namespace, and all later indices have to at least define the variables of those previous?
                 if(p.event_cards[card_to_discard_or_use - p.hand.size()].index==48){
                     return new Actions::QuietNight(*active_board,p); // Return an action to use quiet night
                 } else if(p.event_cards[card_to_discard_or_use - p.hand.size()].index==49){
-                    int _target_city = rand() % Map::CITIES.size();
-                    bool already_exists=true; // assume there's already a research station at this city
-                    while(already_exists){
-                        for(Map::City st: active_board ->get_stations()){
-                            if(st.index==p.get_position().index){
-                                _target_city = rand() % Map::CITIES.size();
-                                break;
-                            }
-                        }
-                        already_exists=false;
-                    }
-                    if(!already_exists){
-                        if(active_board ->get_stations().size()==6){
-                            return new Actions::GovernmentGrant(*active_board,p,_target_city,rand() % active_board ->get_stations().size());
-                        } else {
-                            return new Actions::GovernmentGrant(*active_board,p,_target_city);
-                        }
-                    } else {
-                        return new Actions::ForcedDiscardAction(*active_board,p,p.hand[rand() % p.hand.size()]);
-                    }
+                    return GovernmentGrantConstructor(*active_board).random_action();
                 } else if(p.event_cards[card_to_discard_or_use - p.hand.size()].index==50){
-                    Players::Player& _target_player = active_board ->get_players()[rand() % active_board ->get_players().size()];
-                    int _target_city = rand() % Map::CITIES.size(); // can fly to same city!
-                    return new Actions::Airlift(*active_board,p,_target_player,_target_city);
-                    break;
+                    return AirliftConstructor(*active_board).random_action();
                 }
             }
         }

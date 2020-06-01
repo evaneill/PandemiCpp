@@ -26,10 +26,6 @@ namespace Players
         // Map::City position of player.
         Map::City position; 
 
-        // Track count of each color of card for perhaps easier tracking
-        // (though increasing number of ways to introduce inconsistency in state transitions...)
-        std::array<int,4> color_count;
-
         int last_position=-1; // Track last position to reduce search
     public:
         Player(int role_id);
