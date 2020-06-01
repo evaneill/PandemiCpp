@@ -566,8 +566,8 @@ std::string Actions::BuildConstructor::get_movetype(){
 
 int Actions::BuildConstructor::n_actions(){
     if(legal()){
-        if(active_board ->get_stations().size()==6){
-            return 6; // Can remove any of 6 existing stations.
+        if(active_board ->get_stations().size()>=6){
+            return active_board ->get_stations().size(); // Can remove any existing stations. (In a vanilla game this can't be more than 6)
         } else {
             return 1; // otherwise there's only one thing to do
         }
@@ -654,7 +654,7 @@ void Actions::Treat::execute(){
     // Player has "done something" -> now it doesn't matter what the last position was
     active_player.reset_last_position();
     
-    if(active_player.role.name=="Medic" || active_board ->get_cured()[color]){
+    if(active_player.role.name=="Medic" || active_board -> is_cured(color)){
         active_board ->get_disease_count()[color][active_player.get_position().index]=0;
     } else {
         active_board ->get_disease_count()[color][active_player.get_position().index]--;
@@ -662,8 +662,8 @@ void Actions::Treat::execute(){
     // Check for eradication
     // If(this color is cured && there are now 0 cubes of this disease)
     std::array<int,48>& disease_count = active_board ->get_disease_count()[color];
-    if(active_board ->get_cured()[color] && std::accumulate(disease_count.begin(),disease_count.end(),0)==0){
-        active_board ->get_eradicated()[color]=true;
+    if(active_board -> is_cured(color) && std::accumulate(disease_count.begin(),disease_count.end(),0)==0){
+        active_board ->Eradicate(color);
     }
 
     active_board ->get_turn_action()++;
@@ -672,7 +672,7 @@ void Actions::Treat::execute(){
 std::string Actions::Treat::repr(){
     Players::Player& active_player = active_board ->active_player();
     int n_treated;
-    if(active_player.role.name=="Medic" || active_board ->get_cured()[color]){
+    if(active_player.role.name=="Medic" || active_board ->is_cured(color)){
         n_treated = active_board ->get_disease_count()[color][active_player.get_position().index];
     } else {
         n_treated = 1;
@@ -787,49 +787,47 @@ void Actions::Cure::execute(){
     // Player has "done something" -> now it doesn't matter what the last position was
     active_player.reset_last_position();
 
-    std::vector<bool>& cured = active_board ->get_cured();
-
     for(Map::City st: active_board -> get_stations()){
         if(st.index==active_player.get_position().index){
             std::array<int,4> color_count = active_player.get_color_count();
 
-            if(color_count[Map::BLUE]>=active_player.role.required_cure_cards && !cured[Map::BLUE]){
+            if(color_count[Map::BLUE]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::BLUE)){
                 active_player.removeCureCardColor(Map::BLUE);
-                cured[Map::BLUE]=true;
+                active_board -> Cure(Map::BLUE);
                 active_board -> get_turn_action()++;
                 // Update eradicated status if there is no disease of this color on the board
                 if(std::accumulate(active_board -> get_disease_count()[Map::BLUE].begin(),active_board -> get_disease_count()[Map::BLUE].begin(),0)==0){
-                    active_board ->get_eradicated()[Map::BLUE]=true;
+                    active_board ->Eradicate(Map::BLUE);
                 }
                 return;
             }
-            if(color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !cured[Map::YELLOW]){
+            if(color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::YELLOW)){
                 active_player.removeCureCardColor(Map::YELLOW);
+                active_board -> Cure(Map::YELLOW);
                 active_board -> get_turn_action()++;
-                cured[Map::YELLOW]=true;
                 // Update eradicated status if there is no disease of this color on the board
                 if(std::accumulate(active_board -> get_disease_count()[Map::YELLOW].begin(),active_board -> get_disease_count()[Map::YELLOW].begin(),0)==0){
-                    active_board ->get_eradicated()[Map::YELLOW]=true;
+                    active_board ->Eradicate(Map::YELLOW);
                 }
                 return;
             }
-            if(color_count[Map::BLACK]>=active_player.role.required_cure_cards && !cured[Map::BLACK]){
+            if(color_count[Map::BLACK]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::BLACK)){
                 active_player.removeCureCardColor(Map::BLACK);
-                cured[Map::BLACK]=true;
+                active_board -> Cure(Map::BLACK);
                 active_board -> get_turn_action()++;
                 // Update eradicated status if there is no disease of this color on the board
                 if(std::accumulate(active_board -> get_disease_count()[Map::BLACK].begin(),active_board -> get_disease_count()[Map::BLACK].begin(),0)==0){
-                    active_board ->get_eradicated()[Map::BLACK]=true;
+                    active_board ->Eradicate(Map::BLACK);
                 }
                 return;
             }
-            if(color_count[Map::RED]>=active_player.role.required_cure_cards && !cured[Map::RED]){
+            if(color_count[Map::RED]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::RED)){
                 active_player.removeCureCardColor(Map::RED);
-                cured[Map::RED]=true;
+                active_board -> Cure(Map::RED);
                 active_board -> get_turn_action()++;
                 // Update eradicated status if there is no disease of this color on the board
                 if(std::accumulate(active_board -> get_disease_count()[Map::RED].begin(),active_board -> get_disease_count()[Map::RED].begin(),0)==0){
-                    active_board ->get_eradicated()[Map::RED]=true;
+                    active_board ->Eradicate(Map::RED);
                 }
                 return;
             }
@@ -844,16 +842,16 @@ std::string Actions::Cure::repr(){
 
     std::array<int,4> color_count = active_player.get_color_count();
 
-    if(color_count[Map::BLUE]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLUE]){
+    if(color_count[Map::BLUE]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::BLUE)){
         return movetype+" "+Map::COLORS[Map::BLUE];
     }
-    if(color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::YELLOW]){
+    if(color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::YELLOW)){
         return movetype+" "+Map::COLORS[Map::YELLOW];
     }
-    if(color_count[Map::BLACK]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::BLACK]){
+    if(color_count[Map::BLACK]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::BLACK)){
         return movetype+" "+Map::COLORS[Map::BLACK];
     }
-    if(color_count[Map::RED]>=active_player.role.required_cure_cards && !(*active_board).get_cured()[Map::RED]){
+    if(color_count[Map::RED]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::RED)){
         return movetype+" "+Map::COLORS[Map::RED];
     }
     active_board ->broken()=true;
@@ -892,10 +890,10 @@ bool Actions::CureConstructor::legal(){
         std::array<int,4> color_count = active_player.get_color_count();
 
         // and they have the required cards for an uncured color        
-        if((color_count[Map::BLUE]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::BLUE]) ||
-            (color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::YELLOW]) ||
-            (color_count[Map::BLACK]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::BLACK]) ||
-            (color_count[Map::RED]>=active_player.role.required_cure_cards && !active_board->get_cured()[Map::RED])){
+        if((color_count[Map::BLUE]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::BLUE)) ||
+            (color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::YELLOW)) ||
+            (color_count[Map::BLACK]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::BLACK)) ||
+            (color_count[Map::RED]>=active_player.role.required_cure_cards && !active_board -> is_cured(Map::RED))){
             for(Map::City st: active_board -> get_stations()){
                 // And they're at a research station...
                 if(st.index==active_player.get_position().index){

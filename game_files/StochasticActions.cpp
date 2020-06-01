@@ -113,7 +113,7 @@ void StochasticActions::InfectDrawAction::execute(){
         card_drawn = new_card.name;
 
         // If this color hasn't been eradicated...
-        if(!active_board ->get_eradicated()[new_card.color]){
+        if(!active_board -> is_eradicated(new_card.color)){
 
             // Check for existence & adjacency of quarantine specialist
             for(Players::Player& p: active_board ->get_players()){
