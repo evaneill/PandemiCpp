@@ -130,8 +130,12 @@ namespace Board
         void AddStation(Map::City new_station);
         void RemoveStation(int station_list_idx);
                 
-        std::vector<bool>& get_eradicated();
-        std::vector<bool>& get_cured(); // reference to cured status to update/use
+        bool is_eradicated(int col); // get eradicated status of a disease
+        void Eradicate(int col); // set eradicated status of a disease to true
+
+        bool is_cured(int col); // get cured status of given disease
+        void Cure(int color); // Tell the board to cure a disease (shouldn't be necessary but optimizer doesn't like updating status occasionally when told to do so)
+
         std::vector<Players::Player>& get_players();
         bool& quiet_night_status();
         bool& has_won(); // reference to win status. Only modified in Action Actions::Cure

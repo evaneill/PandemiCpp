@@ -366,12 +366,20 @@ std::array<std::array<int,48>,4>& Board::Board::get_disease_count(){
     return disease_count;
 }
 
-std::vector<bool>& Board::Board::get_eradicated(){
-    return eradicated;
+bool  Board::Board::is_eradicated(int col){
+    return eradicated[col];
 }
 
-std::vector<bool>& Board::Board::get_cured(){
-    return cured;
+void Board::Board::Eradicate(int col){
+    eradicated[col]=true;
+}
+
+bool Board::Board::is_cured(int col){
+    return cured[col];
+}
+
+void Board::Board::Cure(int col){
+    cured[col]=true;
 }
 
 std::vector<Players::Player>& Board::Board::get_players(){
