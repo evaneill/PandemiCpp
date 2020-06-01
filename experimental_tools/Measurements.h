@@ -100,6 +100,10 @@ namespace Measurements
     int firstGovernmentGrantPresence=-1;
     int GovernmentGrantUse=-1;
 
+    bool quietnightUsed=false;
+    bool airliftUsed=false;
+    bool governmentgrantUsed=false;
+
     public:
         EventCardUse(Board::Board& _active_board);
 
@@ -155,7 +159,7 @@ namespace Measurements
         GameMeasurement* construct_measure(Board::Board& active_board);
     };
 
-    // To track how many epidemics are drawn in the game
+    // To track how many research stations were built
     class ResearchStations: public GameMeasurement{
     public:
         ResearchStations(Board::Board& _active_board);
@@ -167,6 +171,24 @@ namespace Measurements
     class ResearchStationsConstructor: public MeasurementConstructor{
     public:
         ResearchStationsConstructor();
+
+        std::vector<std::string> get_value_keys();
+        GameMeasurement* construct_measure(Board::Board& active_board);
+    };
+
+    // To track time taken to execute the game
+    class TimeTaken: public GameMeasurement{
+        std::chrono::steady_clock::time_point start_time;
+    public:
+        TimeTaken(Board::Board& _active_board);
+
+        std::vector<double> get_values();
+        void update();
+    };
+
+    class TimeTakenConstructor: public MeasurementConstructor{
+    public:
+        TimeTakenConstructor();
 
         std::vector<std::string> get_value_keys();
         GameMeasurement* construct_measure(Board::Board& active_board);

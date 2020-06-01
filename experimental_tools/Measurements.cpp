@@ -6,6 +6,8 @@
 #include "../game_files/GameLogic.h"
 #include "../game_files/Board.h"
 
+#include <chrono>
+
 Measurements::GameMeasurement::GameMeasurement(){}
 
 Measurements::MeasurementConstructor::MeasurementConstructor(){}
@@ -141,6 +143,21 @@ Measurements::EventCardUse::EventCardUse(Board::Board& _active_board){
 }
 
 std::vector<double> Measurements::EventCardUse::get_values(){
+    if(!quietnightUsed){
+        QuietNightUse=-1;
+    } else {
+        QuietNightUse+=firstQuietNightPresence;
+    }
+    if(!airliftUsed){
+        AirliftUse=-1;
+    } else {
+        AirliftUse+=firstAirliftPresence;
+    }
+    if(!governmentgrantUsed){
+        GovernmentGrantUse=-1;
+    } else {
+        GovernmentGrantUse+=firstGovernmentGrantPresence;
+    }
     return {
         (double) firstQuietNightPresence,
         (double) QuietNightUse,
@@ -154,8 +171,9 @@ std::vector<double> Measurements::EventCardUse::get_values(){
 //  Unfortunately most of the work here is in updating
 void Measurements::EventCardUse::update(){
     bool quiet_night_found=false;
-    bool government_grand_found=false;
+    bool government_grant_found=false;
     bool airlift_found=false;
+
     for(Players::Player& p: active_board -> get_players()){
         for(Decks::PlayerCard& card: p.event_cards){
             switch(card.index){
@@ -166,7 +184,7 @@ void Measurements::EventCardUse::update(){
                     }
                     break;
                 case 49:
-                    government_grand_found=true;
+                    government_grant_found=true;
                     if(firstGovernmentGrantPresence==-1){
                         firstGovernmentGrantPresence=steps;
                     }
@@ -181,13 +199,23 @@ void Measurements::EventCardUse::update(){
         }
     }
     if(!quiet_night_found && firstQuietNightPresence>=0){
-        QuietNightUse=steps;
+        quietnightUsed=true;
     };
-    if(!government_grand_found && firstGovernmentGrantPresence>=0){
-        GovernmentGrantUse=steps;
+    if(!government_grant_found && firstGovernmentGrantPresence>=0){
+        governmentgrantUsed=true;
     };
     if(!airlift_found && firstAirliftPresence>=0){
-        AirliftUse=steps;
+        airliftUsed=true;
+    };
+
+    if(!quietnightUsed && firstQuietNightPresence>=0){
+        QuietNightUse++;
+    };
+    if(!governmentgrantUsed && firstGovernmentGrantPresence>=0){
+        GovernmentGrantUse++;
+    };
+    if(!airliftUsed && firstAirliftPresence>=0){
+        AirliftUse++;
     };
     steps++;
 };
@@ -221,10 +249,10 @@ std::vector<double> Measurements::CuredDisease::get_values(){
 
 // Update according to any "new" cured diseases.
 void Measurements::CuredDisease::update(){
-    if(active_board -> get_cured()[Map::BLUE] && BlueCured<0){BlueCured = steps;}
-    if(active_board -> get_cured()[Map::YELLOW] && YellowCured<0){YellowCured = steps;}
-    if(active_board -> get_cured()[Map::BLACK] && BlackCured<0){BlackCured = steps;}
-    if(active_board -> get_cured()[Map::RED] && RedCured<0){RedCured = steps;}
+    if(active_board -> is_cured(Map::BLUE) && BlueCured<0){BlueCured = steps;}
+    if(active_board -> is_cured(Map::YELLOW) && YellowCured<0){YellowCured = steps;}
+    if(active_board -> is_cured(Map::BLACK) && BlackCured<0){BlackCured = steps;}
+    if(active_board -> is_cured(Map::RED) && RedCured<0){RedCured = steps;}
 
     steps++;
 };
@@ -282,3 +310,33 @@ std::vector<double> Measurements::ResearchStations::get_values(){
 
 // Doesn't need to do anything during update; just read out final status
 void Measurements::ResearchStations::update(){}
+
+// ===== TimeTaken measurements ===== 
+Measurements::TimeTakenConstructor::TimeTakenConstructor(){
+    name="Time Duration";
+    description="Time (ms) from instantiation of the game measure to the request for a measurement value";
+}
+
+Measurements::GameMeasurement* Measurements::TimeTakenConstructor::construct_measure(Board::Board& active_board){
+    return new Measurements::TimeTaken(active_board);
+}
+
+std::vector<std::string> Measurements::TimeTakenConstructor::get_value_keys(){
+    return {"TimeTaken"};
+}
+
+Measurements::TimeTaken::TimeTaken(Board::Board& _active_board){
+    active_board = &_active_board;
+
+    start_time = std::chrono::high_resolution_clock::now();
+}
+
+std::vector<double> Measurements::TimeTaken::get_values(){
+    std::chrono::duration<double, std::milli> duration = std::chrono::high_resolution_clock::now()- start_time;
+    return {
+        std::chrono::duration<double>(duration).count()
+    };
+}
+
+// Doesn't need to do anything during update; just read out final time diff
+void Measurements::TimeTaken::update(){}
