@@ -1,5 +1,6 @@
-# PandemiCpp
+# PandemiCpp 
 C++ implementation of pandemic board game for testing MCTS agents
+(As of June 04, 2020 this is still a work in progress and has many untested/incredibly inefficient/unbuilt components)
 
 ## Requirements
 I believe that you only need a C++ compiler that's capable of compiling the C++17 standard. This standard is required because I've used some `inline` statements to define global variables. 
@@ -19,7 +20,7 @@ Right now there are several compile warnings regarding the possibility of not re
 - The `Actions` all have `legal()` guards, whose truth value indicates whether or not there's at least one *legal and not _entirely_ stupid* move to make. Their `random_action` and `list_actions` incorporate the same rules for restricting which actions can be returned. (e.g. it's stupid to move from a city and back, or discard the card of the city you're in to move to the city you're in - even though they're both legal!).
     - All basic movement options, as well as airlift, preclude the player from returning to their _last position_ unless they've done something since then (Treated disease, built a station, cured a disease, or traded cards). This _doesn't_ prevent loops, but I hope helps to broaden random walks slightly decrease branching in a helpful way.
     - `Airlift`, `DirectFlight`, and `CharterFlight` will additionally not count the movement of a player to a neighboring city as valid. For `DirectFlight` and `CharterFlight` this is a strict optimization, since discarding a card to move one city a way can never be better than just moving to it. In the case of `Airlift` it's more of an almost-always optimization designed to reduce the branching factor.
-- The `GameLogic` will ALWAYS return a `ForcedDiscard` list of actions if ANY player has >7 cards. Among available actions are the use of any event cards in their hand. 
+- The `GameLogic` will ALWAYS return a `ForcedDiscard` actions (or list of actions) if ANY player has >7 cards. Among available actions are the use of any event cards in that players hand. 
 - the `Cure` action will always discard the first 4 (if scientist) or 5 (if not) cards whose color matches the color to be cured, rather than giving the player a choice over exactly which they want to discard in the case that they have more than necessary. This is nothing but a search optimization.
 
 ## Pandemic Board Game
