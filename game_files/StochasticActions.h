@@ -14,15 +14,16 @@ namespace StochasticActions
     class PlayerDeckDrawAction: public Actions::Action{
         std::string card_drawn;
     public:
-        PlayerDeckDrawAction(Board::Board& _active_board);
+        PlayerDeckDrawAction();
         
-        void execute();
+        void execute(Board::Board& game_board);
+
         std::string repr();
-        bool legal();
+        bool legal(Board::Board& board);
     };
 
     // Performs the whole infect step. Will stop if game is lost after setting game status to lost
-    class InfectDrawAction: public Actions::Action{
+    class InfectDeckDrawAction: public Actions::Action{
         std::string card_drawn;
 
         // Used to indicate whether or not the Quarantine Specialist was found
@@ -31,26 +32,27 @@ namespace StochasticActions
         // Used to help describe the outcome of the action (# outbreaks added, # blocked)
         std::array<int,2> outbreak_track;
     public:
-        InfectDrawAction(Board::Board& _active_board);
+        InfectDeckDrawAction();
 
-        void execute();
+        void execute(Board::Board& game_board);
+
         std::string repr();
-        bool legal();
+        bool legal(Board::Board& board);
     };
 
     class StochasticActionConstructor{
     public:
-        StochasticActionConstructor(Board::Board& _active_board);
+        StochasticActionConstructor();
 
-        // Like Actions::ActionConstructor maintain a reference to active board.
-        Board::Board* active_board;
+        InfectDeckDrawAction infect_draw;
+        PlayerDeckDrawAction player_draw;
 
         // Unlike other constructors, there's no notion of delimiting all actions or counting them (though hypothetically this is possible)
         // We do still want the constructor to give either an InfectDraw or PlayerDraw action to GameLogic
-        Actions::Action* get_action();
+        Actions::Action* get_action(Board::Board& game_board);
 
         // Whether or not it's time to apply stochasticity.
-        bool legal();
+        bool legal(Board::Board& board);
     };
 }
 
