@@ -17,8 +17,8 @@ Actions::Action* Agents::UniformRandomAgent::generate_action(bool verbose){
 
 void Agents::UniformRandomAgent::take_step(bool verbose){
     Actions::Action* chosen_action = generate_action(verbose);// verbose here tells GameLogic whether or not to be verbose
+    active_game.applyAction(chosen_action);
     if(verbose){
-        DEBUG_MSG(std::endl << "[UniformRandomAgent::take_step()] " << chosen_action -> active_board -> active_player().role.name << ": " << chosen_action -> repr() << std::endl);
+        DEBUG_MSG(std::endl << "[UniformRandomAgent::take_step()] " << active_game.get_board_ptr() -> active_player().role.name << ": " << chosen_action -> repr() << std::endl);
     }
-    chosen_action -> execute();
 }

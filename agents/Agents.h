@@ -13,6 +13,9 @@ namespace Agents
         // Keep a reference to the active game to hand out inside of returned actions
         GameLogic::Game &active_game;
 
+        // Name that can be used for logging
+        std::string name;
+        
         // BaseAgent methods below should NEVER be called, they're always pure virtual.
 
         // An agent just has to be able to generate an action
