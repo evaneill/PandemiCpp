@@ -59,27 +59,46 @@ namespace GameLogic
 
         // Return a vector of all legal actions
         std::vector<Actions::Action*> list_actions(bool verbose = false);
+        // Return a vector of all legal actions for a given board
+        std::vector<Actions::Action*> list_actions(Board::Board& game_board,bool verbose=false);
+
+        // Apply an action given by an agent to the attached active_board
+        void applyAction(Actions::Action* action);
 
         // Return the total number of player actions available
         int n_available_actions(bool verbose = false);
+        // Return total number of actions for a given board
+        int n_available_actions(Board::Board& game_board,bool verbose = false);
 
         // ===== Functional necessities =====
 
         // To advance the non-player elements of the game
         void nonplayer_actions(bool verbose = false);
+        // Advance the non-player elements in a given board
+        void nonplayer_actions(Board::Board& game_board,bool verbose=false);
 
         // Check for game status (true if win/loss/broken)
         // sanity check argument to include whether or not to go through all SanityCheck::CheckBoard() checks before determining terminal state.
         bool is_terminal(bool sanity_check=false,bool verbose=false);
+        // Check for terminal status in a given game board
+        bool is_terminal(Board::Board& game_board,bool sanity_check=false,bool verbose=false);
+
+        // Check if the state of a game board is stochastic
+        bool is_stochastic(Board::Board& game_board);
+
         // return a vector of reasons that the game is terminal, for diagnostics.
         std::vector<std::string> terminal_reasons(); // 
 
         // game reward. Should return NULL if called on a non-terminal state.
         // Worth it to note that NULL + int is still an int, but can produce a runtime warning
         int reward();
+        // reward of a given board
+        int reward(Board::Board& game_board);
 
         // Board pointer for affixing to actions as necessary
         Board::Board* get_board_ptr();
+        // Return a copy of the board (so agents can play with a copy)
+        Board::Board board_copy();
     };
 }
 

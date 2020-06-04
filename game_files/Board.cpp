@@ -357,9 +357,14 @@ void Board::Board::AddStation(Map::City new_station){
     research_stations.push_back(new_station);
 }
 
-void Board::Board::RemoveStation(int station_list_idx){
-    // Takes the index within the list of research_stations
-    research_stations.erase(research_stations.begin()+station_list_idx);
+void Board::Board::RemoveStation(int station_city_idx){
+    // Takes the city index of the station to be erased
+    for(int st=0; st<research_stations.size();st++){
+        if(research_stations[st].index==station_city_idx){
+            research_stations.erase(research_stations.begin() + st);
+            return;
+        }
+    }
 }
 
 std::array<std::array<int,48>,4>& Board::Board::get_disease_count(){
