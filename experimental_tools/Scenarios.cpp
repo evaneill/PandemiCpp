@@ -77,18 +77,18 @@ Board::Board& Scenarios::BusyBoardScenario::make_board(std::vector<int> roles,in
     }
     // Put each player in one of those cities with a station
     for(int p; p<new_board -> get_players().size();p++){
-        new_board -> get_players()[p].set_position(Map::CITIES[(random_city+p )% Map::CITIES.size()]);
+        new_board -> get_players()[p] -> set_position(Map::CITIES[(random_city+p )% Map::CITIES.size()]);
 
         // Give them a card of the city they're in
-        new_board -> get_players()[p].UpdateHand(Decks::PlayerCard((random_city+p )% Map::CITIES.size()));
+        new_board -> get_players()[p] -> UpdateHand(Decks::PlayerCard((random_city+p )% Map::CITIES.size()));
         // And a card for each neighboring city
         for(int neighbor: Map::CITIES[(random_city+p) % Map::CITIES.size()].neighbors){
             // and give them a card for each neighboring city - hopefully they try to build?
-            new_board -> get_players()[p].UpdateHand(Decks::PlayerCard(neighbor));
+            new_board -> get_players()[p] -> UpdateHand(Decks::PlayerCard(neighbor));
         }
         if(verbose){
-            DEBUG_MSG("[Scenarios::BusyBoardTest()] " << new_board -> get_players()[p].role.name << " has cards: " );
-            for(Decks::PlayerCard& card: (*new_board).get_players()[p].hand){
+            DEBUG_MSG("[Scenarios::BusyBoardTest()] " << new_board -> get_players()[p] -> role.name << " has cards: " );
+            for(Decks::PlayerCard& card: (*(*new_board).get_players()[p]).hand){
                 DEBUG_MSG("[Scenarios::BusyBoardTest()] ... " << card.name << std::endl);
             }
         }
@@ -179,40 +179,40 @@ Board::Board& Scenarios::CanWinScenario::make_board(std::vector<int> roles,int _
 
     // Give each player 7 cards of a distinct color
     // blue card player
-    new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(6));
-    new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(7));
-    new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(8));
-    new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(9));
-    new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(10));
-    new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(11));
-    new_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(12));
+    new_board -> get_players()[Map::BLUE] -> UpdateHand(Decks::PlayerCard(7));
+    new_board -> get_players()[Map::BLUE] -> UpdateHand(Decks::PlayerCard(8));
+    new_board -> get_players()[Map::BLUE] -> UpdateHand(Decks::PlayerCard(6));
+    new_board -> get_players()[Map::BLUE] -> UpdateHand(Decks::PlayerCard(9));
+    new_board -> get_players()[Map::BLUE] -> UpdateHand(Decks::PlayerCard(10));
+    new_board -> get_players()[Map::BLUE] -> UpdateHand(Decks::PlayerCard(11));
+    new_board -> get_players()[Map::BLUE] -> UpdateHand(Decks::PlayerCard(12));
 
     // yellow card player
-    new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(7+12));
-    new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(8+12));
-    new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(9+12));
-    new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(10+12));
-    new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(11+12));
-    new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(6+12));
-    new_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(12+12));
+    new_board -> get_players()[Map::YELLOW] -> UpdateHand(Decks::PlayerCard(7+12));
+    new_board -> get_players()[Map::YELLOW] -> UpdateHand(Decks::PlayerCard(8+12));
+    new_board -> get_players()[Map::YELLOW] -> UpdateHand(Decks::PlayerCard(9+12));
+    new_board -> get_players()[Map::YELLOW] -> UpdateHand(Decks::PlayerCard(10+12));
+    new_board -> get_players()[Map::YELLOW] -> UpdateHand(Decks::PlayerCard(11+12));
+    new_board -> get_players()[Map::YELLOW] -> UpdateHand(Decks::PlayerCard(6+12));
+    new_board -> get_players()[Map::YELLOW] -> UpdateHand(Decks::PlayerCard(12+12));
 
     // black card player
-    new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(6+24));
-    new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(7+24));
-    new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(8+24));
-    new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(9+24));
-    new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(10+24));
-    new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(11+24));
-    new_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(12+24));
+    new_board -> get_players()[Map::BLACK] -> UpdateHand(Decks::PlayerCard(6+24));
+    new_board -> get_players()[Map::BLACK] -> UpdateHand(Decks::PlayerCard(7+24));
+    new_board -> get_players()[Map::BLACK] -> UpdateHand(Decks::PlayerCard(8+24));
+    new_board -> get_players()[Map::BLACK] -> UpdateHand(Decks::PlayerCard(9+24));
+    new_board -> get_players()[Map::BLACK] -> UpdateHand(Decks::PlayerCard(10+24));
+    new_board -> get_players()[Map::BLACK] -> UpdateHand(Decks::PlayerCard(11+24));
+    new_board -> get_players()[Map::BLACK] -> UpdateHand(Decks::PlayerCard(12+24));
 
     // red card player
-    new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(6+36));
-    new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(7+36));
-    new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(8+36));
-    new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(9+36));
-    new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(10+36));
-    new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(11+36));
-    new_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(12+36));
+    new_board -> get_players()[Map::RED] -> UpdateHand(Decks::PlayerCard(6+36));
+    new_board -> get_players()[Map::RED] -> UpdateHand(Decks::PlayerCard(7+36));
+    new_board -> get_players()[Map::RED] -> UpdateHand(Decks::PlayerCard(8+36));
+    new_board -> get_players()[Map::RED] -> UpdateHand(Decks::PlayerCard(9+36));
+    new_board -> get_players()[Map::RED] -> UpdateHand(Decks::PlayerCard(10+36));
+    new_board -> get_players()[Map::RED] -> UpdateHand(Decks::PlayerCard(11+36));
+    new_board -> get_players()[Map::RED] -> UpdateHand(Decks::PlayerCard(12+36));
 
     return *new_board;
 }

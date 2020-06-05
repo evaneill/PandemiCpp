@@ -174,8 +174,8 @@ void Measurements::EventCardUse::update(){
     bool government_grant_found=false;
     bool airlift_found=false;
 
-    for(Players::Player& p: active_board -> get_players()){
-        for(Decks::PlayerCard& card: p.event_cards){
+    for(Players::Player* p: active_board -> get_players()){
+        for(Decks::PlayerCard& card: (*p).event_cards){
             switch(card.index){
                 case 48:
                     quiet_night_found=true;

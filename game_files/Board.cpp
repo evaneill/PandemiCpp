@@ -7,7 +7,7 @@
 
 Board::Board::Board(std::vector<int> roles, int _difficulty){
     for(int r: roles){
-        players.push_back(Players::Player(r));
+        players.push_back(new Players::Player(r));
     }
 
     difficulty = _difficulty;
@@ -36,9 +36,9 @@ void Board::Board::setup(bool verbose){
         }
         // Allot each player their correct number of cards.
         int max_pop = 0, first_player =0, player_idx = 0;
-        for(Players::Player& p : players){
+        for(Players::Player* p : players){
             if(verbose){
-                DEBUG_MSG(std::endl << "[SETUP] Drawing cards for " << p.role.name << " : ");
+                DEBUG_MSG(std::endl << "[SETUP] Drawing cards for " << (*p).role.name << " : ");
             }
             for(int c=0; c<setup_cards;c++){
                 Decks::PlayerCard drawn_card = player_deck.draw(true); // true used for setup (i.e. draw from all non-epidemic cards)
@@ -51,14 +51,14 @@ void Board::Board::setup(bool verbose){
                         first_player = player_idx;
                     }
                 }
-                p.UpdateHand(drawn_card);
+                (*p).UpdateHand(drawn_card);
             }
             if(verbose){
-                DEBUG_MSG(std::endl << "[SETUP] " << p.role.name << " has cards: ");
-                for(Decks::PlayerCard card: p.hand){
+                DEBUG_MSG(std::endl << "[SETUP] " << (*p).role.name << " has cards: ");
+                for(Decks::PlayerCard card: (*p).hand){
                     DEBUG_MSG(card.name << "; ");
                 }
-                for(Decks::PlayerCard card: p.event_cards){
+                for(Decks::PlayerCard card: (*p).event_cards){
                     DEBUG_MSG(card.name << "; ");
                 }
                 DEBUG_MSG(std::endl);
@@ -73,7 +73,7 @@ void Board::Board::setup(bool verbose){
         // This is intended: when people play they'll sit down in a fixed order then learn who goes first.
         // Any randomization in roles should happen above the call to Board().
         if(verbose){
-            DEBUG_MSG(std::endl << "[SETUP] First player is in position " << first_player << " (" << players[first_player].role.name << ")" << std::endl); 
+            DEBUG_MSG(std::endl << "[SETUP] First player is in position " << first_player << " (" << (*players[first_player]).role.name << ")" << std::endl); 
         }
         turn = first_player;
 
@@ -183,10 +183,10 @@ std::array<int,2> Board::Board::infect_city(int city_idx, int col,int add){
 
     // Check for existence & adjacency of quarantine specialist, if the game has already been set up
     if(IS_SETUP){
-        for(Players::Player& p: players){
-            if(p.role.name=="Quarantine Specialist"){
+        for(Players::Player* p: players){
+            if((*p).role.name=="Quarantine Specialist"){
                 // If they're in the same city
-                if(p.get_position().index==city_idx){
+                if((*p).get_position().index==city_idx){
                     if(disease_count[col][city_idx]+add>3){
                         return {0,1};
                     } else {
@@ -194,7 +194,7 @@ std::array<int,2> Board::Board::infect_city(int city_idx, int col,int add){
                     }
                 }
                 // Or if they're in an adjacent city
-                for(int n: p.get_position().neighbors){
+                for(int n: (*p).get_position().neighbors){
                     if(city_idx==n){
                         if(disease_count[col][city_idx]+add>3){
                             return {0,1};
@@ -292,14 +292,14 @@ int Board::Board::win_lose(){
 }
 
 void Board::Board::update_medic_position(){
-    for(Players::Player& p: players){
+    for(Players::Player* p: players){
         // If any player is the medic
-        if(p.role.name=="Medic"){
+        if((*p).role.name=="Medic"){
             for(int col=0;col<4;col++){
                 // and a disease is cured
                 if(cured[col]){
                     // disease count of that color on their position should be 0
-                    disease_count[col][p.get_position().index]=0;
+                    disease_count[col][(*p).get_position().index]=0;
                 }
             }
         }
@@ -346,7 +346,7 @@ void Board::Board::updatestatus(){
 }
 
 Players::Player& Board::Board::active_player(){
-    return players[turn];
+    return *players[turn];
 }
 
 std::vector<Map::City> Board::Board::get_stations(){
@@ -387,7 +387,7 @@ void Board::Board::Cure(int col){
     cured[col]=true;
 }
 
-std::vector<Players::Player>& Board::Board::get_players(){
+std::vector<Players::Player*> Board::Board::get_players(){
     return players;
 }
 

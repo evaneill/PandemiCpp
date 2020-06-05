@@ -49,7 +49,7 @@ namespace Players
         void set_position(int new_city); // new_city index
         void reset_last_position(int old_position=-1); // Change last_position tracker to old_position (by default remove tracking status)
 
-        // Whether or not the player currently has at least 7 cards
+        // Whether or not the player currently has _ABOVE_ hand limit
         bool hand_full();
         int handsize();
 

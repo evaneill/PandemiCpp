@@ -44,12 +44,12 @@ void StochasticActions::PlayerDeckDrawAction::execute(Board::Board& game_board){
             bool quarantine_adjacent = false;
 
             // Check for existence & adjacency of quarantine specialist
-            for(Players::Player& p: game_board.get_players()){
-                if(p.role.name=="Quarantine Specialist"){
-                    if(p.get_position().index==new_card.index){
+            for(Players::Player* p: game_board.get_players()){
+                if((*p).role.name=="Quarantine Specialist"){
+                    if((*p).get_position().index==new_card.index){
                         quarantine_adjacent=true;
                     }
-                    for(int n: p.get_position().neighbors){
+                    for(int n: (*p).get_position().neighbors){
                         if(new_card.index==n){
                             quarantine_adjacent=true;
                         }
@@ -123,13 +123,13 @@ void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
         if(!game_board.is_eradicated(new_card.color)){
 
             // Check for existence & adjacency of quarantine specialist
-            for(Players::Player& p: game_board.get_players()){
-                if(typeid(p.role)==typeid(Players::QuarantineSpecialist)){
-                    if(p.get_position().index==new_card.index){
+            for(Players::Player* p: game_board.get_players()){
+                if(typeid((*p).role)==typeid(Players::QuarantineSpecialist)){
+                    if((*p).get_position().index==new_card.index){
                         QuarantineSpecialistBlocked=true;
                         break;
                     }
-                    for(int n: p.get_position().neighbors){
+                    for(int n: (*p).get_position().neighbors){
                         if(new_card.index==n){
                             QuarantineSpecialistBlocked=true;
                         }
@@ -165,8 +165,8 @@ void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
             game_board.get_turn() = (game_board.get_turn() + 1) % game_board.get_players().size();
 
             // Reset player position memory
-            for(Players::Player& p : game_board.get_players()){
-                p.reset_last_position();
+            for(Players::Player* p : game_board.get_players()){
+                (*p).reset_last_position();
             }
             
             // reset the next players "operations expert flight" boolean just in case
@@ -190,8 +190,8 @@ void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
         game_board.active_player().used_OperationsExpertFlight=false;
 
         // Reset player position memory
-        for(Players::Player& p : game_board. get_players()){
-            p.reset_last_position();
+        for(Players::Player* p : game_board. get_players()){
+            (*p).reset_last_position();
         }
 
         game_board.quiet_night_status()=false;

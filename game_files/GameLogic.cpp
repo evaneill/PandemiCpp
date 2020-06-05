@@ -7,6 +7,8 @@
 #include "Actions.h"
 #include "Debug.h"
 
+#include "../agents/Heuristics.h"
+
 GameLogic::Game::Game(Board::Board& _active_board, bool verbose): 
     active_board(&_active_board),
 
@@ -60,26 +62,14 @@ GameLogic::Game::Game(Board::Board& _active_board, bool verbose):
 void GameLogic::Game::nonplayer_actions(bool verbose){
     // Designed to go until there there's either a required discard, OR non-player board transitions are complete, OR something breaks or game is lost
     // Right now this SKIPS any use of event cards during draw phase!
-    while(StochasticCon.legal(*active_board) && !ForcedDiscardCon.legal(*active_board) && !is_terminal(*active_board)){
-        Actions::Action* next_action = StochasticCon.get_action(*active_board);
-        
-        // Track statuses as they went into execute(), where active player name and quiet night status might change
-        bool was_quiet_night = (*active_board).quiet_night_status();
-        std::string player_name = (*active_board).active_player().role.name;
-
-        next_action -> execute(*active_board);
-
-        // Lots of logic to handle whether anything should be printed (a quiet night status, specifically, should result in nothing being printed for infect stage)
-        if(verbose && (!was_quiet_night || (*active_board).get_turn_action()==4 || ((*active_board).get_turn_action()==5 && (*active_board).get_infect_cards_drawn()==0))){
-            DEBUG_MSG("[Game::nonplayer_actions()] " << player_name << ": " << next_action -> repr() << std::endl);
-        }
-    }
+    nonplayer_actions(*active_board,verbose);
 }
 
 void GameLogic::Game::nonplayer_actions(Board::Board& game_board,bool verbose){
     // Designed to go until there there's either a required discard, OR non-player board transitions are complete, OR something breaks or game is lost
     // Right now this SKIPS any use of event cards during draw phase!
-    while(StochasticCon.legal(game_board) && !ForcedDiscardCon.legal(game_board) && !is_terminal(game_board)){
+    while(is_stochastic(game_board)){
+        // Get the next required action
         Actions::Action* next_action = StochasticCon.get_action(game_board);
         
         // Track statuses as they went into execute(), where active player name and quiet night status might change
@@ -95,6 +85,10 @@ void GameLogic::Game::nonplayer_actions(Board::Board& game_board,bool verbose){
 }
 
 Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
+    return get_random_action_uniform(*active_board);
+}
+
+Actions::Action* GameLogic::Game::get_random_action_uniform(Board::Board& game_board, bool verbose){
     // Goal is to get a UNIFORM distribution over all legal actions
     // Will _try_ to speed this up over just generating all actions by:
     //      counting player actions first
@@ -102,7 +96,7 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
     //      going through the same action options in order until this falls within one of the ranges
 
     if(verbose){
-        Players::Player& active_player = (*active_board).active_player();
+        Players::Player& active_player = game_board.active_player();
         DEBUG_MSG("[Game::get_random_action_uniform()] "<< active_player.role.name << " is in " << active_player.get_position().name <<  " and has hand: ");
         for(Decks::PlayerCard card: active_player.hand){
             DEBUG_MSG(card.name << "; ");
@@ -110,26 +104,26 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
         for(Decks::PlayerCard card: active_player.event_cards){
             DEBUG_MSG(card.name << "; ");
         }
-        DEBUG_MSG(" (color count BLUE: "<<(*active_board).active_player().get_color_count()[Map::BLUE]<< ", YELLOW: " << (*active_board).active_player().get_color_count()[Map::YELLOW] << ", BLACK: " << (*active_board).active_player().get_color_count()[Map::BLACK] << ", RED: " << (*active_board).active_player().get_color_count()[Map::RED] << ")");
+        DEBUG_MSG(" (color count BLUE: "<<game_board.active_player().get_color_count()[Map::BLUE]<< ", YELLOW: " << game_board.active_player().get_color_count()[Map::YELLOW] << ", BLACK: " << game_board.active_player().get_color_count()[Map::BLACK] << ", RED: " << game_board.active_player().get_color_count()[Map::RED] << ")");
         DEBUG_MSG(std::endl);
     }
-    if(ForcedDiscardCon.legal(*active_board)){
+    if(ForcedDiscardCon.legal(game_board)){
         // ALWAYS return a choice of discard actions if it's possible.
         // Includes possible plays of event cards
-        return ForcedDiscardCon.random_action(*active_board);
+        return ForcedDiscardCon.random_action(game_board);
     }
 
     // For hard rollouts - always return cure in the case that the board is "not that bad"
-    if(CureCon.legal(*active_board)){
+    if(CureCon.legal(game_board)){
         // If no disease has >=18 cubes on the board
-        if(active_board -> disease_sum(Map::BLUE)<18 && active_board -> disease_sum(Map::YELLOW)<18 && active_board -> disease_sum(Map::BLACK)<18 && active_board -> disease_sum(Map::RED)<18){
+        if(game_board.disease_sum(Map::BLUE)<18 && game_board.disease_sum(Map::YELLOW)<18 && game_board.disease_sum(Map::BLACK)<18 && game_board.disease_sum(Map::RED)<18){
             // And theres <=3 outbreaks
-            if(active_board->get_outbreak_count()<=3){
+            if(game_board.get_outbreak_count()<=3){
                 // Then ALWAYS cure when it's possible
                 if(verbose){
                     DEBUG_MSG("[Game::get_random_action_uniform()] Returning Cure since it's available and the board doesn't need a lot of attention (hard rollout criterion)");
                 }
-                return CureCon.random_action(*active_board);
+                return CureCon.random_action(game_board);
             }
         }
     }
@@ -146,68 +140,72 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
         if(verbose){
             DEBUG_MSG(std::endl << "[Game::get_random_action_uniform()] "<< (*con_ptr).get_movetype() << " being considered for random choice,");
-            DEBUG_MSG(" which has " << con_ptr -> n_actions(*active_board) << " possible actions.");
+            DEBUG_MSG(" which has " << con_ptr -> n_actions(game_board) << " possible actions.");
         }
-        if(randomized <= (con_ptr -> n_actions(*active_board))){
-            return (con_ptr -> random_action(*active_board));
+        if(randomized <= (con_ptr -> n_actions(game_board))){
+            return (con_ptr -> random_action(game_board));
         }else{
-            randomized -= (con_ptr -> n_actions(*active_board));
+            randomized -= (con_ptr -> n_actions(game_board));
             if(verbose){
                 DEBUG_MSG(" randomized number reduced to " << randomized << ".");
             }
         }
     }
     // If you can get through all the "potentially relevant" actions and still have 1 left over, then it was meant to be that we'll do nothing instead
-    if(randomized<=DoNothingCon.n_actions(*active_board)){
-        return DoNothingCon.random_action(*active_board);
+    if(randomized<=DoNothingCon.n_actions(game_board)){
+        return DoNothingCon.random_action(game_board);
     }
     // If there's still stuff left over then there's a problem...
     if(verbose){
         DEBUG_MSG(std::endl << "[Game::get_random_action_uniform()] considered ALL actions for random choice but algorithm failed!");
     }
-    (*active_board).broken()=true;
-    (*active_board).broken_reasons().push_back("[Game::get_random_action_uniform()] get_random_action_uniform got to end of execution without choosing an action");
+    game_board.broken()=true;
+    game_board.broken_reasons().push_back("[Game::get_random_action_uniform()] get_random_action_uniform got to end of execution without choosing an action");
 }
 
 Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
+    return get_random_action_bygroup(*active_board,verbose);
+}
+
+Actions::Action* GameLogic::Game::get_random_action_bygroup(Board::Board& game_board, bool verbose){
     // Goal is to choose FIRST uniformly over _types_ of actions
     // Then choose uniformly among legal actions of that type
 
-    if(ForcedDiscardCon.legal(*active_board)){
+    if(ForcedDiscardCon.legal(game_board)){
         // ALWAYS return a choice of discard actions if it's possible.
         // Includes possible plays of event cards
-        return ForcedDiscardCon.random_action(*active_board);
+        return ForcedDiscardCon.random_action(game_board);
     }
 
     // For hard rollouts - always return cure in the case that the board is "not that bad"
-    if(CureCon.legal(*active_board)){
+    if(CureCon.legal(game_board)){
         // If no disease has >=18 cubes on the board
-        if(active_board -> disease_sum(Map::BLUE)<18 && active_board -> disease_sum(Map::YELLOW)<18 && active_board -> disease_sum(Map::BLACK)<18 && active_board -> disease_sum(Map::RED)<18){
+        if(game_board.disease_sum(Map::BLUE)<18 && game_board.disease_sum(Map::YELLOW)<18 && game_board.disease_sum(Map::BLACK)<18 && game_board.disease_sum(Map::RED)<18){
             // And theres <=3 outbreaks
-            if(active_board->get_outbreak_count()<=3){
+            if(game_board.get_outbreak_count()<=3){
                 // Then ALWAYS cure when it's possible
                 if(verbose){
                     DEBUG_MSG("[Game::get_random_action_bygroup()] Returning Cure since it's available and the board doesn't need a lot of attention (hard rollout criterion)");
                 }
-                return CureCon.random_action(*active_board);
+                return CureCon.random_action(game_board);
             }
         }
     }
     
     if(verbose){
-        DEBUG_MSG("[Game::get_random_action_bygroup()] " << (*active_board).active_player().role.name << " is in " << (*active_board).active_player().get_position().name <<  " and has hand: ");
-        for(Decks::PlayerCard card: (*active_board).active_player().hand){
+        DEBUG_MSG("[Game::get_random_action_bygroup()] " << game_board.active_player().role.name << " is in " << game_board.active_player().get_position().name <<  " and has hand: ");
+        for(Decks::PlayerCard card: game_board.active_player().hand){
             DEBUG_MSG(card.name << "; ");
         }
-        for(Decks::PlayerCard card: (*active_board).active_player().event_cards){
+        for(Decks::PlayerCard card: game_board.active_player().event_cards){
             DEBUG_MSG(card.name << "; ");
         }
-        DEBUG_MSG(" (color count BLUE: "<<(*active_board).active_player().get_color_count()[Map::BLUE]<< ", YELLOW: " << (*active_board).active_player().get_color_count()[Map::YELLOW] << ", BLACK: " << (*active_board).active_player().get_color_count()[Map::BLACK] << ", RED: " << (*active_board).active_player().get_color_count()[Map::RED] << ")");
+        DEBUG_MSG(" (color count BLUE: "<<game_board.active_player().get_color_count()[Map::BLUE]<< ", YELLOW: " << game_board.active_player().get_color_count()[Map::YELLOW] << ", BLACK: " << game_board.active_player().get_color_count()[Map::BLACK] << ", RED: " << game_board.active_player().get_color_count()[Map::RED] << ")");
         DEBUG_MSG(std::endl);
     }
 
     int max_n_actions =PlayerConstructorList.size();
-    if(!TreatCon.legal(*active_board) && !CureCon.legal(*active_board)){
+    if(!TreatCon.legal(game_board) && !CureCon.legal(game_board)){
         // If neither treat nor cure is an option then it's possible that game logic will consider do nothing as an action
         max_n_actions++;
     }
@@ -221,12 +219,12 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){
             if(verbose){
                 DEBUG_MSG(DoNothingCon.get_movetype() << ")" <<std::endl);
             }
-            return DoNothingCon.random_action(*active_board);
-        } else if(PlayerConstructorList[randomized] -> legal(*active_board)){
+            return DoNothingCon.random_action(game_board);
+        } else if(PlayerConstructorList[randomized] -> legal(game_board)){
             if(verbose){
                 DEBUG_MSG(PlayerConstructorList[randomized] -> get_movetype() << ", and is legal!)" <<std::endl);
             }
-            return PlayerConstructorList[randomized] -> random_action(*active_board);
+            return PlayerConstructorList[randomized] -> random_action(game_board);
         } else {
             if(verbose){
                 DEBUG_MSG(PlayerConstructorList[randomized] -> get_movetype() << ", and isn't legal...)" <<std::endl);
@@ -270,7 +268,7 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(Board::Board& game_b
     std::vector<Actions::Action*> full_out;
 
     if(verbose){
-        Players::Player& active_player = game_board.active_player();
+        Players::Player active_player = game_board.active_player();
         DEBUG_MSG("[Game::list_actions()] "<< active_player.role.name << " is in " << active_player.get_position().name <<  " and has hand: ");
         for(Decks::PlayerCard card: active_player.hand){
             DEBUG_MSG(card.name << "; ");
@@ -279,6 +277,17 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(Board::Board& game_b
             DEBUG_MSG(card.name << "; ");
         }
         DEBUG_MSG(std::endl);
+    }
+    // Only put DoNothing in action list if you can't cure or treat
+    // (And if so then push it deepest down in the action list)
+    if(verbose){
+        DEBUG_MSG(std::endl << "[Game::list_actions()] considering movetype " << DoNothingCon.get_movetype() << "...");
+    }
+    if(!TreatCon.legal(game_board) && !CureCon.legal(game_board)){
+        if(verbose){
+            DEBUG_MSG("it's legal! There are " << DoNothingCon.n_actions(game_board) << " possible actions.");
+        }
+        full_out.push_back(DoNothingCon.random_action(game_board));
     }
 
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
@@ -294,22 +303,17 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(Board::Board& game_b
         }
     }
     
-    // Only put DoNothing in action list if you can't cure or treat
-    if(verbose){
-        DEBUG_MSG(std::endl << "[Game::list_actions()] considering movetype " << DoNothingCon.get_movetype() << "...");
-    }
-    if(!TreatCon.legal(game_board) && !CureCon.legal(game_board)){
-        if(verbose){
-            DEBUG_MSG("it's legal! There are " << DoNothingCon.n_actions(game_board) << " possible actions.");
-        }
-        full_out.push_back(DoNothingCon.random_action(game_board));
-    }
     return full_out;
 }
 
 void GameLogic::Game::applyAction(Actions::Action* action){
     // TODO: Guard this! Break the board with illegal actions! Force errors! Prevent catastrophe!
     action -> execute(*active_board);
+}
+
+bool GameLogic::Game::is_stochastic(Board::Board& game_board){
+    // It's a stochastic state if (1) it's a stochastic phase of the game, (2) Forced discard isn't required, and (3) game hasn't ended
+    return StochasticCon.legal(game_board) && !ForcedDiscardCon.legal(game_board) && !is_terminal(game_board);
 }
 
 bool GameLogic::Game::is_terminal(bool sanity_check,bool verbose){
@@ -355,6 +359,23 @@ int GameLogic::Game::reward(Board::Board& game_board){
         game_board.broken_reasons().push_back("[Game::reward()] Asking for reward when win/lose aren't true");
         return -10000000;// NULL gets converted to 0 anyway; this should make it obvious something broke... hoepfully....
     }
+}
+
+double GameLogic::Game::rollout(Board::Board* game_board,Heuristics::Heuristic heuristic){
+    return rollout(*game_board,heuristic);
+}
+
+double GameLogic::Game::rollout(Board::Board& game_board,Heuristics::Heuristic heuristic){
+    // I've made the executive decision to always use the random_action_bygroup() method!
+    while(!is_terminal(game_board)){
+        nonplayer_actions(game_board);
+        if(!is_terminal(game_board)){
+            Actions::Action* random_action = get_random_action_bygroup(game_board,true);
+            random_action -> execute(game_board);
+            // delete random_action;
+        }
+    }
+    return heuristic(game_board);
 }
 
 std::vector<std::string> GameLogic::Game::terminal_reasons(){

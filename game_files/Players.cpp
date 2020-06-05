@@ -36,6 +36,7 @@ Players::Player::Player(int role_id):
     }
 }
 
+// Supposed to tell when a player is _ABOVE_ hand limit
 bool Players::Player::hand_full(){
     return (hand.size()+event_cards.size())>hand_limit;
 }

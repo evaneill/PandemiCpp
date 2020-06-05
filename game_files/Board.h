@@ -20,7 +20,7 @@ namespace Board
         bool IS_SETUP = false;
 
         // the players
-        std::vector<Players::Player> players = {};
+        std::vector<Players::Player*> players = {};
 
         // where the research stations are
         std::vector<Map::City> research_stations={};
@@ -136,7 +136,7 @@ namespace Board
         bool is_cured(int col); // get cured status of given disease
         void Cure(int color); // Tell the board to cure a disease (shouldn't be necessary but optimizer doesn't like updating status occasionally when told to do so)
 
-        std::vector<Players::Player>& get_players();
+        std::vector<Players::Player*> get_players();
         bool& quiet_night_status();
         bool& has_won(); // reference to win status. Only modified in Action Actions::Cure
         bool& has_lost(); // reference to loss status. Only modified during stochasticity

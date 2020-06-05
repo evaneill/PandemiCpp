@@ -10,6 +10,8 @@
 
 #include "SanityCheck.h"
 
+#include "../agents/Heuristics.h"
+
 namespace GameLogic
 {
     // This class is built to be the sole entity through which an agent interacts with the game
@@ -53,9 +55,11 @@ namespace GameLogic
 
         // Pull an action from a uniform distribution over ALL legal actions
         Actions::Action* get_random_action_uniform(bool verbose = false);
+        Actions::Action* get_random_action_uniform(Board::Board& game_board,bool verbose=false);
         
         // Pull an action group from uniform selection over action "types", then uniform selection over arguments
         Actions::Action* get_random_action_bygroup(bool verbose = false);
+        Actions::Action* get_random_action_bygroup(Board::Board& game_board,bool verbose=false);
 
         // Return a vector of all legal actions
         std::vector<Actions::Action*> list_actions(bool verbose = false);
@@ -94,6 +98,11 @@ namespace GameLogic
         int reward();
         // reward of a given board
         int reward(Board::Board& game_board);
+
+        // Get the reward from rolling out a game, using a given heuristic to evaluate the end-state
+        // By default just return the 0/1 loss/win value
+        double rollout(Board::Board* game_board,Heuristics::Heuristic heuristic = Heuristics::PureGameReward);
+        double rollout(Board::Board& game_board,Heuristics::Heuristic heuristic = Heuristics::PureGameReward);
 
         // Board pointer for affixing to actions as necessary
         Board::Board* get_board_ptr();
