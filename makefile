@@ -5,10 +5,10 @@ test_playerdeck:
 	g++ -std=c++17 -o tests/playerdeck_test.out game_files/Map.cpp game_files/Decks.cpp tests/test_playerdeck.cpp
 	tests/playerdeck_test.out
 test_randomness:
-	g++ -std=c++17 -o tmp.out tests/test_randomness.cpp
+	g++ -O3 -std=c++17 -o tmp.out tests/test_randomness.cpp
 	./tmp.out
 test_temp:
-	g++ -std=c++17 -O3 -march=native -o tmp.out tests/test.cpp
+	g++ -g -std=c++17 -o tmp.out tests/test.cpp
 	./tmp.out
 test_infectdeck:
 	g++ -std=c++17 -o tests/infectdeck_test.out game_files/Map.cpp game_files/Decks.cpp tests/test_infectdeck.cpp
@@ -26,9 +26,9 @@ test_infectcity:
 	c++ -std=c++17 -o tests/infectcity_test.out game_files/Board.cpp tests/test_infectcity.cpp game_files/Map.cpp game_files/Decks.cpp game_files/Players.cpp
 	tests/infectcity_test.out
 playtest:
-	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp experimental_tools/Scenarios.cpp Playtest.cpp -o playtest.out
+	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/ByGroupRandomAgent.cpp agents/Agents.cpp experimental_tools/Scenarios.cpp Playtest.cpp -o playtest.out
 	./playtest.out
 test:
 	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ game_files/*.cpp agents/*.cpp experimental_tools/*.cpp $(TESTFILE).cpp -o $(TESTFILE).out
 experiment:
-	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ -I experimental_tools/ game_files/*.cpp agents/*.cpp experimental_tools/*.cpp $(EXPERIMENT).cpp -o $(EXPERIMENT).out
+	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ -I experimental_tools/ -I agents/search_tools/ game_files/*.cpp agents/*.cpp experimental_tools/*.cpp agents/search_tools/*.cpp $(EXPERIMENT).cpp -o $(EXPERIMENT).out
