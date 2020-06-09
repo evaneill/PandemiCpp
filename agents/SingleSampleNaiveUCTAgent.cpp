@@ -16,36 +16,28 @@ Agents::SingleSampleNaiveUCTAgent::SingleSampleNaiveUCTAgent(GameLogic::Game& _a
 
 Actions::Action* Agents::SingleSampleNaiveUCTAgent::generate_action(bool verbose){
     // Make a new search tree, which will instantiate a root
-    Search::GameTree* search_tree = new Search::SingleSampleGameTree(active_game);
+    Search::GameTree* search_tree = new Search::KSampleGameTree(active_game,1);
     int sims_done = 0;
 
     while(sims_done<n_simulations){
-        // Get most promising leaf for expansion by tree traversal using existing node scores
-        Search::Node* best_node = search_tree -> getBestLeaf();
-        
-        // Rollout the state of the node and delete the COPY (if stochastic) or node state (if not)
-        if(best_node -> is_stochastic()){
-            // get a *COPY* of the state at the node instead of transitioning in-place
-            Board::Board state = best_node -> get_state();
 
-            // Roll out the copy of the state
-            // By default rollout will only return W/L
-            double reward = active_game.rollout(state);
+        // Make a copy of the current board state to hand to the tree for consideration
+        Board::Board board_copy = active_game.board_copy();
 
-            // Back up the observed reward, updating node scores with UCB1
-            // Deterministic nodes along the way have board_state set to nullptr
-            best_node -> backprop(reward,Search::UCB1Score);
-        } else {
-            // Get the state pointer from the node
-            Board::Board* state_ptr = best_node -> get_state_ptr();
+        // Give the copy state to the tree in order for it to "roll it down" the actions on the tree to end up at a new deterministic node
+        // Alter the board_copy in place to end up at a "leaf" board position
+        // Return the best node resulting from tree policy
+        Search::Node* best_node = search_tree -> getBestLeaf(board_copy);
 
-            // Roll out the state
-            double reward = active_game.rollout(state_ptr);
+        // Roll out the copy of the state
+        // By default rollout will only return W/L
+        double reward = active_game.rollout(board_copy);
 
-            // back up the observed reward, updating node scores with UCB1
-            // Deterministic nodes along the way have board_state set to nullptr
-            best_node -> backprop(reward,Search::UCB1Score);
-        }
+        // Back up the observed reward, updating node scores with UCB1
+        // Deterministic nodes along the way have board_state set to nullptr
+        best_node -> backprop(reward,Search::UCB1Score);
+
+        // One more simulation succesfully ran
         sims_done++;
     }
 
