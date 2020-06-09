@@ -45,10 +45,14 @@ namespace Decks
 	public:
 		PlayerDeck(int diff); //called on instantiation to start a game. Thereafter only draw() is used, whether in a game copy or  
 		PlayerDeck(){};
+		~PlayerDeck(){};
 
 		// These two methods in combination make a card.
 		PlayerCard draw(bool setup=false); // puts two methods below together.
 		int draw_index(bool setup);  // an index according to stochastic rules of deck organization.
+		PlayerCard draw_inplace(); // produce a card that could be drawn, but don't remove it from the deck
+
+		void update(PlayerCard card); // for forcing the deck to update it's status according to a drawn card (i.e. in collaboration with a card produced by draw_inplace())
 		
 		PlayerCard make_card_by_vector_index(int index,bool setup=false); // make a card from its index in remaining_nonepi_cards
 		PlayerCard make_card_by_indices(int vec_index, int card_index, bool setup=false); // Actually instantiates cards
@@ -58,6 +62,9 @@ namespace Decks
 		// This tracks losing status - very important! Determines winning/losing status.
 		bool isempty();
 		int remaining_cards();
+
+		// track whether it's possible for the next card to be an epidemic
+		bool epidemic_possible();
 
 		// right now these are purely for testing purposes.
 		int _remaining_nonepi_cards();
@@ -75,6 +82,7 @@ namespace Decks
 		CityCard(Map::City &city);
 		CityCard(Map::City city);
 		CityCard(int city_idx);
+		~CityCard(){};
 		int population;
 
 		// logical == and !=
@@ -86,12 +94,14 @@ namespace Decks
 	// Will have to use board-level logic to resolve.
 	public:
 		EpidemicCard(int index);
+		~EpidemicCard(){};
 	};
 	
 	class EventCard: public PlayerCard{
 
 	public:
 		EventCard(int index);
+		~EventCard(){};
 	};
 
 	// All declarations for Infect Deck 
@@ -99,6 +109,7 @@ namespace Decks
 	public:
 		InfectCard(Map::City city);
 		InfectCard(int city_idx);
+		~InfectCard(){};
 		int index;
 		int color;
 		std::string name;
@@ -108,6 +119,7 @@ namespace Decks
 	class InfectCardGroup{
 		public:
 			InfectCardGroup(std::vector<InfectCard> _cards);
+			~InfectCardGroup(){};
 			std::vector<InfectCard> cards;
 	};
 
@@ -120,8 +132,16 @@ namespace Decks
 
 	public:
 		InfectDeck();
-		InfectCard draw();
+		~InfectDeck(){}
+		InfectCard draw();// return a card that could be drawn, removing it from the deck
+		InfectCard draw_inplace(); // return a card that could be drawn, without removing it from the deck
+		
 		InfectCard draw_bottom(); // for epidemics
+		InfectCard draw_bottom_inplace(); 
+
+		void update(InfectCard card,bool bottom=false); // for forcing an infect deck to put this on the discard and pull it from the top group (i.e for use in collaboration with draw_inplace)
+
+		int top_group_size(bool top=true); // number of infect cards in the top infect-card group
 		
 		void readd_discard();
 	};

@@ -20,10 +20,10 @@ namespace Board
         bool IS_SETUP = false;
 
         // the players
-        std::vector<Players::Player*> players = {};
+        std::vector<Players::Player> players = {};
 
         // where the research stations are
-        std::vector<Map::City> research_stations={};
+        std::vector<Map::City> research_stations = {};
 
         // player deck
         Decks::PlayerDeck player_deck;
@@ -76,7 +76,30 @@ namespace Board
         // Can input the player roles, hardcoded in Players.cpp switch() correspondence
         // Can input difficulty to describe how many epidemic cards to include in player deck.
         Board(std::vector<int> roles,int _difficulty);
-        std::string repr(); // A string representation for logging
+        ~Board(){};
+
+        // custom copy constructor
+        Board(const Board& other){
+            // I _think_ this is a silly but at least deep copy method
+            players.clear();
+            for(int p=0;p<other.players.size();p++){
+                // explicit copy
+                Players::Player pl = other.players[p];
+                players.push_back(pl);
+            }
+            
+            research_stations.clear();
+            for(Map::City rst : other.research_stations){
+                research_stations.push_back(rst);
+            }
+
+            cured = other.cured;
+            eradicated = other.eradicated;
+
+            disease_count = other.disease_count;
+        }
+
+        std::string repr(); // A string representation for logging (unimplemented rn)
 
         // Setup the board for play
         void setup(bool verbose=false);
@@ -136,16 +159,28 @@ namespace Board
         bool is_cured(int col); // get cured status of given disease
         void Cure(int color); // Tell the board to cure a disease (shouldn't be necessary but optimizer doesn't like updating status occasionally when told to do so)
 
-        std::vector<Players::Player*> get_players();
+        std::vector<Players::Player>& get_players();
         bool& quiet_night_status();
         bool& has_won(); // reference to win status. Only modified in Action Actions::Cure
         bool& has_lost(); // reference to loss status. Only modified during stochasticity
         int& get_turn_action();
+
+        // Player deck entrypoints
+        Decks::PlayerCard draw_playerdeck_inplace();
         int& get_player_cards_drawn(); // Entry point for access to number of player cards drawn during player draw phase
+        void updatePlayerDeck(Decks::PlayerCard card); // update player deck to reflect a card having been drawn and used
         int remaining_player_cards(); // Entry point for asking how many player cards are left in the deck
-        int& get_infect_cards_drawn();
-        int& get_outbreak_count();
+        bool epidemic_possible(); // Is it possible to draw an epidemic on the next player card?
         int get_epidemic_count();
+
+        // Infect deck entrypoints
+        Decks::InfectCard draw_infectdeck_bottom_inplace();// return a card that might be drawn without removing it from deck
+        Decks::InfectCard draw_infectdeck_inplace();
+        void updateInfectDeck(Decks::InfectCard card,bool bottom=false); // update infect deck to reflect a card having been drawn and used
+        int& get_infect_cards_drawn();
+        int n_infect_cards(bool top=true); // number of infect cards in the group on top (true) or bottom (false) of infect deck
+
+        int& get_outbreak_count();
         int& get_difficulty();
         int get_infection_rate(); // return the current infection rate according to kept index
         int& get_turn(); // return reference to whose turn it is

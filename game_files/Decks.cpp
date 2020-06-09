@@ -119,7 +119,6 @@ int Decks::PlayerDeck::draw_index(bool setup){
         return rand() % remaining_nonepi_cards.size();
     }
     for(int chunk=0;chunk<difficulty;chunk++){
-        // find out whether this chunk is a fatty or not
         int this_chunk_size;
         if(chunk+1>remainder){
             this_chunk_size = chunk_size;
@@ -153,11 +152,44 @@ int Decks::PlayerDeck::draw_index(bool setup){
     return -1;
 }
 
-// Draw to only be used during play, not setup.
 Decks::PlayerCard Decks::PlayerDeck::draw(bool setup){
     int drop_idx = draw_index(setup);
     Decks::PlayerCard drawn_card = make_card_by_vector_index(drop_idx,setup);
     return drawn_card;
+}
+
+Decks::PlayerCard Decks::PlayerDeck::draw_inplace(){
+    int drop_idx = draw_index(false);
+
+    int idx;
+    if(drop_idx>Map::CITIES.size()){
+        idx= drop_idx;
+    } else {
+        idx = remaining_nonepi_cards[drop_idx];
+    }
+
+    return PlayerCard(idx);
+}
+
+void Decks::PlayerDeck::update(PlayerCard card){
+    // remove it from the remaining_nonepi_cards
+    
+    // Incrementing total_cards_drawn implicitly implies 
+    if(card.index>=51){
+        epidemics_drawn++;
+        total_cards_drawn++;
+    } else {
+        total_cards_drawn++;
+        for(int ind=0;ind<remaining_nonepi_cards.size();ind++){
+            if(remaining_nonepi_cards[ind]==card.index){
+                remaining_nonepi_cards.erase(remaining_nonepi_cards.begin() + ind);
+                break;
+            }
+        }
+    }
+
+    // insert it into drawn_cards
+    drawn_cards.insert(card.index);
 }
 
 bool Decks::PlayerDeck::isempty(){
@@ -170,6 +202,32 @@ bool Decks::PlayerDeck::isempty(){
 
 int Decks::PlayerDeck::remaining_cards(){
     return remaining_nonepi_cards.size()+difficulty-epidemics_drawn;
+}
+
+bool Decks::PlayerDeck::epidemic_possible(){
+    // Replicate a lot of the logic for drawing indices, but only to determine if epidemic is possible
+    int accounted_for_cards=0;
+
+    for(int chunk=0;chunk<difficulty;chunk++){
+        int this_chunk_size;
+        if(chunk+1>remainder){
+            this_chunk_size = chunk_size;
+        } else{
+            this_chunk_size = fat_chunk_size;
+        }
+
+        // Use accumulator accounted_for_cards to walk through chunks until you see which one you're in.
+        // I don't like this though... seems like there should be some way to keep a few class variables that track something like this.
+        if(total_cards_drawn>=accounted_for_cards && total_cards_drawn<(this_chunk_size + accounted_for_cards)){
+            if(epidemics_drawn>chunk){
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            accounted_for_cards+=this_chunk_size;
+        }
+    }
 }
 
 Decks::PlayerCard Decks::PlayerDeck::make_card_by_vector_index(int drop_index,bool setup){
@@ -263,6 +321,37 @@ Decks::InfectCard Decks::InfectDeck::draw(){
     return chosen_card;
 }
 
+Decks::InfectCard Decks::InfectDeck::draw_inplace(){
+    
+    Decks::InfectCardGroup& current_stack = deck_stack.back();
+
+    int chosen_index = rand() % current_stack.cards.size();
+
+    Decks::InfectCard chosen_card = current_stack.cards[chosen_index];
+
+    // No erasure or discard has been done at this point.
+    return chosen_card;
+}
+
+void Decks::InfectDeck::update(InfectCard card,bool bottom){
+    // remove it from the top/bottom group depending
+    Decks::InfectCardGroup& current_stack = bottom ? deck_stack[0] : deck_stack.back();
+
+    for(int ind=0;ind<current_stack.cards.size();ind++){
+        if(current_stack.cards[ind].index==card.index){
+            current_stack.cards.erase(current_stack.cards.begin()+ind);
+            break;
+        }
+    }
+    // always check top stack (it's the only one we'd want to pop) for emptiness
+    if(deck_stack.back().cards.empty()){
+        deck_stack.pop_back();
+    }
+
+    // add it to the discard no matter what
+    current_discard.push_back(card);
+}
+
 Decks::InfectCard Decks::InfectDeck::draw_bottom(){
     
     Decks::InfectCardGroup& current_stack = deck_stack[0];
@@ -281,4 +370,24 @@ Decks::InfectCard Decks::InfectDeck::draw_bottom(){
     current_discard.push_back(chosen_card);
 
     return chosen_card;
+}
+
+Decks::InfectCard Decks::InfectDeck::draw_bottom_inplace(){
+    
+    Decks::InfectCardGroup& current_stack = deck_stack[0];
+    
+    int chosen_index = rand() % current_stack.cards.size();
+
+    Decks::InfectCard chosen_card = current_stack.cards[chosen_index];
+
+    return chosen_card;
+}
+
+int Decks::InfectDeck::top_group_size(bool top){
+    if(top){
+        return deck_stack.back().cards.size();
+    } else {
+        return deck_stack[0].cards.size();
+    }
+    
 }

@@ -59,18 +59,26 @@ GameLogic::Game::Game(Board::Board& _active_board, bool verbose):
         }
 }
 
+Actions::Action* GameLogic::Game::get_stochastic_action(Board::Board& game_board){
+    return StochasticCon.get_action(game_board);
+}
+
 void GameLogic::Game::nonplayer_actions(bool verbose){
     // Designed to go until there there's either a required discard, OR non-player board transitions are complete, OR something breaks or game is lost
     // Right now this SKIPS any use of event cards during draw phase!
     nonplayer_actions(*active_board,verbose);
 }
 
+
 void GameLogic::Game::nonplayer_actions(Board::Board& game_board,bool verbose){
     // Designed to go until there there's either a required discard, OR non-player board transitions are complete, OR something breaks or game is lost
     // Right now this SKIPS any use of event cards during draw phase!
+
+    // Stochastic check _includes_ check for terminal status of game (stochastic transitions can't be legal if the game has ended)
     while(is_stochastic(game_board)){
+
         // Get the next required action
-        Actions::Action* next_action = StochasticCon.get_action(game_board);
+        Actions::Action* next_action = get_stochastic_action(game_board);
         
         // Track statuses as they went into execute(), where active player name and quiet night status might change
         bool was_quiet_night = game_board.quiet_night_status();
@@ -328,6 +336,7 @@ bool GameLogic::Game::is_terminal(Board::Board& game_board, bool sanity_check,bo
     if(sanity_check){
         SanityCheck::CheckBoard(game_board,verbose);
     }
+
     // Have the board update any win/lose/broken status (this is an intentional redundancy)
     game_board.updatestatus();
 

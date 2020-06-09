@@ -52,6 +52,7 @@ namespace GameLogic
         StochasticActions::StochasticActionConstructor StochasticCon;
     public:
         Game(Board::Board& _active_board, bool verbose=false);
+        ~Game(){};
 
         // Pull an action from a uniform distribution over ALL legal actions
         Actions::Action* get_random_action_uniform(bool verbose = false);
@@ -80,6 +81,8 @@ namespace GameLogic
         void nonplayer_actions(bool verbose = false);
         // Advance the non-player elements in a given board
         void nonplayer_actions(Board::Board& game_board,bool verbose=false);
+        // generate a stochastic action (utility for search and nonplayer_actions)
+        Actions::Action* get_stochastic_action(Board::Board& game_board);
 
         // Check for game status (true if win/loss/broken)
         // sanity check argument to include whether or not to go through all SanityCheck::CheckBoard() checks before determining terminal state.
