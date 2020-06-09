@@ -26,6 +26,7 @@ namespace Map
 
 		std::vector<int> neighbors = {};
 
+	City(); // for constructing blank objects
 	City(int ind, int pop, int color, std::string name,std::vector<int> _neighbors);
 
 	const bool operator == (City &rhs) {return index==rhs.index && population==rhs.population && name==rhs.name && color==rhs.color;}
@@ -43,7 +44,7 @@ namespace Map
 		bool operator()(const Map::City &city1, const Map::City &city2) const {return city1.index==city2.index && city1.name==city2.name && city1.color==city2.color && city1.population==city2.population;}
 	};
 	
-	inline std::vector<City> CITIES = {
+	inline static std::vector<City> CITIES = {
 		City(0, 5864, BLUE, "San Francisco", {1,12,47,38}),
 		City(1, 9121, BLUE, "Chicago" , {0,2,3,12,13}),
 		City(2, 3429, BLUE, "Montreal" , {1,4,5}),
