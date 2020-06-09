@@ -14,6 +14,7 @@ namespace Agents
         std::string name = "UniformRandomAgent";
         
         UniformRandomAgent(GameLogic::Game& _active_game);
+        ~UniformRandomAgent(){};
         Actions::Action* generate_action(bool verbose = false);
         void take_step(bool verbose = false);
     };

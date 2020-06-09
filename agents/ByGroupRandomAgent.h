@@ -14,6 +14,7 @@ namespace Agents
         std::string name = "ByGroupRandomAgent";
         
         ByGroupRandomAgent(GameLogic::Game& _active_game);
+        ~ByGroupRandomAgent(){};
         Actions::Action* generate_action(bool verbose = false);
         void take_step(bool verbose = false);
     };

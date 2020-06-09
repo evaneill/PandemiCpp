@@ -25,7 +25,6 @@ void Experiments::RunExperiment(Experiments::Experiment* exp){
     output_str+="\r\n";
 
     // run all the experiments
-    int games_played=0;
     DEBUG_MSG("[Experiments::RunExperiment()] Beginning Game loop of " << (*exp).n_games << " games on " << (*exp).experiment_name << "..."<< std::endl);
     
     // Declare run-time stuff
@@ -34,7 +33,11 @@ void Experiments::RunExperiment(Experiments::Experiment* exp){
     Board::Board* game_board;
     Agents::BaseAgent* the_agent;
 
+    int games_played=0;
     while(games_played<(*exp).n_games){
+        if(games_played % 5000 ==0){
+            DEBUG_MSG("[Experiments::RunExperiment()] has ran " << games_played << " games " << std::endl);
+        }
 
         // Write the game number in the first position
         output_str+= std::to_string(games_played+1);
@@ -50,12 +53,12 @@ void Experiments::RunExperiment(Experiments::Experiment* exp){
 
         game_measures = exp -> get_game_measures(game_board);
         
-        while(!the_game -> is_terminal(true,false)){
+        while(!the_game -> is_terminal(false,false)){
             // First resolve any necessary non-player transisitions (card draws, etc)
             the_game -> nonplayer_actions();
             
             // If these transitions haven't made the game terminal, then have the agent choose a transition
-            if(!the_game -> is_terminal(true,false)){
+            if(!the_game -> is_terminal(false,false)){
                 // Update each measurement
                 for(Measurements::GameMeasurement* meas: game_measures){
                     meas -> update();
@@ -87,10 +90,10 @@ void Experiments::RunExperiment(Experiments::Experiment* exp){
         // Get rid of & reset objects
         game_measures.clear();
 
-        // delete the_agent;
+        delete the_agent;
         delete the_game;
         delete game_board;
-    }
+    };
 
     DEBUG_MSG("[[Experiments::RunExperiment()]] ...successfully executed " + std::to_string(games_played) + " games with the "<< (*exp).experiment_name << " experiment." << std::endl);
 

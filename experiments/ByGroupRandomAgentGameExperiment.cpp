@@ -97,7 +97,7 @@ void Experiments::ByGroupRandomAgentGameExperiment::write_experiment(std::string
 }
 
 Board::Board* Experiments::ByGroupRandomAgentGameExperiment::get_board(){
-    return &(*scenario).make_board({1,2,3},4);
+    return scenario -> make_board({1,2,3},4);
 }
 
 Agents::BaseAgent* Experiments::ByGroupRandomAgentGameExperiment::get_agent(GameLogic::Game* game){

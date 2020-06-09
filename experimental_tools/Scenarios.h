@@ -17,7 +17,7 @@ namespace Scenarios
         std::string name;
         std::string description;
         
-        virtual Board::Board& make_board(std::vector<int> roles,int _difficulty,bool verbose=false)=0;
+        virtual Board::Board* make_board(std::vector<int> roles,int _difficulty,bool verbose=false)=0;
     };
     
     // This is the simplest example: Use the existing setup() method and create a "normal" board.
@@ -26,28 +26,28 @@ namespace Scenarios
     public:
         VanillaGameScenario();
 
-        Board::Board& make_board(std::vector<int> roles,int _difficulty,bool verbose=false);
+        Board::Board* make_board(std::vector<int> roles,int _difficulty,bool verbose=false);
     };
 
     class ForcedDiscardScenario: public Scenario{
     public:
         ForcedDiscardScenario();
 
-        Board::Board& make_board(std::vector<int> roles,int _difficulty,bool verbose=false);
+        Board::Board* make_board(std::vector<int> roles,int _difficulty,bool verbose=false);
     };
 
     class BusyBoardScenario: public Scenario{
     public:
         BusyBoardScenario();
 
-        Board::Board& make_board(std::vector<int> roles,int _difficulty,bool verbose=false);
+        Board::Board* make_board(std::vector<int> roles,int _difficulty,bool verbose=false);
     };
 
     class CanWinScenario: public Scenario{
     public:
         CanWinScenario();
 
-        Board::Board& make_board(std::vector<int> roles,int _difficulty,bool verbose=false);
+        Board::Board* make_board(std::vector<int> roles,int _difficulty,bool verbose=false);
     };
 }
 

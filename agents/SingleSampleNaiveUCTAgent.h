@@ -14,6 +14,7 @@ namespace Agents
         std::string name = "Single-Sample UCT Agent with 0/1 value rollouts";
         
         SingleSampleNaiveUCTAgent(GameLogic::Game& _active_game,int n_simulations);
+        ~SingleSampleNaiveUCTAgent(){};
         Actions::Action* generate_action(bool verbose = false);
         void take_step(bool verbose = false);
     };

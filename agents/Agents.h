@@ -9,7 +9,7 @@ namespace Agents
     class BaseAgent{
     public:
         BaseAgent(GameLogic::Game& _active_game);
-
+        virtual ~BaseAgent(){};
         // Keep a reference to the active game to hand out inside of returned actions
         GameLogic::Game &active_game;
 

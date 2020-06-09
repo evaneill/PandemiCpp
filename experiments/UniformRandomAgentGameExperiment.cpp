@@ -97,7 +97,7 @@ void Experiments::UniformRandomAgentGameExperiment::write_experiment(std::string
 }
 
 Board::Board* Experiments::UniformRandomAgentGameExperiment::get_board(){
-    return &(*scenario).make_board({1,2,3},4);
+    return scenario -> make_board({1,2,3},4);
 }
 
 Agents::BaseAgent* Experiments::UniformRandomAgentGameExperiment::get_agent(GameLogic::Game* game){
