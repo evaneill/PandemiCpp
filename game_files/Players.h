@@ -21,7 +21,7 @@ namespace Players
 
     class Player{
     protected:
-        const int hand_limit = 7;
+        int hand_limit = 7;
 
         // Map::City position of player.
         Map::City position; 
@@ -30,6 +30,26 @@ namespace Players
     public:
         Player(int role_id);
         Player();
+
+        ~Player(){};
+        
+        Player(const Player& other){
+            position = other.position;
+
+            hand.clear();
+            for(Decks::PlayerCard c: other.hand){
+                hand.push_back(c);
+            }
+
+            event_cards.clear();
+            for(Decks::PlayerCard e: other.event_cards){
+                event_cards.push_back(e);
+            }
+
+            role = other.role;
+            used_OperationsExpertFlight = other.used_OperationsExpertFlight;
+        };
+
         Role role;
 
         std::vector<Decks::PlayerCard> hand;// non-event cards
