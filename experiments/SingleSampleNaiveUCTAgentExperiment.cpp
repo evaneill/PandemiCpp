@@ -44,8 +44,8 @@ Experiments::SingleSampleNaiveUCTAgentExperiment::SingleSampleNaiveUCTAgentExper
     }
     log_headers.push_back("BrokeReasons"); // Always track any reasons the board broke
 
-    // Play 1 game
-    n_games=1;
+    // Play 10 game
+    n_games=10;
 }
 
 void Experiments::SingleSampleNaiveUCTAgentExperiment::write_header(){
@@ -97,7 +97,7 @@ void Experiments::SingleSampleNaiveUCTAgentExperiment::write_experiment(std::str
 }
 
 Board::Board* Experiments::SingleSampleNaiveUCTAgentExperiment::get_board(){
-    return &(*scenario).make_board({1,2,3},4,true);
+    return scenario -> make_board({1,2,3},4);
 }
 
 Agents::BaseAgent* Experiments::SingleSampleNaiveUCTAgentExperiment::get_agent(GameLogic::Game* game){
