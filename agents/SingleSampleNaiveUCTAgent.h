@@ -11,7 +11,7 @@ namespace Agents
         // simulation-per-step budget
         int n_simulations;
     public:
-        std::string name = "Single-Sample UCT Agent with 0/1 value rollouts";
+        std::string name = "Single-Stochastic-Sample UCT Agent with 0/1 value rollouts.";
         
         SingleSampleNaiveUCTAgent(GameLogic::Game& _active_game,int n_simulations);
         ~SingleSampleNaiveUCTAgent(){};

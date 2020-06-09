@@ -12,10 +12,13 @@ Agents::SingleSampleNaiveUCTAgent::SingleSampleNaiveUCTAgent(GameLogic::Game& _a
     BaseAgent(_active_game)
     {
     n_simulations = _n_simulations;
+    name += "(" + std::to_string(n_simulations) + " simulations per step)";
 }
 
 Actions::Action* Agents::SingleSampleNaiveUCTAgent::generate_action(bool verbose){
     // Make a new search tree, which will instantiate a root
+    // This tree takes 1 sample of a stochastic sequence at each stochastic node
+    // Stochasticity is "saved" and revisited again upon every subsequent traversal
     Search::GameTree* search_tree = new Search::KSampleGameTree(active_game,1);
     int sims_done = 0;
 
