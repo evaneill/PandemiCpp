@@ -80,6 +80,24 @@ namespace Board
 
         // custom copy constructor
         Board(const Board& other){
+            // ===== explicitly copy everything - I'm not convinced it was doing any of this
+            IS_SETUP = other.IS_SETUP;
+
+            outbreak_count = other.outbreak_count;
+            epidemics_drawn = other.epidemics_drawn;
+
+            player_cards_drawn = other.player_cards_drawn;
+            infect_cards_drawn = other.infect_cards_drawn;
+
+            turn_actions = other.turn_actions;
+            turn = other.turn;
+
+            // These copies really shouldn't be necessary in most implementations but w/e
+            lost = other.lost;
+            won = other.won;
+            BROKEN = other.BROKEN;
+
+            // ===== End of copy of basic attributes =====
             // I _think_ this is a silly but at least deep copy method
             players.clear();
             for(int p=0;p<other.players.size();p++){
@@ -97,6 +115,10 @@ namespace Board
             eradicated = other.eradicated;
 
             disease_count = other.disease_count;
+
+            // Both of these require an overloaded = operator
+            player_deck = other.player_deck;
+            infect_deck = other.infect_deck;
         }
 
         std::string repr(); // A string representation for logging (unimplemented rn)

@@ -47,6 +47,18 @@ namespace Decks
 		PlayerDeck(){};
 		~PlayerDeck(){};
 
+		PlayerDeck(const PlayerDeck& other){
+			drawn_cards = other.drawn_cards;
+			remaining_nonepi_cards = other.remaining_nonepi_cards;
+
+			difficulty = other.difficulty;
+
+			epidemics_drawn = other.epidemics_drawn;
+			fat_chunk_size = other.fat_chunk_size;
+			chunk_size = other.chunk_size;
+			remainder = other.remainder;
+			total_cards_drawn = other.total_cards_drawn;
+		}
 		// These two methods in combination make a card.
 		PlayerCard draw(bool setup=false); // puts two methods below together.
 		int draw_index(bool setup);  // an index according to stochastic rules of deck organization.
@@ -120,6 +132,13 @@ namespace Decks
 		public:
 			InfectCardGroup(std::vector<InfectCard> _cards);
 			~InfectCardGroup(){};
+			InfectCardGroup(const InfectCardGroup& other){
+				// copy the cards
+				cards={};
+				for(InfectCard c: other.cards){
+					cards.push_back(c);
+				}
+			}
 			std::vector<InfectCard> cards;
 	};
 
@@ -133,6 +152,19 @@ namespace Decks
 	public:
 		InfectDeck();
 		~InfectDeck(){}
+		InfectDeck(const InfectDeck& other){
+			// copy the deck stack
+			deck_stack = {};
+			for(InfectCardGroup g: other.deck_stack){
+				deck_stack.push_back(g);
+			}
+
+			// Copy the current discard
+			current_discard={};
+			for(InfectCard c: other.current_discard){
+				current_discard.push_back(c);
+			}
+		}
 		InfectCard draw();// return a card that could be drawn, removing it from the deck
 		InfectCard draw_inplace(); // return a card that could be drawn, without removing it from the deck
 		
