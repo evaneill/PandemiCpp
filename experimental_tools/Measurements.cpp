@@ -71,7 +71,7 @@ void Measurements::LoseStatus::update(){};
 // ===== GameTreeSize measurements ===== 
 Measurements::GameTreeSizeConstructor::GameTreeSizeConstructor(){
     name="Game Tree Variables";
-    description="Game Tree attributes including depth and branching factor";
+    description="Game Tree attributes including depth (# decisions made by agent) and branching factor (# of decisions at a decision node)";
 }
 
 Measurements::GameMeasurement* Measurements::GameTreeSizeConstructor::construct_measure(Board::Board& active_board){
