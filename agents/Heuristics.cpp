@@ -36,34 +36,34 @@ double Heuristics::CureGoalConditions(Board::Board& game_board){
     double RED_closeness=0;
     
     // Go through each player
-    for(Players::Player* p: game_board.get_players()){
+    for(Players::Player p: game_board.get_players()){
         // find out how many of each color card they have
-        std::array<int,4> color_count = (*p).get_color_count();
+        std::array<int,4> color_count = p.get_color_count();
         
         // for each color, define "closeness" as min(1, (# cards of this color)/(# cards required to cure))
         if(!game_board.is_cured(Map::BLUE)){
-            double pBlue_closeness = std::min((double) color_count[Map::BLUE]/(double) (*p).role.required_cure_cards,1.);
+            double pBlue_closeness = std::min((double) color_count[Map::BLUE]/(double) p.role.required_cure_cards,1.);
             if(pBlue_closeness > BLUE_closeness){
                 BLUE_closeness = pBlue_closeness;
             }
         }
 
         if(!game_board.is_cured(Map::YELLOW)){
-            double pYellow_closeness = std::min((double) color_count[Map::YELLOW]/(double) (*p).role.required_cure_cards,1.);
+            double pYellow_closeness = std::min((double) color_count[Map::YELLOW]/(double) p.role.required_cure_cards,1.);
             if(pYellow_closeness > YELLOW_closeness){
                 YELLOW_closeness = pYellow_closeness;
             }
         }
 
         if(!game_board.is_cured(Map::BLACK)){
-            double pBlack_closeness = std::min((double) color_count[Map::BLACK]/(double) (*p).role.required_cure_cards,1.);
+            double pBlack_closeness = std::min((double) color_count[Map::BLACK]/(double) p.role.required_cure_cards,1.);
             if(pBlack_closeness > BLACK_closeness){
                 BLACK_closeness = pBlack_closeness;
             }
         }
 
         if(!game_board.is_cured(Map::RED)){
-            double pRed_closeness = std::min((double) color_count[Map::RED]/(double) (*p).role.required_cure_cards,1.);
+            double pRed_closeness = std::min((double) color_count[Map::RED]/(double) p.role.required_cure_cards,1.);
             if(pRed_closeness > RED_closeness){
                 RED_closeness = pRed_closeness;
             }

@@ -72,29 +72,29 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
     if(verbose){
         DEBUG_MSG(std::endl << "[SANITYCHECK] Checking player hands for duplicate cards..." << std::endl);
     }
-    for(Players::Player* p: active_board.get_players()){
-        if((*p).hand.size()>1){
-            for(int c=0;c<((*p).hand.size()-1);c++){
-                for(int k=c+1;k<(*p).hand.size();k++){
-                    if((*p).hand[c].index==(*p).hand[k].index){
+    for(Players::Player p: active_board.get_players()){
+        if(p.hand.size()>1){
+            for(int c=0;c<(p.hand.size()-1);c++){
+                for(int k=c+1;k<p.hand.size();k++){
+                    if(p.hand[c].index==p.hand[k].index){
                         if(verbose){
-                            DEBUG_MSG("[SANITYCHECK] ... player " << (*p).role.name << " has two of " << (*p).hand[c].name << "!" << std::endl);
+                            DEBUG_MSG("[SANITYCHECK] ... player " << p.role.name << " has two of " << p.hand[c].name << "!" << std::endl);
                         }
                         active_board.broken()=true;
-                        active_board.broken_reasons().push_back("[SANITYCHECK] " + (*p).role.name + " has two of the same city card: " + (*p).hand[c].name + " (card " + std::to_string(c) + ") and "+ (*p).hand[k].name + "(card "+std::to_string(k) + ")" );
+                        active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " has two of the same city card: " + p.hand[c].name + " (card " + std::to_string(c) + ") and "+ p.hand[k].name + "(card "+std::to_string(k) + ")" );
                     }
                 }
             }
         }
-        if((*p).event_cards.size()>1){
-            for(int c=0;c<((*p).event_cards.size()-1);c++){
-                for(int k=c+1;k<(*p).event_cards.size();k++){
-                    if((*p).event_cards[c].index==(*p).event_cards[k].index){
+        if(p.event_cards.size()>1){
+            for(int c=0;c<(p.event_cards.size()-1);c++){
+                for(int k=c+1;k<p.event_cards.size();k++){
+                    if(p.event_cards[c].index==p.event_cards[k].index){
                         if(verbose){
-                            DEBUG_MSG("[SANITYCHECK] ... player " << (*p).role.name << " has two of " << (*p).event_cards[c].name << "!" << std::endl);
+                            DEBUG_MSG("[SANITYCHECK] ... player " << p.role.name << " has two of " << p.event_cards[c].name << "!" << std::endl);
                         }
                         active_board.broken()=true;
-                        active_board.broken_reasons().push_back("[SANITYCHECK] " + (*p).role.name + " has two of the same event card: " + (*p).event_cards[c].name + " (event card " + std::to_string(c) + ") and "+ (*p).event_cards[k].name + "(event card "+std::to_string(k) + ")" );
+                        active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " has two of the same event card: " + p.event_cards[c].name + " (event card " + std::to_string(c) + ") and "+ p.event_cards[k].name + "(event card "+std::to_string(k) + ")" );
                     }
                 }
             }
@@ -109,13 +109,13 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
     if(verbose){
         DEBUG_MSG(std::endl <<  "[SANITYCHECK] Checking all players have <=8 cards..." << std::endl);
     }
-    for(Players::Player* p: active_board.get_players()){
-        if((*p).handsize()>8){
+    for(Players::Player p: active_board.get_players()){
+        if(p.handsize()>8){
             if(verbose){
-                DEBUG_MSG("... but " << (*p).role.name << " has " << (*p).handsize() << " cards!" << std::endl);
+                DEBUG_MSG("... but " << p.role.name << " has " << p.handsize() << " cards!" << std::endl);
             }
             active_board.broken()=true;
-            active_board.broken_reasons().push_back("[SANITYCHECK] " + (*p).role.name+" has " +std::to_string((*p).handsize()) + " cards! ("+std::to_string((*p).hand.size())+" city cards and " +std::to_string((*p).event_cards.size()) + " event cards)");
+            active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name+" has " +std::to_string(p.handsize()) + " cards! ("+std::to_string(p.hand.size())+" city cards and " +std::to_string(p.event_cards.size()) + " event cards)");
         }
     }
     if(verbose){
@@ -141,13 +141,13 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
     if(verbose){
         DEBUG_MSG(std::endl <<  "[SANITYCHECK] Checking that no player position is their last_position" << std::endl);
     }
-    for(Players::Player* p: active_board.get_players()){
-        if((*p).get_position().index==(*p).get_last_position()){
+    for(Players::Player p: active_board.get_players()){
+        if(p.get_position().index==p.get_last_position()){
             if(verbose){
-                DEBUG_MSG("[SANITYCHECK] ... but " << (*p).role.name << " is at  " << (*p).get_position().name << " even though their last position is recorded as " << Map::CITIES[(*p).get_last_position()].name << std::endl);
+                DEBUG_MSG("[SANITYCHECK] ... but " << p.role.name << " is at  " << p.get_position().name << " even though their last position is recorded as " << Map::CITIES[p.get_last_position()].name << std::endl);
             }
             active_board.broken()=true;
-            active_board.broken_reasons().push_back("[SANITYCHECK] " + (*p).role.name + " is at  " + (*p).get_position().name + " even though their last position is recorded as " + Map::CITIES[(*p).get_last_position()].name);
+            active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " is at  " + p.get_position().name + " even though their last position is recorded as " + Map::CITIES[p.get_last_position()].name);
         }
     }
     if(verbose){
