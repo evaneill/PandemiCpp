@@ -33,3 +33,10 @@
 
 # Debug Symbols
 *.dSYM
+
+# experimental results
+*.csv
+*.header 
+
+# python
+*.DS_Store
