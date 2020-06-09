@@ -314,7 +314,7 @@ void Measurements::ResearchStations::update(){}
 // ===== TimeTaken measurements ===== 
 Measurements::TimeTakenConstructor::TimeTakenConstructor(){
     name="Time Duration";
-    description="Time (ms) from instantiation of the game measure to the request for a measurement value";
+    description="Time (s) from instantiation of the game measure to the request for a measurement value";
 }
 
 Measurements::GameMeasurement* Measurements::TimeTakenConstructor::construct_measure(Board::Board& active_board){
