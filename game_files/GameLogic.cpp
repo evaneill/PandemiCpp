@@ -102,6 +102,7 @@ void GameLogic::Game::nonplayer_actions(Board::Board& game_board,bool verbose){
         if(verbose && (!was_quiet_night || game_board.get_turn_action()==4 || (game_board.get_turn_action()==5 && game_board.get_infect_cards_drawn()==0))){
             DEBUG_MSG("[Game::nonplayer_actions()] " << player_name << ": " << next_action -> repr() << std::endl);
         }
+        // delete next_action;
     }
 }
 
@@ -231,22 +232,26 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(Board::Board& game_b
         max_n_actions++;
     }
 
+    // Generate a random action constructor index
     int randomized = rand() % max_n_actions;
     while(true){
         if(verbose){
             DEBUG_MSG("[get_random_action_bygroup()] Inside the action generation loop! Trying random number " << randomized << " (which is ");
         }
         if(randomized==PlayerConstructorList.size()){
+            // if we landed on the DoNothingConstructor, which is outside of the PlayerConstructorList, choose that
             if(verbose){
                 DEBUG_MSG(DoNothingCon.get_movetype() << ")" <<std::endl);
             }
             return DoNothingCon.random_action(game_board);
         } else if(PlayerConstructorList[randomized] -> legal(game_board)){
+            // otherwise, if the constructor we landed on is legal, do that
             if(verbose){
                 DEBUG_MSG(PlayerConstructorList[randomized] -> get_movetype() << ", and is legal!)" <<std::endl);
             }
             return PlayerConstructorList[randomized] -> random_action(game_board);
         } else {
+            // otherwise, if the constructor we landed on is illegal, choose a new random number
             if(verbose){
                 DEBUG_MSG(PlayerConstructorList[randomized] -> get_movetype() << ", and isn't legal...)" <<std::endl);
             }
