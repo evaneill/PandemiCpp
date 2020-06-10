@@ -62,7 +62,7 @@ std::string Actions::MoveConstructor::get_movetype(){
 int Actions::MoveConstructor::n_actions(Board::Board& game_board){
     if(legal(game_board)){
         std::vector<int> legal_moves = {};
-        for(int& neighbor: game_board.active_player().get_position().neighbors){
+        for(int neighbor: game_board.active_player().get_position().neighbors){
             if(neighbor!=game_board.active_player().get_last_position() || game_board.active_player().get_position().index==17){
                 legal_moves.push_back(neighbor);
             }
@@ -271,7 +271,7 @@ std::vector<Actions::Action*> Actions::CharterFlightConstructor::all_actions(Boa
 bool Actions::CharterFlightConstructor::legal(Board::Board& game_board){
     Players::Player& active_player = game_board.active_player();
     // If it's the player turn phase and they have the card that matches the city they're in, return true
-    for(Decks::PlayerCard c: active_player.hand){
+    for(Decks::PlayerCard& c: active_player.hand){
         if(c.index==active_player.get_position().index){
             return true;
         }
@@ -315,7 +315,7 @@ std::string Actions::ShuttleFlightConstructor::get_movetype(){
 int Actions::ShuttleFlightConstructor::n_actions(Board::Board& game_board){
     if(legal(game_board)){
         int n_actions=0;
-        for(Map::City st: game_board.get_stations()){
+        for(Map::City& st: game_board.get_stations()){
             if(st.index!=game_board.active_player().get_position().index && st.index!=game_board.active_player().get_last_position()){
                 n_actions++;
             }
@@ -357,7 +357,7 @@ bool Actions::ShuttleFlightConstructor::legal(Board::Board& game_board){
             for(Map::City st: game_board.get_stations()){
                 // and the player is at a station
                 if(st.index==active_player.get_position().index){
-                    for(Map::City other_st : game_board.get_stations()){
+                    for(Map::City& other_st : game_board.get_stations()){
                         // and at least one of the other stations isn't their previous position...
                         if(other_st.index!=active_player.get_last_position() && other_st.index!=st.index){
                             return true;
@@ -473,7 +473,7 @@ bool Actions::OperationsExpertFlightConstructor::legal(Board::Board& game_board)
     if(active_player.role.name=="Operations Expert"){
         // and it's still players turn to do stuff
         if(game_board.get_turn_action()<4){
-            for(Map::City st: game_board.get_stations()){
+            for(Map::City& st: game_board.get_stations()){
                 // And they're at the position of a station
                 if(st.index==active_player.get_position().index){
                     // And they have at least one card to discard
@@ -584,7 +584,7 @@ bool Actions::BuildConstructor::legal(Board::Board& game_board){
     if(game_board.get_turn_action()<4){
         if(active_player.role.name=="Operations Expert"){
             bool already_station = false;
-            for(Map::City st: game_board.get_stations()){
+            for(Map::City& st: game_board.get_stations()){
                 if(st.index==active_player.get_position().index){
                     already_station=true;
                     break;
@@ -594,12 +594,12 @@ bool Actions::BuildConstructor::legal(Board::Board& game_board){
                 return true;
             }
         } else{
-            for(Decks::PlayerCard c : active_player.hand){
+            for(Decks::PlayerCard& c : active_player.hand){
                 // Then if they have a card representing the city they're in...
                 if(c.index==active_player.get_position().index){
                     bool already_station = false;
                     // If no station is already on this city..
-                    for(Map::City st: game_board.get_stations()){
+                    for(Map::City& st: game_board.get_stations()){
                         if(st.index==active_player.get_position().index){
                             already_station=true;
                             break;
@@ -851,7 +851,7 @@ bool Actions::CureConstructor::legal(Board::Board& game_board){
             (color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !game_board.is_cured(Map::YELLOW)) ||
             (color_count[Map::BLACK]>=active_player.role.required_cure_cards && !game_board.is_cured(Map::BLACK)) ||
             (color_count[Map::RED]>=active_player.role.required_cure_cards && !game_board.is_cured(Map::RED))){
-            for(Map::City st: game_board.get_stations()){
+            for(Map::City& st: game_board.get_stations()){
                 // And they're at a research station...
                 if(st.index==active_player.get_position().index){
                     // Then they can cure
@@ -996,7 +996,7 @@ bool Actions::GiveConstructor::legal(Board::Board& game_board){
     // If its the player turn
     if(game_board.get_turn_action()<4){
         Players::Player& active_player = game_board.active_player();
-        for(Players::Player p: game_board.get_players()){
+        for(Players::Player& p: game_board.get_players()){
             // And there's another player at the active players position
             if(p.get_position().index==active_player.get_position().index && active_player.role.name!=p.role.name){
                 if(active_player.hand.size()>0){
@@ -1004,7 +1004,7 @@ bool Actions::GiveConstructor::legal(Board::Board& game_board){
                     if(active_player.role.name=="Researcher"){
                         return true;
                     } else {
-                        for(Decks::PlayerCard card: active_player.hand){
+                        for(Decks::PlayerCard& card: active_player.hand){
                             if(card.index==active_player.get_position().index){
                                 return true;
                             }
@@ -1078,7 +1078,7 @@ int Actions::TakeConstructor::n_actions(Board::Board& game_board){
                     n_actions+=_other_player.hand.size();
                 } else {
                     // We just add 1 if they have a card we could take (the city we're in)
-                    for(Decks::PlayerCard c: _other_player.hand){
+                    for(Decks::PlayerCard& c: _other_player.hand){
                         if(c.index==active_player.get_position().index){
                             n_actions+=1;
                         }
@@ -1134,7 +1134,7 @@ bool Actions::TakeConstructor::legal(Board::Board& game_board){
                         return true;
                     }
                 } else {
-                    for(Decks::PlayerCard card: _other_player.hand){
+                    for(Decks::PlayerCard& card: _other_player.hand){
                         if(card.index==active_player.get_position().index){
                             // Then you're in the same city as another player and they have the card of this city
                             return true;
@@ -1187,7 +1187,7 @@ int Actions::AirliftConstructor::n_actions(Board::Board& game_board){
         // Initialize as "every player can move to every other city but their current position"
         int n_actions= (Map::CITIES.size()-1)*game_board.get_players().size();
         // Go through players and remove either size of neighbors AND one for its last position OR just size of neighbors
-        for(Players::Player p : game_board.get_players()){
+        for(Players::Player& p : game_board.get_players()){
             if(p.get_last_position()>=0 && !isneighbor(p.get_position().index,p.get_last_position())){
                 n_actions-=(1+p.get_position().neighbors.size());
             } else {
@@ -1245,8 +1245,8 @@ std::vector<Actions::Action*> Actions::AirliftConstructor::all_actions(Board::Bo
 
 bool Actions::AirliftConstructor::legal(Board::Board& game_board){
     // The legality guard is always true when the card is held by a player. 
-    for(Players::Player pl : game_board.get_players()){
-        for(Decks::PlayerCard e : pl.event_cards){
+    for(Players::Player& pl : game_board.get_players()){
+        for(Decks::PlayerCard& e : pl.event_cards){
             if(e.name=="Airlift" && e.index==50){
                 return true;
             }
@@ -1387,8 +1387,8 @@ std::vector<Actions::Action*> Actions::GovernmentGrantConstructor::all_actions(B
 }
 
 bool Actions::GovernmentGrantConstructor::legal(Board::Board& game_board){
-    for(Players::Player pl : game_board.get_players()){
-        for(Decks::PlayerCard e : pl.event_cards){
+    for(Players::Player& pl : game_board.get_players()){
+        for(Decks::PlayerCard& e : pl.event_cards){
             if(e.name=="Government Grant" && e.index==49){
                 return true;
             }
@@ -1464,8 +1464,8 @@ std::vector<Actions::Action*> Actions::QuietNightConstructor::all_actions(Board:
 bool Actions::QuietNightConstructor::legal(Board::Board& game_board){
     // Only bar using this ON the infect step
     if(game_board.get_turn_action()!=5){
-        for(Players::Player pl : game_board.get_players()){
-            for(Decks::PlayerCard e : pl.event_cards){
+        for(Players::Player& pl : game_board.get_players()){
+            for(Decks::PlayerCard& e : pl.event_cards){
                 if(e.name=="Quiet Night" && e.index==48){
                     return true;
                 }
@@ -1517,7 +1517,7 @@ std::vector<Actions::Action*> Actions::DoNothingConstructor::all_actions(Board::
 }
 
 bool Actions::DoNothingConstructor::legal(Board::Board& game_board){
-    if((game_board.get_turn_action()>=0 && game_board.get_turn_action()<4) || Actions::QuietNightConstructor().legal(game_board)){
+    if(game_board.get_turn_action()<4 || Actions::QuietNightConstructor().legal(game_board)){
         // if it's any players turn, OR quiet_night is under consideration (should always be able to not use)
         return true;
     }
@@ -1554,10 +1554,10 @@ std::string Actions::ForcedDiscardConstructor::get_movetype(){
 int Actions::ForcedDiscardConstructor::n_actions(Board::Board& game_board){
     // Find the first player whose hand is full and build discard actions
     // Unlike other actions, we DON'T care about legality guards here, since it won't ever (and shouldn't) be considered for random selection by an agent.
-    for(Players::Player p: game_board.get_players()){
+    for(Players::Player& p: game_board.get_players()){
         if(p.hand_full()){
             int total_actions = p.hand.size(); // initialize with # of city cards
-            for(Decks::PlayerCard e: p.event_cards){
+            for(Decks::PlayerCard& e: p.event_cards){
                 switch(e.index){
                     case 48:
                         total_actions+=Actions::QuietNightConstructor().n_actions(game_board);
@@ -1643,7 +1643,7 @@ std::vector<Actions::Action*> Actions::ForcedDiscardConstructor::all_actions(Boa
 bool Actions::ForcedDiscardConstructor::legal(Board::Board& game_board){
     // Should ONLY return legality when there's at least one player with>7 cards in their hand
     // It DOESN't care what phase of the game it is or whose turn it is. This forces an immediate decision node
-    for(Players::Player p: game_board.get_players()){
+    for(Players::Player& p: game_board.get_players()){
         if(p.hand_full()){
             return true;
         }
