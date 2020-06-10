@@ -102,7 +102,7 @@ void GameLogic::Game::nonplayer_actions(Board::Board& game_board,bool verbose){
         if(verbose && (!was_quiet_night || game_board.get_turn_action()==4 || (game_board.get_turn_action()==5 && game_board.get_infect_cards_drawn()==0))){
             DEBUG_MSG("[Game::nonplayer_actions()] " << player_name << ": " << next_action -> repr() << std::endl);
         }
-        // delete next_action;
+        delete next_action;
     }
 }
 
