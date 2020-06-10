@@ -72,7 +72,7 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
     if(verbose){
         DEBUG_MSG(std::endl << "[SANITYCHECK] Checking player hands for duplicate cards..." << std::endl);
     }
-    for(Players::Player p: active_board.get_players()){
+    for(Players::Player& p: active_board.get_players()){
         if(p.hand.size()>1){
             for(int c=0;c<(p.hand.size()-1);c++){
                 for(int k=c+1;k<p.hand.size();k++){
@@ -109,7 +109,7 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
     if(verbose){
         DEBUG_MSG(std::endl <<  "[SANITYCHECK] Checking all players have <=8 cards..." << std::endl);
     }
-    for(Players::Player p: active_board.get_players()){
+    for(Players::Player& p: active_board.get_players()){
         if(p.handsize()>8){
             if(verbose){
                 DEBUG_MSG("... but " << p.role.name << " has " << p.handsize() << " cards!" << std::endl);
@@ -141,7 +141,7 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
     if(verbose){
         DEBUG_MSG(std::endl <<  "[SANITYCHECK] Checking that no player position is their last_position" << std::endl);
     }
-    for(Players::Player p: active_board.get_players()){
+    for(Players::Player& p: active_board.get_players()){
         if(p.get_position().index==p.get_last_position()){
             if(verbose){
                 DEBUG_MSG("[SANITYCHECK] ... but " << p.role.name << " is at  " << p.get_position().name << " even though their last position is recorded as " << Map::CITIES[p.get_last_position()].name << std::endl);
