@@ -21,4 +21,5 @@ void Agents::UniformRandomAgent::take_step(bool verbose){
     if(verbose){
         DEBUG_MSG(std::endl << "[UniformRandomAgent::take_step()] " << active_game.get_board_ptr() -> active_player().role.name << ": " << chosen_action -> repr() << std::endl);
     }
+    delete chosen_action;
 }

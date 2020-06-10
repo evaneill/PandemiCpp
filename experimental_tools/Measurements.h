@@ -9,17 +9,20 @@ namespace Measurements
     class GameMeasurement{
     public:
         GameMeasurement();
+        virtual ~GameMeasurement(){};
 
         Board::Board* active_board;
 
         virtual std::vector<double> get_values()=0;
         virtual void update()=0;
+        virtual void reset(Board::Board& game_board)=0;
     };
 
     // A class that can be held by Experiments and used to repeatedly get new measurement classes for each new game
     class MeasurementConstructor{
     public:
         MeasurementConstructor();
+        virtual ~MeasurementConstructor(){};
 
         std::string name;
         std::string description;
@@ -33,14 +36,17 @@ namespace Measurements
     int reward=-1;
     public:
         WinLose(Board::Board& _active_board);
+        ~WinLose(){};
 
         std::vector<double> get_values();
         void update();
+        void reset(Board::Board& game_board);
     };
 
     class WinLoseConstructor: public MeasurementConstructor{
     public:
         WinLoseConstructor();
+        ~WinLoseConstructor(){};
 
         std::vector<std::string> get_value_keys();
         GameMeasurement* construct_measure(Board::Board& active_board);
@@ -53,14 +59,17 @@ namespace Measurements
     class LoseStatus: public GameMeasurement{
     public:
         LoseStatus(Board::Board& _active_board);
-
+        ~LoseStatus(){};
+        
         std::vector<double> get_values();
         void update();
+        void reset(Board::Board& game_board);
     };
 
     class LoseStatusConstructor: public MeasurementConstructor{
     public:
         LoseStatusConstructor();
+        ~LoseStatusConstructor(){};
 
         std::vector<std::string> get_value_keys();
         GameMeasurement* construct_measure(Board::Board& active_board);
@@ -71,14 +80,17 @@ namespace Measurements
     std::vector<int> branching_factors={};
     public:
         GameTreeSize(Board::Board& _active_board);
+        ~GameTreeSize(){};
 
         std::vector<double> get_values();
         void update();
+        void reset(Board::Board& game_board);
     };
 
     class GameTreeSizeConstructor: public MeasurementConstructor{
     public:
         GameTreeSizeConstructor();
+        ~GameTreeSizeConstructor(){};
 
         std::vector<std::string> get_value_keys();
         GameMeasurement* construct_measure(Board::Board& active_board);
@@ -106,14 +118,17 @@ namespace Measurements
 
     public:
         EventCardUse(Board::Board& _active_board);
+        ~EventCardUse(){};
 
         std::vector<double> get_values();
         void update();
+        void reset(Board::Board& game_board);
     };
 
     class EventCardUseConstructor: public MeasurementConstructor{
     public:
         EventCardUseConstructor();
+        ~EventCardUseConstructor(){};
 
         std::vector<std::string> get_value_keys();
         GameMeasurement* construct_measure(Board::Board& active_board);
@@ -129,14 +144,17 @@ namespace Measurements
         int steps=0;
     public:
         CuredDisease(Board::Board& _active_board);
+        ~CuredDisease(){};
 
         std::vector<double> get_values();
         void update();
+        void reset(Board::Board& game_board);
     };
 
     class CuredDiseaseConstructor: public MeasurementConstructor{
     public:
         CuredDiseaseConstructor();
+        ~CuredDiseaseConstructor(){};
 
         std::vector<std::string> get_value_keys();
         GameMeasurement* construct_measure(Board::Board& active_board);
@@ -146,14 +164,17 @@ namespace Measurements
     class EpidemicsDrawn: public GameMeasurement{
     public:
         EpidemicsDrawn(Board::Board& _active_board);
+        ~EpidemicsDrawn(){};
 
         std::vector<double> get_values();
         void update();
+        void reset(Board::Board& game_board);
     };
 
     class EpidemicsDrawnConstructor: public MeasurementConstructor{
     public:
         EpidemicsDrawnConstructor();
+        ~EpidemicsDrawnConstructor(){};
 
         std::vector<std::string> get_value_keys();
         GameMeasurement* construct_measure(Board::Board& active_board);
@@ -163,14 +184,17 @@ namespace Measurements
     class ResearchStations: public GameMeasurement{
     public:
         ResearchStations(Board::Board& _active_board);
+        ~ResearchStations(){};
 
         std::vector<double> get_values();
         void update();
+        void reset(Board::Board& game_board);
     };
 
     class ResearchStationsConstructor: public MeasurementConstructor{
     public:
         ResearchStationsConstructor();
+        ~ResearchStationsConstructor(){};
 
         std::vector<std::string> get_value_keys();
         GameMeasurement* construct_measure(Board::Board& active_board);
@@ -181,14 +205,17 @@ namespace Measurements
         std::chrono::steady_clock::time_point start_time;
     public:
         TimeTaken(Board::Board& _active_board);
+        ~TimeTaken(){};
 
         std::vector<double> get_values();
         void update();
+        void reset(Board::Board& game_board);
     };
 
     class TimeTakenConstructor: public MeasurementConstructor{
     public:
         TimeTakenConstructor();
+        ~TimeTakenConstructor(){};
 
         std::vector<std::string> get_value_keys();
         GameMeasurement* construct_measure(Board::Board& active_board);

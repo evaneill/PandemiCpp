@@ -48,6 +48,10 @@ Experiments::ByGroupRandomAgentGameExperiment::ByGroupRandomAgentGameExperiment(
     n_games=100000;
 }
 
+void Experiments::ByGroupRandomAgentGameExperiment::reset_board(Board::Board* game_board){
+    scenario -> reset_board(game_board);
+}
+
 void Experiments::ByGroupRandomAgentGameExperiment::write_header(){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::trunc);
 

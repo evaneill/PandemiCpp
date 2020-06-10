@@ -43,6 +43,15 @@ Players::Player::Player(){
     role = Role(NULL,0);
 }
 
+void Players::Player::reset(){
+    // put them back in hotlanta
+    position = Map::CITIES[3];
+    last_position = -1;
+    hand.clear();
+    event_cards.clear();
+    used_OperationsExpertFlight=false;
+}
+
 // Supposed to tell when a player is _ABOVE_ hand limit
 bool Players::Player::hand_full(){
     return (hand.size()+event_cards.size())>hand_limit;

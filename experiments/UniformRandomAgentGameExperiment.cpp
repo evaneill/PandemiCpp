@@ -84,6 +84,10 @@ void Experiments::UniformRandomAgentGameExperiment::write_header(){
     header.close();
 }
 
+void Experiments::UniformRandomAgentGameExperiment::reset_board(Board::Board* game_board){
+    scenario -> reset_board(game_board);
+}
+
 void Experiments::UniformRandomAgentGameExperiment::append_header(std::string extras){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::app);
     header << extras;

@@ -125,17 +125,11 @@ namespace Board
 
         // Setup the board for play
         void setup(bool verbose=false);
+        // Clear the board to reset to just-constructed status
+        void clear();
+
         void setup_player_deck();
         void is_setup();
-
-        // Logic to draw from the player deck
-        Decks::PlayerCard draw_playerdeck();
-        // Logic to draw from infect deck
-        Decks::InfectCard draw_infectdeck();
-        // Logic to draw from bottom of infect deck
-        Decks::InfectCard draw_infectdeck_bottom();
-        // Logic to re-add discard to top of infect deck
-        void readd_infect_discard();
 
         // difficulty. Only used for sanity checks after initialization
         int difficulty = 0;
@@ -198,6 +192,7 @@ namespace Board
         // Infect deck entrypoints
         Decks::InfectCard draw_infectdeck_bottom_inplace();// return a card that might be drawn without removing it from deck
         Decks::InfectCard draw_infectdeck_inplace();
+        void readd_infect_discard(); // Logic to re-add discard to top of infect deck
         void updateInfectDeck(Decks::InfectCard card,bool bottom=false); // update infect deck to reflect a card having been drawn and used
         int& get_infect_cards_drawn();
         int n_infect_cards(bool top=true); // number of infect cards in the group on top (true) or bottom (false) of infect deck

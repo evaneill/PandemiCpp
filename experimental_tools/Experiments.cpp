@@ -29,32 +29,48 @@ void Experiments::RunExperiment(Experiments::Experiment* exp){
     
     // Declare run-time stuff
     std::vector<Measurements::GameMeasurement*> game_measures={};
-    GameLogic::Game* the_game;
-    Board::Board* game_board;
-    Agents::BaseAgent* the_agent;
+
+    // instantiate a game that doesn't have a board yet
+    GameLogic::Game* the_game = new GameLogic::Game();
+    // instantiate an agent pointed to that game logic
+    Agents::BaseAgent* the_agent = exp -> get_agent(the_game);
+    Board::Board* game_board = nullptr;
 
     int games_played=0;
+
     while(games_played<(*exp).n_games){
         if(games_played % 5000 ==0){
             DEBUG_MSG("[Experiments::RunExperiment()] has ran " << games_played << " games " << std::endl);
         }
 
-        // Write the game number in the first position
+        // Write the game number in the first column of the experiment output
         output_str+= std::to_string(games_played+1);
 
-        // Instantiate a new board using the given scenario
-        game_board = exp -> get_board();
+        // If there isn't already a board
+        if(!game_board){
+            // Instantiate a new board using the given scenario
+            game_board = exp -> get_board();
+        } else {
+            // otherwise use the experiment definition to reset the board using its scenario
+            exp -> reset_board(game_board);
+        }
 
-        // Instantiate game logic pointed at the board
-        the_game = new GameLogic::Game(*game_board);
+        if(!the_game -> hasBoard()){
+            // if the game logic isn't assigned a board yet (iteration 0), then attach it to this one
+            the_game -> reset_board(game_board);
+        }
 
-        // Instantiate an agent pointed at the game logic
-        the_agent = exp -> get_agent(the_game);
-
-        game_measures = exp -> get_game_measures(game_board);
+        // reset/instantiate measures
+        if(game_measures.empty()){
+            game_measures = exp -> get_game_measures(game_board);
+        } else {
+            for(Measurements::GameMeasurement* meas: game_measures){
+                meas -> reset(*game_board);
+            }
+        }
         
         while(!the_game -> is_terminal(true,false)){
-            // First resolve any necessary non-player transisitions (card draws, etc)
+            // First resolve any necessary non-player transisitions (card draws)
             the_game -> nonplayer_actions();
             
             // If these transitions haven't made the game terminal, then have the agent choose a transition
@@ -86,13 +102,6 @@ void Experiments::RunExperiment(Experiments::Experiment* exp){
         output_str+="\r\n";
 
         games_played++;
-
-        // Get rid of & reset objects
-        game_measures.clear();
-
-        delete the_agent;
-        delete the_game;
-        delete game_board;
     };
 
     DEBUG_MSG("[[Experiments::RunExperiment()]] ...successfully executed " + std::to_string(games_played) + " games with the "<< (*exp).experiment_name << " experiment." << std::endl);

@@ -15,6 +15,7 @@ namespace Players
     public:
         Role(std::string name,int req_cure_cards);
         Role();
+        ~Role(){};
         std::string name;
         int required_cure_cards;// 5 for all but scientist (4)
     };
@@ -33,6 +34,8 @@ namespace Players
 
         ~Player(){};
         
+        // reset for a new game (keep role but empty hand and put in atlanta, just like in constructor)
+        void reset(); 
         Player(const Player& other){
             position = other.position;
 
@@ -92,22 +95,27 @@ namespace Players
     class QuarantineSpecialist: public Role{
     public:
         QuarantineSpecialist();
+        ~QuarantineSpecialist(){};
     };
     class Medic: public Role{
     public:
         Medic();
+        ~Medic(){};
     };
     class Researcher: public Role{
     public:
         Researcher();
+        ~Researcher(){};
     };
     class Scientist: public Role{
     public:
         Scientist();
+        ~Scientist(){};
     };
     class OperationsExpert: public Role{
     public:
         OperationsExpert();
+        ~OperationsExpert(){};
     };
 };
 

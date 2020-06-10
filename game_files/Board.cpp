@@ -132,6 +132,52 @@ void Board::Board::setup(bool verbose){
     IS_SETUP = true;
 }
 
+void Board::Board::clear(){
+    IS_SETUP=false;
+
+    // the players each get reset to atlanta with no hand or previous position
+    for(Players::Player& p: players){
+        p.reset();
+    };
+
+    research_stations.clear();
+
+    player_deck = Decks::PlayerDeck(difficulty);
+    infect_deck = Decks::InfectDeck();
+
+    outbreak_count = 0; 
+    epidemics_drawn = 0; 
+
+    // have to initialize to 0 on reset
+    disease_count[Map::BLUE].fill(0);
+    disease_count[Map::YELLOW].fill(0);
+    disease_count[Map::BLACK].fill(0);
+    disease_count[Map::RED].fill(0);
+
+    // vector of 4 bools: whether or not each disease is cured
+    cured= {false,false,false,false};
+    // vector of 4 bools: whether or not each disease is eradicated
+    eradicated = {false,false,false,false};
+
+    int turn = 0; 
+
+    already_outbroken_cities.clear();
+
+    int turn_actions = 0;
+
+    player_cards_drawn = 0; 
+    infect_cards_drawn = 0;
+
+    quiet_night = false;
+
+    lost = false;
+    why_lost="";
+
+    won = false;
+    BROKEN = false;
+    why_it_broke.clear();
+}
+
 void Board::Board::is_setup(){
     IS_SETUP=true;
 }
@@ -149,20 +195,8 @@ void Board::Board::setup_player_deck(){
     player_deck.setup_shuffle_deck();
 }
 
-Decks::PlayerCard Board::Board::draw_playerdeck(){
-    return player_deck.draw();
-}
-
 int Board::Board::remaining_player_cards(){
     return player_deck.remaining_cards();
-}
-
-Decks::InfectCard Board::Board::draw_infectdeck(){
-    return infect_deck.draw();
-}
-
-Decks::InfectCard Board::Board::draw_infectdeck_bottom(){
-    return infect_deck.draw_bottom();
 }
 
 void Board::Board::readd_infect_discard(){

@@ -92,12 +92,20 @@ namespace Search
         // State should be the state being "rolled down" from the root and accumulating an action.execute() change at each node
         DeterministicNode(Node* _parent,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic);
         ~DeterministicNode(){
+            // Delete any actions remaining in the queue
+            while(!action_queue.empty()){
+                delete action_queue.back();
+                action_queue.pop_back();
+            }
+            // Delete any children (aka filicide)
             while(!children.empty()){
                 Node* child = children.top();
                 children.pop();
 
                 delete child;
             }
+            // delete the action pinned to this node
+            delete action;
         }
 
         // Score of the node. Updated on backprop()
@@ -142,9 +150,15 @@ namespace Search
         // State should be the state being "rolled down" from the root and accumulating an action.execute() change at each node
         StochasticNode(Node* _parent,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic);
         ~StochasticNode(){
+            // delete the action pinned to this node
+            delete action;
+
+            // delete each child
             for(Node* child: children){
                 delete child;
             }
+            // empty the vector of now meaningless pointers (not sure if necessary)
+            children.clear();
         }
 
         // Score of the node. Updated on backprop()
@@ -189,10 +203,7 @@ namespace Search
     class GameTree{
     public:
         GameTree(GameLogic::Game& _game_logic);
-        ~GameTree(){
-            // cascading destructor performs depth-first deletion from leaves up
-            delete root;
-        }
+        virtual ~GameTree(){};
         Node* root;
         GameLogic::Game& game_logic; // reference to game logic used by agent
 
@@ -213,7 +224,10 @@ namespace Search
         int samples_per_stochasticity;
     public:
         KSampleGameTree(GameLogic::Game& _game_logic, int _samples_per_stochasticity);
-
+        ~KSampleGameTree(){
+            // Send cascade of deletes down the tree
+            delete root;
+        }
         Node* getBestLeaf(Board::Board& game_board);
 
         Actions::Action* bestAction();

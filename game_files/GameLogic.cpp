@@ -9,9 +9,7 @@
 
 #include "../agents/Heuristics.h"
 
-GameLogic::Game::Game(Board::Board& _active_board, bool verbose): 
-    active_board(&_active_board),
-
+GameLogic::Game::Game(bool verbose): 
     // Initiate constructors
     MoveCon(),
     DirectFlightCon(),
@@ -57,6 +55,21 @@ GameLogic::Game::Game(Board::Board& _active_board, bool verbose):
         if(verbose){
             DEBUG_MSG("[Game::Game(...)] Instantiating Game Logic..." << std::endl);
         }
+}
+
+void GameLogic::Game::reset_board(Board::Board* new_board){
+    if(active_board){
+        // if active board is already assigned, free up the memory
+        delete active_board;
+    }
+    active_board = new_board;
+}
+
+bool GameLogic::Game::hasBoard(){
+    // return true if active_board isn't nullptr
+    // (not a *great* way to check whether the board is well defined)
+    // (but in existing implementation is hopefully sufficient)
+    return active_board!=nullptr;
 }
 
 Actions::Action* GameLogic::Game::get_stochastic_action(Board::Board& game_board){

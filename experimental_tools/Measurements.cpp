@@ -36,6 +36,11 @@ std::vector<double> Measurements::WinLose::get_values(){
 // Doesn't need to do any updating
 void Measurements::WinLose::update(){}; 
 
+// Upon resetting for a new game, doesn't need to do anything but point to a new board
+void Measurements::WinLose::reset(Board::Board& game_board){
+    active_board = &game_board;
+};
+
 // ===== LoseStatus measurements ===== 
 Measurements::LoseStatusConstructor::LoseStatusConstructor(){
     name="Loss Status Variables";
@@ -67,6 +72,11 @@ std::vector<double> Measurements::LoseStatus::get_values(){
 
 // Doesn't need to do anything during update; just read out final status
 void Measurements::LoseStatus::update(){};
+
+// Upon resetting for a new game, doesn't need to do anything but point to a new board
+void Measurements::LoseStatus::reset(Board::Board& game_board){
+    active_board = &game_board;
+};
 
 // ===== GameTreeSize measurements ===== 
 Measurements::GameTreeSizeConstructor::GameTreeSizeConstructor(){
@@ -121,8 +131,16 @@ std::vector<double> Measurements::GameTreeSize::get_values(){
 // Doesn't need to do much during update; just push on the current branching factor
 void Measurements::GameTreeSize::update(){
     // I feel like this is a little bit jank
-    branching_factors.push_back(GameLogic::Game(*active_board).n_available_actions());
+    branching_factors.push_back(GameLogic::Game().n_available_actions(*active_board));
 }
+
+// has to account for clearing branching factor record for new game
+void Measurements::GameTreeSize::reset(Board::Board& game_board){
+    // reset the list of branching factors
+    branching_factors.clear();
+    // reset the reference to the game board
+    active_board = &game_board;
+};
 
 // ===== EventCardUse measurements ===== 
 Measurements::EventCardUseConstructor::EventCardUseConstructor(){
@@ -220,6 +238,27 @@ void Measurements::EventCardUse::update(){
     steps++;
 };
 
+// Reset all the tracking variables and reassign board reference
+void Measurements::EventCardUse::reset(Board::Board& game_board){
+    steps=0;
+
+    firstQuietNightPresence=-1;
+    QuietNightUse=-1;
+    
+    firstAirliftPresence=-1;
+    AirliftUse=-1;
+
+    firstGovernmentGrantPresence=-1;
+    GovernmentGrantUse=-1;
+
+    quietnightUsed=false;
+    airliftUsed=false;
+    governmentgrantUsed=false;
+
+    // reset the reference to the game board
+    active_board = &game_board;
+};
+
 // ===== CureDisease measurements ===== 
 Measurements::CuredDiseaseConstructor::CuredDiseaseConstructor(){
     name="Cure Status";
@@ -257,6 +296,18 @@ void Measurements::CuredDisease::update(){
     steps++;
 };
 
+// Reset all of the tracking variables
+void Measurements::CuredDisease::reset(Board::Board& game_board){
+    BlueCured = -1;
+    YellowCured = -1;
+    BlackCured = -1;
+    RedCured = -1;
+
+    steps=0;
+
+    active_board = &game_board;
+}
+
 // ===== EpidemicsDrawn measurements ===== 
 Measurements::EpidemicsDrawnConstructor::EpidemicsDrawnConstructor(){
     name="Epidemics Drawn";
@@ -284,6 +335,10 @@ std::vector<double> Measurements::EpidemicsDrawn::get_values(){
 // Doesn't need to do anything during update; just read out final status
 void Measurements::EpidemicsDrawn::update(){}
 
+void Measurements::EpidemicsDrawn::reset(Board::Board& game_board){
+    active_board = &game_board;
+}
+
 // ===== ResearchStations measurements ===== 
 Measurements::ResearchStationsConstructor::ResearchStationsConstructor(){
     name="Number of Research Stations";
@@ -310,6 +365,10 @@ std::vector<double> Measurements::ResearchStations::get_values(){
 
 // Doesn't need to do anything during update; just read out final status
 void Measurements::ResearchStations::update(){}
+
+void Measurements::ResearchStations::reset(Board::Board& game_board){
+    active_board = &game_board;
+}
 
 // ===== TimeTaken measurements ===== 
 Measurements::TimeTakenConstructor::TimeTakenConstructor(){
@@ -340,3 +399,10 @@ std::vector<double> Measurements::TimeTaken::get_values(){
 
 // Doesn't need to do anything during update; just read out final time diff
 void Measurements::TimeTaken::update(){}
+
+void Measurements::TimeTaken::reset(Board::Board& game_board){
+    // reset the start time
+    start_time = std::chrono::high_resolution_clock::now();
+
+    active_board = &game_board;   
+}

@@ -14,7 +14,13 @@ namespace Experiments
     class Experiment{
     public:
         Experiment(){};
-
+        ~Experiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        }
         std::string agent_name;
 
         // The measurements tracked over the course of the experiment, given as constructors
@@ -43,10 +49,11 @@ namespace Experiments
         virtual void append_header(std::string extras)=0;
         virtual void write_experiment(std::string data)=0;
 
-        // For giving objects to the RunExperiment() method
+        // For giving objects to the RunExperiment() method and resetting them
         virtual Board::Board* get_board()=0;
         virtual Agents::BaseAgent* get_agent(GameLogic::Game* game)=0;
         virtual std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board)=0;
+        virtual void reset_board(Board::Board* game_board)=0;
 
     };
 
@@ -65,6 +72,7 @@ namespace Experiments
         Board::Board* get_board();
         Agents::BaseAgent* get_agent(GameLogic::Game* game);
         std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
     };
 
     class UniformRandomAgentCanWinExperiment: public Experiment{
@@ -78,6 +86,7 @@ namespace Experiments
         Board::Board* get_board();
         Agents::BaseAgent* get_agent(GameLogic::Game* game);
         std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
     };
 
     class ByGroupRandomAgentGameExperiment: public Experiment{
@@ -91,6 +100,7 @@ namespace Experiments
         Board::Board* get_board();
         Agents::BaseAgent* get_agent(GameLogic::Game* game);
         std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
     };
 
     class SingleSampleNaiveUCTAgentExperiment: public Experiment {
@@ -104,5 +114,6 @@ namespace Experiments
         Board::Board* get_board();
         Agents::BaseAgent* get_agent(GameLogic::Game* game);
         std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
     };
 }

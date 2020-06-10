@@ -44,8 +44,13 @@ Actions::Action* Agents::SingleSampleNaiveUCTAgent::generate_action(bool verbose
         sims_done++;
     }
 
+    Actions::Action* chosen_action = search_tree -> bestAction();
+    
+    // Get rid of the search tree
+    delete search_tree;
+
     // After the simulation budget is used up, return the action attached to the most promising child of the root
-    return search_tree -> bestAction();
+    return chosen_action;
 }
 
 void Agents::SingleSampleNaiveUCTAgent::take_step(bool verbose){
@@ -54,4 +59,5 @@ void Agents::SingleSampleNaiveUCTAgent::take_step(bool verbose){
     if(verbose){
         DEBUG_MSG(std::endl << "[UCTAgent::take_step()] " << active_game.get_board_ptr() -> active_player().role.name << ": " << chosen_action -> repr() << std::endl);
     }
+    delete chosen_action;
 }

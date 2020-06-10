@@ -12,12 +12,14 @@
 
 #include "../agents/Heuristics.h"
 
+#include "../experimental_tools/Scenarios.h"
+
 namespace GameLogic
 {
     // This class is built to be the sole entity through which an agent interacts with the game
     class Game{
         // Pointer to a board
-        Board::Board* active_board;
+        Board::Board* active_board = nullptr;
 
         // "Vanilla" move constructors
 
@@ -51,8 +53,16 @@ namespace GameLogic
 
         StochasticActions::StochasticActionConstructor StochasticCon;
     public:
-        Game(Board::Board& _active_board, bool verbose=false);
-        ~Game(){};
+        Game(bool verbose=false);
+        ~Game(){
+            if(active_board){
+                delete active_board;
+            }
+        };
+
+        // reset the active_board in-place
+        void reset_board(Board::Board* new_board);
+        bool hasBoard();
 
         // Pull an action from a uniform distribution over ALL legal actions
         Actions::Action* get_random_action_uniform(bool verbose = false);
