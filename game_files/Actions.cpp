@@ -614,16 +614,15 @@ void Actions::Treat::execute(Board::Board& new_board){
         n_treated=1;
         new_board.get_disease_count()[color][active_player.get_position().index]--;
     }
-    // Check for eradication
-    // If(this color is cured && there are now 0 cubes of this disease)
-    std::array<int,48>& disease_count = new_board.get_disease_count()[color];
-    if(new_board.is_cured(color) && std::accumulate(disease_count.begin(),disease_count.end(),0)==0){
-        new_board.Eradicate(color);
-    }
 
     new_board.get_color_count()[color]-=n_treated;
-
+    
     new_board.get_turn_action()++;
+    // Check for eradication
+    // If(this color is cured && there are now 0 cubes of this disease)
+    if(new_board.is_cured(color) && new_board.disease_sum(color)==0){
+        new_board.Eradicate(color);
+    }
 }
 
 std::string Actions::Treat::repr(){
@@ -747,7 +746,7 @@ void Actions::Cure::execute(Board::Board& new_board){
                 new_board.Cure(Map::BLUE);
                 new_board.get_turn_action()++;
                 // Update eradicated status if there is no disease of this color on the board
-                if(std::accumulate(new_board.get_disease_count()[Map::BLUE].begin(),new_board.get_disease_count()[Map::BLUE].begin(),0)==0){
+                if(new_board.disease_sum(Map::BLUE)==0){
                     new_board.Eradicate(Map::BLUE);
                 }
                 return;
@@ -758,7 +757,7 @@ void Actions::Cure::execute(Board::Board& new_board){
                 new_board.Cure(Map::YELLOW);
                 new_board.get_turn_action()++;
                 // Update eradicated status if there is no disease of this color on the board
-                if(std::accumulate(new_board.get_disease_count()[Map::YELLOW].begin(),new_board.get_disease_count()[Map::YELLOW].begin(),0)==0){
+                if(new_board.disease_sum(Map::YELLOW)==0){
                     new_board.Eradicate(Map::YELLOW);
                 }
                 return;
@@ -769,7 +768,7 @@ void Actions::Cure::execute(Board::Board& new_board){
                 new_board.Cure(Map::BLACK);
                 new_board.get_turn_action()++;
                 // Update eradicated status if there is no disease of this color on the board
-                if(std::accumulate(new_board.get_disease_count()[Map::BLACK].begin(),new_board.get_disease_count()[Map::BLACK].begin(),0)==0){
+                if(new_board.disease_sum(Map::BLACK)==0){
                     new_board.Eradicate(Map::BLACK);
                 }
                 return;
@@ -780,7 +779,7 @@ void Actions::Cure::execute(Board::Board& new_board){
                 new_board.Cure(Map::RED);
                 new_board.get_turn_action()++;
                 // Update eradicated status if there is no disease of this color on the board
-                if(std::accumulate(new_board.get_disease_count()[Map::RED].begin(),new_board.get_disease_count()[Map::RED].begin(),0)==0){
+                if(new_board.disease_sum(Map::RED)==0){
                     new_board.Eradicate(Map::RED);
                 }
                 return;

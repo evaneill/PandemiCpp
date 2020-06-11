@@ -160,6 +160,32 @@ namespace Measurements
         GameMeasurement* construct_measure(Board::Board& active_board);
     };
 
+    // To track how many diseases were eradicated in the game, and when
+    class EradicatedDisease: public GameMeasurement{
+        int BlueEradicated = -1;
+        int YellowEradicated = -1;
+        int BlackEradicated = -1;
+        int RedEradicated = -1;
+
+        int steps=0;
+    public:
+        EradicatedDisease(Board::Board& _active_board);
+        ~EradicatedDisease(){};
+
+        std::vector<double> get_values();
+        void update();
+        void reset(Board::Board& game_board);
+    };
+
+    class EradicatedDiseaseConstructor: public MeasurementConstructor{
+    public:
+        EradicatedDiseaseConstructor();
+        ~EradicatedDiseaseConstructor(){};
+
+        std::vector<std::string> get_value_keys();
+        GameMeasurement* construct_measure(Board::Board& active_board);
+    };
+
     // To track how many epidemics are drawn in the game
     class EpidemicsDrawn: public GameMeasurement{
     public:

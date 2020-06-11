@@ -308,6 +308,56 @@ void Measurements::CuredDisease::reset(Board::Board& game_board){
     active_board = &game_board;
 }
 
+// ===== EradicatedDisease measurements ===== 
+Measurements::EradicatedDiseaseConstructor::EradicatedDiseaseConstructor(){
+    name="Eradicated Status";
+    description="Whether each disease is eradicated (<step at which it was eradicated>) or not (<-1>)";
+}
+
+Measurements::GameMeasurement* Measurements::EradicatedDiseaseConstructor::construct_measure(Board::Board& active_board){
+    return new Measurements::EradicatedDisease(active_board);
+}
+
+std::vector<std::string> Measurements::EradicatedDiseaseConstructor::get_value_keys(){
+    return {"BlueEradicated","YellowEradicated","BlackEradicated","RedEradicated"};
+}
+
+Measurements::EradicatedDisease::EradicatedDisease(Board::Board& _active_board){
+    active_board = &_active_board;
+}
+
+std::vector<double> Measurements::EradicatedDisease::get_values(){
+    return {
+        (double) BlueEradicated,
+        (double) YellowEradicated,
+        (double) BlackEradicated,
+        (double) RedEradicated
+    };
+}
+
+// Update according to any "new" cured diseases.
+void Measurements::EradicatedDisease::update(){
+    if(active_board -> is_eradicated(Map::BLUE) && BlueEradicated<0){BlueEradicated = steps;}
+    if(active_board -> is_eradicated(Map::YELLOW) && YellowEradicated<0){YellowEradicated = steps;}
+    if(active_board -> is_eradicated(Map::BLACK) && BlackEradicated<0){BlackEradicated = steps;}
+    if(active_board -> is_eradicated(Map::RED) && RedEradicated<0){RedEradicated = steps;}
+
+    steps++;
+};
+
+// Reset all of the tracking variables
+void Measurements::EradicatedDisease::reset(Board::Board& game_board){
+    BlueEradicated = -1;
+    YellowEradicated = -1;
+    BlackEradicated = -1;
+    RedEradicated = -1;
+
+    steps=0;
+
+    active_board = &game_board;
+}
+
+
 // ===== EpidemicsDrawn measurements ===== 
 Measurements::EpidemicsDrawnConstructor::EpidemicsDrawnConstructor(){
     name="Epidemics Drawn";
