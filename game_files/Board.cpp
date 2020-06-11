@@ -330,23 +330,57 @@ void Board::Board::update_medic_position(){
     for(Players::Player& p: players){
         // If any player is the medic
         if(p.role.medic){
-            for(int col=0;col<4;col++){
-                // and a disease is cured
-                if(cured[col]){
-                    // disease count of that color on their position should be 0
-                    disease_count[col][p.get_position().index]=0;
-                }
+            if(cured[Map::BLUE]){
+                // disease count of this color on their position should be 0
+                disease_count[Map::BLUE][p.get_position().index]=0;
+            }
+            if(cured[Map::YELLOW]){
+                // disease count of this color on their position should be 0
+                disease_count[Map::YELLOW][p.get_position().index]=0;
+            }
+            if(cured[Map::BLACK]){
+                // disease count of this color on their position should be 0
+                disease_count[Map::BLACK][p.get_position().index]=0;
+            }
+            if(cured[Map::RED]){
+                // disease count of this color on their position should be 0
+                disease_count[Map::RED][p.get_position().index]=0;
             }
         }
     }
 }
 
 void Board::Board::update_eradicated_status(){
-    for(int col=0;col<4;col++){
-        // If the disease has a total of 0 cubes on the board and is cured...
-        if(std::accumulate(disease_count[col].begin(),disease_count[col].end(),0)==0 && cured[col]){
+    // if cured...
+    if(cured[Map::BLUE]){
+        // and there's none left...
+        if(std::accumulate(disease_count[Map::BLUE].begin(),disease_count[Map::BLUE].end(),0)==0){
             // then it's eradicated!
-            eradicated[col]=true;
+            eradicated[Map::BLUE]=true;
+        }
+    }
+    // if cured...
+    if(cured[Map::YELLOW]){
+        // and there's none left...
+        if(std::accumulate(disease_count[Map::YELLOW].begin(),disease_count[Map::YELLOW].end(),0)==0){
+            // then it's eradicated!
+            eradicated[Map::YELLOW]=true;
+        }
+    }
+    // if cured...
+    if(cured[Map::BLACK]){
+        // and there's none left...
+        if(std::accumulate(disease_count[Map::BLACK].begin(),disease_count[Map::BLACK].end(),0)==0){
+            // then it's eradicated!
+            eradicated[Map::BLACK]=true;
+        }
+    }
+    // if cured...
+    if(cured[Map::RED]){
+        // and there's none left...
+        if(std::accumulate(disease_count[Map::RED].begin(),disease_count[Map::RED].end(),0)==0){
+            // then it's eradicated!
+            eradicated[Map::RED]=true;
         }
     }
 }
@@ -359,8 +393,8 @@ void Board::Board::updatestatus(){
     update_medic_position();
     update_eradicated_status();
 
-    if(std::accumulate(cured.begin(),cured.end(),0)==4){
-        // the only way to win is to have 4 cured diseases
+    if(cured[Map::BLUE] && cured[Map::YELLOW] && cured[Map::BLACK] && cured[Map::RED]){
+        // the only way to win is to have cured all four diseases
         won = true;
     }
     if(player_deck.isempty()){
@@ -499,15 +533,23 @@ int& Board::Board::get_turn(){
 }
 
 int Board::Board::disease_sum(int col){
-    int sum=0;
-    for(int city;city<Map::CITIES.size();city++){
-        sum+=disease_count[col][city];
-    }
-    return sum;
+    std::array<int,48>& arr = disease_count[col];
+    return std::accumulate(arr.begin(),arr.end(),0);
 }
 
 bool Board::Board::disease_count_safe(){
-    if(disease_sum(Map::BLUE)>24 || disease_sum(Map::YELLOW)>24 || disease_sum(Map::BLACK)>24 || disease_sum(Map::RED)>24){
+    // fail-fast rather than checking all conditions every time
+    // (very small optimization - only saves time at end of game)
+    if(disease_sum(Map::BLUE)>24){
+        return false;
+    }
+    if(disease_sum(Map::YELLOW)>24){
+        return false;
+    }
+    if(disease_sum(Map::BLACK)>24){
+        return false;
+    }
+    if(disease_sum(Map::RED)>24){
         return false;
     }
     return true;
