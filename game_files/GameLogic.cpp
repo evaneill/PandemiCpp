@@ -394,6 +394,10 @@ double GameLogic::Game::rollout(Board::Board* game_board,Heuristics::Heuristic h
 
 double GameLogic::Game::rollout(Board::Board& game_board,Heuristics::Heuristic heuristic){
     // I've made the executive decision to always use the random_action_bygroup() method!
+    // This is like the original game loop in `Experiment.cpp` BUT:
+    //      * NO SANITY CHECK
+    //      * NO MEASUREMENTS
+    //      (both of these changes allow for it to go a good deal faster)
     while(!is_terminal(game_board)){
         nonplayer_actions(game_board);
         if(!is_terminal(game_board)){
