@@ -76,12 +76,12 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
         if(p.hand.size()>1){
             for(int c=0;c<(p.hand.size()-1);c++){
                 for(int k=c+1;k<p.hand.size();k++){
-                    if(p.hand[c].index==p.hand[k].index){
+                    if(p.hand[c]==p.hand[k]){
                         if(verbose){
-                            DEBUG_MSG("[SANITYCHECK] ... player " << p.role.name << " has two of " << p.hand[c].name << "!" << std::endl);
+                            DEBUG_MSG("[SANITYCHECK] ... player " << p.role.name << " has two of " << Decks::CARD_NAME(p.hand[c]) << "!" << std::endl);
                         }
                         active_board.broken()=true;
-                        active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " has two of the same city card: " + p.hand[c].name + " (card " + std::to_string(c) + ") and "+ p.hand[k].name + "(card "+std::to_string(k) + ")" );
+                        active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " has two of the same city card: " + Decks::CARD_NAME(p.hand[c]) + " (card " + std::to_string(c) + ") and "+ Decks::CARD_NAME(p.hand[k]) + "(card "+std::to_string(k) + ")" );
                     }
                 }
             }
@@ -89,12 +89,12 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
         if(p.event_cards.size()>1){
             for(int c=0;c<(p.event_cards.size()-1);c++){
                 for(int k=c+1;k<p.event_cards.size();k++){
-                    if(p.event_cards[c].index==p.event_cards[k].index){
+                    if(p.event_cards[c]==p.event_cards[k]){
                         if(verbose){
-                            DEBUG_MSG("[SANITYCHECK] ... player " << p.role.name << " has two of " << p.event_cards[c].name << "!" << std::endl);
+                            DEBUG_MSG("[SANITYCHECK] ... player " << p.role.name << " has two of " << Decks::CARD_NAME(p.event_cards[c]) << "!" << std::endl);
                         }
                         active_board.broken()=true;
-                        active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " has two of the same event card: " + p.event_cards[c].name + " (event card " + std::to_string(c) + ") and "+ p.event_cards[k].name + "(event card "+std::to_string(k) + ")" );
+                        active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " has two of the same event card: " + Decks::CARD_NAME(p.event_cards[c]) + " (event card " + std::to_string(c) + ") and "+ Decks::CARD_NAME(p.event_cards[k]) + "(event card "+std::to_string(k) + ")" );
                     }
                 }
             }

@@ -182,18 +182,18 @@ namespace Board
         int& get_turn_action();
 
         // Player deck entrypoints
-        Decks::PlayerCard draw_playerdeck_inplace();
+        int draw_playerdeck_inplace();
         int& get_player_cards_drawn(); // Entry point for access to number of player cards drawn during player draw phase
-        void updatePlayerDeck(Decks::PlayerCard card); // update player deck to reflect a card having been drawn and used
+        void updatePlayerDeck(int card); // update player deck to reflect a card having been drawn and used
         int remaining_player_cards(); // Entry point for asking how many player cards are left in the deck
         bool epidemic_possible(); // Is it possible to draw an epidemic on the next player card?
         int get_epidemic_count();
 
         // Infect deck entrypoints
-        Decks::InfectCard draw_infectdeck_bottom_inplace();// return a card that might be drawn without removing it from deck
-        Decks::InfectCard draw_infectdeck_inplace();
+        int draw_infectdeck_bottom_inplace();// return a card that might be drawn without removing it from deck
+        int draw_infectdeck_inplace();
         void readd_infect_discard(); // Logic to re-add discard to top of infect deck
-        void updateInfectDeck(Decks::InfectCard card,bool bottom=false); // update infect deck to reflect a card having been drawn and used
+        void updateInfectDeck(int card,bool bottom=false); // update infect deck to reflect a card having been drawn and used
         int& get_infect_cards_drawn();
         int n_infect_cards(bool top=true); // number of infect cards in the group on top (true) or bottom (false) of infect deck
 

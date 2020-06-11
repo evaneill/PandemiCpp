@@ -20,7 +20,7 @@ Board::Board::Board(std::vector<int> roles, int _difficulty){
 
 void Board::Board::setup(bool verbose){
     if(!IS_SETUP){
-        int setup_cards;
+        int setup_cards=-1;
         switch(players.size()){
             case 2:
                 setup_cards=4;
@@ -41,13 +41,13 @@ void Board::Board::setup(bool verbose){
                 DEBUG_MSG(std::endl << "[SETUP] Drawing cards for " << p.role.name << " : ");
             }
             for(int c=0; c<setup_cards;c++){
-                Decks::PlayerCard drawn_card = player_deck.draw(true); // true used for setup (i.e. draw from all non-epidemic cards)
+                int drawn_card = player_deck.draw(true); // true used for setup (i.e. draw from all non-epidemic cards)
                 if(verbose){
-                    DEBUG_MSG(drawn_card.name << " (color: " << drawn_card.color << ", index: " << drawn_card.index << ", pop: " << drawn_card.population <<") \t");
+                    DEBUG_MSG(Decks::CARD_NAME(drawn_card) << " (color: " << Decks::CARD_COLOR(drawn_card) << ", index: " << drawn_card << ", pop: " << Decks::POPULATION(drawn_card) <<") \t");
                 }
-                if(!drawn_card.event){
-                    if(drawn_card.population>max_pop){
-                        max_pop = drawn_card.population;
+                if(!Decks::IS_EVENT(drawn_card)){
+                    if(Decks::POPULATION(drawn_card)>max_pop){
+                        max_pop = Decks::POPULATION(drawn_card);
                         first_player = player_idx;
                     }
                 }
@@ -55,11 +55,11 @@ void Board::Board::setup(bool verbose){
             }
             if(verbose){
                 DEBUG_MSG(std::endl << "[SETUP] " << p.role.name << " has cards: ");
-                for(Decks::PlayerCard& card: p.hand){
-                    DEBUG_MSG(card.name << "; ");
+                for(int& card: p.hand){
+                    DEBUG_MSG(Decks::CARD_NAME(card) << "; ");
                 }
-                for(Decks::PlayerCard& card: p.event_cards){
-                    DEBUG_MSG(card.name << "; ");
+                for(int& card: p.event_cards){
+                    DEBUG_MSG(Decks::CARD_NAME(card) << "; ");
                 }
                 DEBUG_MSG(std::endl);
             }
@@ -89,11 +89,11 @@ void Board::Board::setup(bool verbose){
             // for 3 times
             for(int _ = 0; _<3;_++){
                 // infect that city with infect_count # of cubes
-                Decks::InfectCard card_to_infect = infect_deck.draw();
+                int card_to_infect = infect_deck.draw();
                 if(verbose){
-                    DEBUG_MSG("[SETUP] infecting " << card_to_infect.name << " with " << infect_count << std::endl);
+                    DEBUG_MSG("[SETUP] infecting " << Decks::CARD_NAME(card_to_infect) << " with " << infect_count << std::endl);
                 }
-                std::array<int,2> junk = infect_city(card_to_infect.index,card_to_infect.color,infect_count); // ignore the output here
+                std::array<int,2> junk = infect_city(card_to_infect,Decks::CARD_COLOR(card_to_infect),infect_count); // ignore the output here
             }
         }
         if(verbose){
@@ -442,7 +442,7 @@ int& Board::Board::get_turn_action(){
     return turn_actions;
 }
 
-Decks::PlayerCard Board::Board::draw_playerdeck_inplace(){
+int Board::Board::draw_playerdeck_inplace(){
     return player_deck.draw_inplace();
 }
 
@@ -450,7 +450,7 @@ int& Board::Board::get_player_cards_drawn(){
     return player_cards_drawn;
 }
 
-void Board::Board::updatePlayerDeck(Decks::PlayerCard card){
+void Board::Board::updatePlayerDeck(int card){
     player_deck.update(card);
 }
 
@@ -462,15 +462,15 @@ int Board::Board::n_infect_cards(bool top){
     return infect_deck.top_group_size(top);
 }
 
-Decks::InfectCard Board::Board::draw_infectdeck_bottom_inplace(){
+int Board::Board::draw_infectdeck_bottom_inplace(){
     return infect_deck.draw_bottom_inplace();
 }
 
-Decks::InfectCard Board::Board::draw_infectdeck_inplace(){
+int Board::Board::draw_infectdeck_inplace(){
     return infect_deck.draw_inplace();
 }
 
-void Board::Board::updateInfectDeck(Decks::InfectCard card,bool bottom){
+void Board::Board::updateInfectDeck(int card,bool bottom){
     infect_deck.update(card,bottom);
 }
 

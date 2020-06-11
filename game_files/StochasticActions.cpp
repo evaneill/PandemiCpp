@@ -8,7 +8,7 @@
 #include "Players.h"
 
 // ===== DRAW FROM PLAYER DECK ACTION ===== (GAME LOGIC ONLY)
-StochasticActions::PlayerCardDrawAction::PlayerCardDrawAction(Decks::PlayerCard card):
+StochasticActions::PlayerCardDrawAction::PlayerCardDrawAction(int card):
     card_drawn(card)
     {
         movetype = "PLAYERDRAW";
@@ -20,15 +20,15 @@ void StochasticActions::PlayerCardDrawAction::execute(Board::Board& game_board){
 
     Players::Player& active_player = game_board.active_player();
 
-    if(!card_drawn.event){
+    if(!Decks::IS_EVENT(card_drawn) && !Decks::IS_EPIDEMIC(card_drawn)){
         // Insert the identical city card in their hand
-        active_player.UpdateHand(Decks::CityCard(card_drawn.index));
-    } else if(card_drawn.event){
+        active_player.UpdateHand(card_drawn);
+    } else if(Decks::IS_EVENT(card_drawn)){
         // Or insert the the event card
-        active_player.UpdateHand(Decks::EventCard(card_drawn.index));
+        active_player.UpdateHand(card_drawn);
     } else {
         game_board. broken() = true;
-        game_board. broken_reasons().push_back("[StochasticActions::PlayerCardDrawAction()] drew unidentifiable card (index: " + std::to_string(card_drawn.index) + ", name: " + card_drawn.name + ", color: " +std::to_string(card_drawn.color)+")");
+        game_board. broken_reasons().push_back("[StochasticActions::PlayerCardDrawAction()] drew unidentifiable card (index: " + std::to_string(card_drawn) + ", name: " + Decks::CARD_NAME(card_drawn) +  ", color: " +std::to_string(Decks::CARD_COLOR(card_drawn))+")");
     }
 
     // If one player card was already drawn before this, then we've just drawn the second and we increment the game state
@@ -42,7 +42,7 @@ void StochasticActions::PlayerCardDrawAction::execute(Board::Board& game_board){
 }
 
 std::string StochasticActions::PlayerCardDrawAction::repr(){
-    return movetype + " drew " + card_drawn.name;
+    return movetype + " drew " + Decks::CARD_NAME(card_drawn);
 }
 
 bool StochasticActions::PlayerCardDrawAction::legal(Board::Board& game_board){
@@ -63,9 +63,9 @@ bool StochasticActions::PlayerCardDrawAction::legal(Board::Board& game_board){
 
 
 // ===== EPIDEMIC ACTION ===== (GAME LOGIC ONLY)
-StochasticActions::EpidemicDrawAction::EpidemicDrawAction(Decks::PlayerCard _epidemic_card,Decks::InfectCard card):
+StochasticActions::EpidemicDrawAction::EpidemicDrawAction(int _epidemic_card,int _infect_card_drawn):
     epidemic_card(_epidemic_card),
-    card_drawn(card)
+    infect_card_drawn(_infect_card_drawn)
     {
         movetype = "PLAYERDRAW: EPIDEMIC";
     }
@@ -75,7 +75,7 @@ void StochasticActions::EpidemicDrawAction::execute(Board::Board& game_board){
     bool quarantine_adjacent = false;
 
     // update this infect deck to reflect this card having been drawn from the bottom and used
-    game_board.updateInfectDeck(card_drawn,true);
+    game_board.updateInfectDeck(infect_card_drawn,true);
 
     // update the player deck to reflect an epidemic having been drawn
     game_board.updatePlayerDeck(epidemic_card);
@@ -83,11 +83,11 @@ void StochasticActions::EpidemicDrawAction::execute(Board::Board& game_board){
     // Check for existence & adjacency of quarantine specialist
     for(Players::Player& p: game_board.get_players()){
         if(p.role.quarantinespecialist){
-            if(p.get_position().index==card_drawn.index){
+            if(p.get_position().index==infect_card_drawn){
                 quarantine_adjacent=true;
             }
             for(int n: p.get_position().neighbors){
-                if(card_drawn.index==n){
+                if(infect_card_drawn==n){
                     quarantine_adjacent=true;
                 }
             }
@@ -96,7 +96,7 @@ void StochasticActions::EpidemicDrawAction::execute(Board::Board& game_board){
     }
     // If there's either no player or there is but they're not adjacent, infect
     if(!quarantine_adjacent){
-        std::array<int,2> outbreak_status = game_board.infect(card_drawn.index,card_drawn.color,3);
+        std::array<int,2> outbreak_status = game_board.infect(infect_card_drawn,Decks::CARD_COLOR(infect_card_drawn),3);
 
         // Unlike with execute() want to make sure it's impossible to end up double-concatenating outbreak strings
         // Not sure if that could even happen but just in case.
@@ -118,7 +118,7 @@ void StochasticActions::EpidemicDrawAction::execute(Board::Board& game_board){
 }
 
 std::string StochasticActions::EpidemicDrawAction::repr(){
-    return movetype + " (drew " + card_drawn.name + " from bottom of infect deck)" + strrep;
+    return movetype + " (drew " + Decks::CARD_NAME(infect_card_drawn) + " from bottom of infect deck)" + strrep;
 }
 // =========================
 
@@ -145,9 +145,9 @@ int StochasticActions::PlayerDeckDrawActionConstructor::n_actions(Board::Board& 
 }
 
 Actions::Action* StochasticActions::PlayerDeckDrawActionConstructor::random_action(Board::Board& game_board){
-    Decks::PlayerCard card = game_board.draw_playerdeck_inplace();
-    if(card.epidemic){
-        Decks::InfectCard infected_city = game_board.draw_infectdeck_bottom_inplace();
+    int card = game_board.draw_playerdeck_inplace();
+    if(Decks::IS_EPIDEMIC(card)){
+        int infected_city = game_board.draw_infectdeck_bottom_inplace();
         return new EpidemicDrawAction(card,infected_city);
     } else {
         return new PlayerCardDrawAction(card);
@@ -177,7 +177,7 @@ bool StochasticActions::PlayerDeckDrawActionConstructor::legal(Board::Board& gam
 // =======================
 
 // ===== INFECT DECK DRAW ACTION ===== (GAME LOGIC ONLY)
-StochasticActions::InfectDeckDrawAction::InfectDeckDrawAction(Decks::InfectCard card): 
+StochasticActions::InfectDeckDrawAction::InfectDeckDrawAction(int card): 
     outbreak_track({0,0}),
     card_drawn(card){
         movetype = "INFECTDRAW";
@@ -191,17 +191,17 @@ void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
         game_board.updateInfectDeck(card_drawn);
 
         // If this color hasn't been eradicated...
-        if(!game_board.is_eradicated(card_drawn.color)){
+        if(!game_board.is_eradicated(Decks::CARD_COLOR(card_drawn))){
 
             // Check for existence & adjacency of quarantine specialist
             for(Players::Player& p: game_board.get_players()){
                 if(p.role.quarantinespecialist){
-                    if(p.get_position().index==card_drawn.index){
+                    if(p.get_position().index==card_drawn){
                         QuarantineSpecialistBlocked=true;
                         break;
                     }
                     for(int n: p.get_position().neighbors){
-                        if(card_drawn.index==n){
+                        if(card_drawn==n){
                             QuarantineSpecialistBlocked=true;
                         }
                     }
@@ -212,7 +212,7 @@ void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
             if(!QuarantineSpecialistBlocked){
                 // little bit questionable having outbreak_track incremented by an execution on a different board.
                 // Hypothetically shouldn't be an issue
-                outbreak_track = game_board.infect(card_drawn.index,card_drawn.color,1);
+                outbreak_track = game_board.infect(card_drawn,Decks::CARD_COLOR(card_drawn),1);
 
                 // check for losing status on number of outbreaks & disease cube counts
                 if(!game_board.outbreak_count_safe()){
@@ -275,9 +275,9 @@ void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
 std::string StochasticActions::InfectDeckDrawAction::repr(){
     // If there's either no player or there is but they're not adjacent, infect
     if(!QuarantineSpecialistBlocked){
-        return movetype+ " infected " + card_drawn.name + " (caused " + std::to_string(outbreak_track[0]) + " total outbreak(s) - "+std::to_string(outbreak_track[1])+" blocked)";
+        return movetype+ " infected " + Decks::CARD_NAME(card_drawn) + " (caused " + std::to_string(outbreak_track[0]) + " total outbreak(s) - "+std::to_string(outbreak_track[1])+" blocked)";
     } else {
-        return movetype + " blocked by quarantine specialist at " + card_drawn.name;
+        return movetype + " blocked by quarantine specialist";
     }
 }
 // =========================
@@ -296,7 +296,7 @@ int StochasticActions::InfectDeckDrawActionConstructor::n_actions(Board::Board& 
 }
 
 Actions::Action* StochasticActions::InfectDeckDrawActionConstructor::random_action(Board::Board& game_board){
-    Decks::InfectCard card = game_board.draw_infectdeck_inplace();
+    int card = game_board.draw_infectdeck_inplace();
     return new InfectDeckDrawAction(card);
 }
 

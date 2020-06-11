@@ -109,7 +109,7 @@ bool Actions::MoveConstructor::legal(Board::Board& game_board){
 
 // ===== DIRECTFLIGHT =====
 Actions::DirectFlight::DirectFlight( int city_idx): 
-    citycard(Decks::CityCard(city_idx)){
+    citycard_index(city_idx){
     movetype = "DIRECTFLIGHT";
 }
 
@@ -119,16 +119,16 @@ void Actions::DirectFlight::execute(Board::Board& new_board){
     active_player.reset_last_position(active_player.get_position().index);
 
     // Set position to city represented by card
-    active_player.set_position(Map::CITIES[citycard.index]);
+    active_player.set_position(Map::CITIES[citycard_index]);
 
     // Remove from player hand
-    active_player.removeCard(citycard);
+    active_player.removeCard(citycard_index);
 
     new_board.get_turn_action()++;
 }
 
 std::string Actions::DirectFlight::repr(){
-    return movetype+" to "+citycard.name;
+    return movetype+" to "+Decks::CARD_NAME(citycard_index);
 }
 
 Actions::DirectFlightConstructor::DirectFlightConstructor(){}
@@ -142,8 +142,8 @@ int Actions::DirectFlightConstructor::n_actions(Board::Board& game_board){
         Players::Player& active_player = game_board.active_player();
 
         int n_actions=0;
-        for(Decks::PlayerCard& card: active_player.hand){
-            if(!isneighbor(card.index,active_player.get_position().index) && card.index!=active_player.get_position().index && card.index!=active_player.get_last_position()){
+        for(int& card: active_player.hand){
+            if(!isneighbor(card,active_player.get_position().index) && card!=active_player.get_position().index && card!=active_player.get_last_position()){
                 n_actions++;
             }
         }
@@ -158,11 +158,11 @@ Actions::Action* Actions::DirectFlightConstructor::random_action(Board::Board& g
     std::vector<int> neighbors = active_player.get_position().neighbors;
     int chosen_card = rand() % active_player.hand.size();
 
-    while(isneighbor(active_player.hand[chosen_card].index,active_player.get_position().index) || active_player.hand[chosen_card].index==active_player.get_position().index || active_player.hand[chosen_card].index==active_player.get_last_position()){
+    while(isneighbor(active_player.hand[chosen_card],active_player.get_position().index) || active_player.hand[chosen_card]==active_player.get_position().index || active_player.hand[chosen_card]==active_player.get_last_position()){
         // make sure it's not a neighbor, current position, or last position
         chosen_card = rand() % active_player.hand.size();
     }
-    return new Actions::DirectFlight(active_player.hand[chosen_card].index);
+    return new Actions::DirectFlight(active_player.hand[chosen_card]);
 }
 
 std::vector<Actions::Action*> Actions::DirectFlightConstructor::all_actions(Board::Board& game_board){
@@ -170,9 +170,9 @@ std::vector<Actions::Action*> Actions::DirectFlightConstructor::all_actions(Boar
 
     Players::Player& active_player = game_board.active_player();
 
-    for(Decks::PlayerCard& card: active_player.hand){
-        if(!isneighbor(card.index,active_player.get_position().index) && card.index!=active_player.get_position().index && card.index!=active_player.get_last_position()){
-            full_list.push_back(new Actions::DirectFlight(card.index));
+    for(int card: active_player.hand){
+        if(!isneighbor(card,active_player.get_position().index) && card!=active_player.get_position().index && card!=active_player.get_last_position()){
+            full_list.push_back(new Actions::DirectFlight(card));
         }
     }
     return full_list;
@@ -183,10 +183,10 @@ bool Actions::DirectFlightConstructor::legal(Board::Board& game_board){
     if(game_board.get_turn_action()<4){
         Players::Player& active_player = game_board.active_player();
 
-        for(Decks::PlayerCard& card: active_player.hand){
-            if(!isneighbor(card.index,active_player.get_position().index) 
-                && card.index!=active_player.get_position().index 
-                && card.index!=active_player.get_last_position()){
+        for(int& card: active_player.hand){
+            if(!isneighbor(card,active_player.get_position().index) 
+                && card!=active_player.get_position().index 
+                && card!=active_player.get_last_position()){
                 return true;
             }
         }
@@ -197,11 +197,7 @@ bool Actions::DirectFlightConstructor::legal(Board::Board& game_board){
 
 // ===== CHARTERFLIGHT =====
 Actions::CharterFlight::CharterFlight( int _target_city): 
-    target_city(Map::CITIES[_target_city]){
-    movetype = "CHARTERFLIGHT";
-}
-
-Actions::CharterFlight::CharterFlight(Map::City& _target_city):  target_city(_target_city){
+    target_city(_target_city){
     movetype = "CHARTERFLIGHT";
 }
 
@@ -212,7 +208,7 @@ void Actions::CharterFlight::execute(Board::Board& new_board){
     active_player.reset_last_position(active_player.get_position().index);
 
     // Remove from player hand
-    active_player.removeCard(Decks::CityCard(active_player.get_position()));
+    active_player.removeCard(active_player.get_position().index);
 
     // Set position to city represented by card
     active_player.set_position(target_city);
@@ -221,7 +217,7 @@ void Actions::CharterFlight::execute(Board::Board& new_board){
 }
 
 std::string Actions::CharterFlight::repr(){
-    return movetype+" to "+target_city.name;
+    return movetype+" to "+Decks::CARD_NAME(target_city);
 }
 
 Actions::CharterFlightConstructor::CharterFlightConstructor(){}
@@ -262,7 +258,7 @@ std::vector<Actions::Action*> Actions::CharterFlightConstructor::all_actions(Boa
     Players::Player& active_player = game_board.active_player();
     for(int n;n<Map::CITIES.size();n++){
         if(!isneighbor(n,active_player.get_position().index) && n!=active_player.get_position().index && n!=active_player.get_last_position()){
-            full_list.push_back(new Actions::CharterFlight(Map::CITIES[n]));
+            full_list.push_back(new Actions::CharterFlight(n));
         }
     }
     return full_list;
@@ -271,8 +267,8 @@ std::vector<Actions::Action*> Actions::CharterFlightConstructor::all_actions(Boa
 bool Actions::CharterFlightConstructor::legal(Board::Board& game_board){
     Players::Player& active_player = game_board.active_player();
     // If it's the player turn phase and they have the card that matches the city they're in, return true
-    for(Decks::PlayerCard& c: active_player.hand){
-        if(c.index==active_player.get_position().index){
+    for(int& c: active_player.hand){
+        if(c==active_player.get_position().index){
             return true;
         }
     }
@@ -283,11 +279,7 @@ bool Actions::CharterFlightConstructor::legal(Board::Board& game_board){
 
 // ===== SHUTTLEFLIGHT =====
 Actions::ShuttleFlight::ShuttleFlight( int _target_station): 
-    target_station(Map::CITIES[_target_station]){
-    movetype = "SHUTTLEFLIGHT";
-}
-
-Actions::ShuttleFlight::ShuttleFlight(Map::City& _target_station):  target_station(_target_station){
+    target_station_city_idx(_target_station){
     movetype = "SHUTTLEFLIGHT";
 }
 
@@ -297,13 +289,13 @@ void Actions::ShuttleFlight::execute(Board::Board& new_board){
     active_player.reset_last_position(active_player.get_position().index);
 
     // Set position to city represented by target_station
-    active_player.set_position(target_station);
+    active_player.set_position(target_station_city_idx);
 
     new_board.get_turn_action()++;
 }
 
 std::string Actions::ShuttleFlight::repr(){
-    return movetype+" to "+target_station.name;
+    return movetype+" to "+Map::CITIES[target_station_city_idx].name;
 }
 
 Actions::ShuttleFlightConstructor::ShuttleFlightConstructor(){}
@@ -333,7 +325,7 @@ Actions::Action* Actions::ShuttleFlightConstructor::random_action(Board::Board& 
         // Keep randomizing until you find a station that isn't your present or last location
         random_position = rand() % game_board.get_stations().size(); 
     }
-    return new Actions::ShuttleFlight(*(game_board.get_stations()[random_position]));
+    return new Actions::ShuttleFlight(game_board.get_stations()[random_position] -> index);
 }
 
 std::vector<Actions::Action*> Actions::ShuttleFlightConstructor::all_actions(Board::Board& game_board){
@@ -342,7 +334,7 @@ std::vector<Actions::Action*> Actions::ShuttleFlightConstructor::all_actions(Boa
 
     for(Map::City* st: stations){
         if((*st).index!=game_board.active_player().get_position().index && (*st).index!=game_board.active_player().get_last_position()){
-            full_list.push_back(new Actions::ShuttleFlight(*st));
+            full_list.push_back(new Actions::ShuttleFlight(st -> index));
         } 
     }
     return full_list;
@@ -372,23 +364,9 @@ bool Actions::ShuttleFlightConstructor::legal(Board::Board& game_board){
 // ========================
 
 // ===== OPERATIONSEXPERTFLIGHT =====
-Actions::OperationsExpertFlight::OperationsExpertFlight( int _target_city,Decks::CityCard _discard): 
-    target_city(Map::CITIES[_target_city]),
-    discard_card(_discard)
-    {
-    movetype = "OPERATIONSEXPERTFLIGHT";
-}
-
-Actions::OperationsExpertFlight::OperationsExpertFlight( int _target_city,int _discard_city_idx): 
-    target_city(Map::CITIES[_target_city]),
-    discard_card(Decks::CityCard(_discard_city_idx))
-    {
-    movetype = "OPERATIONSEXPERTFLIGHT";
-}
-
-Actions::OperationsExpertFlight::OperationsExpertFlight(Map::City& _target_city,Decks::CityCard _discard): 
+Actions::OperationsExpertFlight::OperationsExpertFlight( int _target_city,int _discard_card_idx): 
     target_city(_target_city),
-    discard_card(_discard) 
+    discard_card_card_idx(_discard_card_idx)
     {
     movetype = "OPERATIONSEXPERTFLIGHT";
 }
@@ -401,7 +379,7 @@ void Actions::OperationsExpertFlight::execute(Board::Board& new_board){
     active_player.used_OperationsExpertFlight=true;
 
     // Remove discard_card from hand
-    active_player.removeCard(discard_card);
+    active_player.removeCard(discard_card_card_idx);
 
     // Set position to city represented by target_station
     active_player.set_position(target_city);
@@ -410,7 +388,7 @@ void Actions::OperationsExpertFlight::execute(Board::Board& new_board){
 }
 
 std::string Actions::OperationsExpertFlight::repr(){
-    return movetype+" to "+target_city.name+" (discard "+discard_card.name+")";
+    return movetype+" to "+Decks::CARD_NAME(target_city)+" (discard "+Decks::CARD_NAME(discard_card_card_idx)+")";
 }
 
 Actions::OperationsExpertFlightConstructor::OperationsExpertFlightConstructor(){}
@@ -449,18 +427,18 @@ Actions::Action* Actions::OperationsExpertFlightConstructor::random_action(Board
     // Randomly discarded city card
     int random_discard = rand() % game_board.active_player().hand.size();
 
-    return new Actions::OperationsExpertFlight(random_position,Decks::CityCard(game_board.active_player().hand[random_discard].index));
+    return new Actions::OperationsExpertFlight(random_position,game_board.active_player().hand[random_discard]);
 }
 
 std::vector<Actions::Action*> Actions::OperationsExpertFlightConstructor::all_actions(Board::Board& game_board){
     std::vector<Actions::Action*> full_list;
-    std::vector<Decks::PlayerCard>& hand = game_board.active_player().hand;
+    std::vector<int> hand = game_board.active_player().hand;
     Players::Player& active_player = game_board.active_player();
 
     for(int n;n<Map::CITIES.size();n++){
         if(!isneighbor(n,active_player.get_position().index) && n!=active_player.get_position().index && n!=active_player.get_last_position()){
             for(int c=0; c<hand.size();c++){
-                full_list.push_back(new Actions::OperationsExpertFlight(n,hand[c].index));
+                full_list.push_back(new Actions::OperationsExpertFlight(n,hand[c]));
             } 
         }
     }
@@ -515,7 +493,7 @@ void Actions::Build::execute(Board::Board& new_board){
 
     //Check whether active player is Operations Expert. If not, discard necessary card.
     if(!active_player.role.operationsexpert){
-        active_player.removeCard(Decks::CityCard(place_station));
+        active_player.removeCard(place_station);
     }
 
     new_board.get_turn_action()++;
@@ -594,9 +572,9 @@ bool Actions::BuildConstructor::legal(Board::Board& game_board){
                 return true;
             }
         } else{
-            for(Decks::PlayerCard& c : active_player.hand){
+            for(int& c : active_player.hand){
                 // Then if they have a card representing the city they're in...
-                if(c.index==active_player.get_position().index){
+                if(c==active_player.get_position().index){
                     bool already_station = false;
                     // If no station is already on this city..
                     for(Map::City* st: game_board.get_stations()){
@@ -865,17 +843,9 @@ bool Actions::CureConstructor::legal(Board::Board& game_board){
 // ========================
 
 // ===== GIVE =====
-Actions::Give::Give(Players::Player _other_player, Decks::CityCard _card_to_give):
+Actions::Give::Give(Players::Player _other_player, int _card_to_give_cityidx):
     other_player(_other_player),
-    card_to_give(_card_to_give)
-    {
-    movetype = "GIVE";
-}
-
-Actions::Give::Give( Players::Player _other_player, int _card_to_give_cityidx):
-    
-    other_player(_other_player),
-    card_to_give(Decks::CityCard(_card_to_give_cityidx))
+    card_to_give_city_idx(_card_to_give_cityidx)
     {
     movetype = "GIVE";
 }
@@ -886,18 +856,18 @@ void Actions::Give::execute(Board::Board& new_board){
     // Player has "done something" -> now it doesn't matter what the last position was
     active_player.reset_last_position();
 
-    active_player.removeCard(card_to_give);
+    active_player.removeCard(card_to_give_city_idx);
 
     for(Players::Player& p: new_board.get_players()){
         if(p.role.name==other_player.role.name){
-            p.UpdateHand(card_to_give);
+            p.UpdateHand(card_to_give_city_idx);
         }
     }
     new_board.get_turn_action()++;
 }
 
 std::string Actions::Give::repr(){
-    return movetype + " " + card_to_give.name + " to " + other_player.role.name;
+    return movetype + " " + Decks::CARD_NAME(card_to_give_city_idx) + " to " + other_player.role.name;
 }
 
 Actions::GiveConstructor::GiveConstructor(){}
@@ -930,13 +900,13 @@ int Actions::GiveConstructor::n_actions(Board::Board& game_board){
 
 Actions::Action* Actions::GiveConstructor::random_action(Board::Board& game_board){
     Players::Player& active_player = game_board.active_player();
-    Decks::CityCard card_to_give = NULL;
+    int card_to_give = -1;
 
     // First randomize the card that active_player will give based on their role
     if(active_player.role.researcher){
-        card_to_give = Decks::CityCard(active_player.hand[rand() % active_player.hand.size()].index);
+        card_to_give = active_player.hand[rand() % active_player.hand.size()];
     } else {
-        card_to_give = Decks::CityCard(active_player.get_position());
+        card_to_give = active_player.get_position().index;
     }
 
     // Check how many other players are here.
@@ -952,12 +922,12 @@ Actions::Action* Actions::GiveConstructor::random_action(Board::Board& game_boar
     int which_player = rand() % n_other_players_here; // 0 ... (# of other players in city - 1)
     // Incremented value to track which of the other players on this city we're considering
     int track=0;
-    for(Players::Player& _other_player: game_board.get_players()){
+    for(Players::Player _other_player: game_board.get_players()){
         // If the other player is here and isn't the active_player...
         if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
             // If track== the random value generated, return an action!
             if(track==which_player){
-                return new Actions::Give(_other_player,card_to_give.index);
+                return new Actions::Give(_other_player,card_to_give);
             }
             // Otherwise increment up track; it's a different player we want at this city.
             track++;
@@ -970,19 +940,22 @@ Actions::Action* Actions::GiveConstructor::random_action(Board::Board& game_boar
 std::vector<Actions::Action*> Actions::GiveConstructor::all_actions(Board::Board& game_board){
     std::vector<Actions::Action*> full_list;
     Players::Player& active_player = game_board.active_player();
-    std::vector<Decks::PlayerCard> cards_to_give = {};
+    std::vector<int> cards_to_give = {};
 
     if(active_player.role.researcher){
         cards_to_give = active_player.hand;
     } else {
-        cards_to_give = {Decks::CityCard(active_player.get_position())};
+        cards_to_give = {active_player.get_position().index};
     }
 
     for(int p=0;p<game_board.get_players().size();p++){
+        // for each other player 
         Players::Player& _other_player = game_board.get_players()[p];
         if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
+            // if they're at this location
             for(int c=0;c<cards_to_give.size();c++){
-                full_list.push_back(new Actions::Give(_other_player,cards_to_give[c].index));
+                // then we *could* give them a card
+                full_list.push_back(new Actions::Give(_other_player,cards_to_give[c]));
             }
         }
     }
@@ -1002,8 +975,8 @@ bool Actions::GiveConstructor::legal(Board::Board& game_board){
                     if(active_player.role.researcher){
                         return true;
                     } else {
-                        for(Decks::PlayerCard& card: active_player.hand){
-                            if(card.index==active_player.get_position().index){
+                        for(int& card: active_player.hand){
+                            if(card==active_player.get_position().index){
                                 return true;
                             }
                         }
@@ -1017,17 +990,9 @@ bool Actions::GiveConstructor::legal(Board::Board& game_board){
 // ========================
 
 // ===== TAKE =====
-Actions::Take::Take( Players::Player _other_player, Decks::CityCard _card_to_take):
+Actions::Take::Take( Players::Player _other_player, int _card_to_take):
     other_player(_other_player),
-    card_to_take(_card_to_take)
-    {
-    movetype = "TAKE";
-}
-
-Actions::Take::Take( Players::Player _other_player, int _card_to_take_city_idx):
-    
-    other_player(_other_player),
-    card_to_take(Decks::CityCard(_card_to_take_city_idx))
+    card_to_take_city_idx(_card_to_take)
     {
     movetype = "TAKE";
 }
@@ -1040,16 +1005,16 @@ void Actions::Take::execute(Board::Board& new_board){
 
     for(Players::Player& p: new_board.get_players()){
         if(p.role.name==other_player.role.name){
-            p.removeCard(card_to_take);
+            p.removeCard(card_to_take_city_idx);
         }
     }
 
-    active_player.UpdateHand(card_to_take);
+    active_player.UpdateHand(card_to_take_city_idx);
     new_board.get_turn_action()++;
 }
 
 std::string Actions::Take::repr(){
-    return movetype + " " + card_to_take.name + " from " + other_player.role.name;
+    return movetype + " " + Decks::CARD_NAME(card_to_take_city_idx) + " from " + other_player.role.name;
 }
 
 Actions::TakeConstructor::TakeConstructor(){}
@@ -1074,8 +1039,8 @@ int Actions::TakeConstructor::n_actions(Board::Board& game_board){
                     n_actions+=_other_player.hand.size();
                 } else {
                     // We just add 1 if they have a card we could take (the city we're in)
-                    for(Decks::PlayerCard& c: _other_player.hand){
-                        if(c.index==active_player.get_position().index){
+                    for(int& c: _other_player.hand){
+                        if(c==active_player.get_position().index){
                             n_actions+=1;
                         }
                     }
@@ -1101,17 +1066,17 @@ Actions::Action* Actions::TakeConstructor::random_action(Board::Board& game_boar
 std::vector<Actions::Action*> Actions::TakeConstructor::all_actions(Board::Board& game_board){
     std::vector<Actions::Action*> full_list;
     Players::Player& active_player = game_board.active_player();
-    std::vector<Decks::PlayerCard> cards_to_take = {};
+    std::vector<int> cards_to_take = {};
 
-    for(Players::Player& _other_player : game_board.get_players()){
+    for(Players::Player _other_player : game_board.get_players()){
         // If the other player is at active_players position
         if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
             // Then check through each card...
-            for(Decks::PlayerCard card: _other_player.hand){
+            for(int card: _other_player.hand){
                 // And if they're a researcher or the card index is the same as active_players position
-                if(card.index==active_player.get_position().index || _other_player.role.researcher){
+                if(card==active_player.get_position().index || _other_player.role.researcher){
                     // Then add it to the list
-                    full_list.push_back(new Actions::Take(_other_player,card.index));
+                    full_list.push_back(new Actions::Take(_other_player,card));
                 }
             }
         }
@@ -1130,8 +1095,8 @@ bool Actions::TakeConstructor::legal(Board::Board& game_board){
                         return true;
                     }
                 } else {
-                    for(Decks::PlayerCard& card: _other_player.hand){
-                        if(card.index==active_player.get_position().index){
+                    for(int& card: _other_player.hand){
+                        if(card==active_player.get_position().index){
                             // Then you're in the same city as another player and they have the card of this city
                             return true;
                         }
@@ -1163,7 +1128,7 @@ void Actions::Airlift::execute(Board::Board& new_board){
         }
         // If they're the using player, remove the card from their hand
         if(p.role.name==using_player.role.name){
-            p.removeCard(Decks::EventCard(50));
+            p.removeCard(50);
         }
     }
 }
@@ -1197,12 +1162,13 @@ int Actions::AirliftConstructor::n_actions(Board::Board& game_board){
 }
 
 Actions::Action* Actions::AirliftConstructor::random_action(Board::Board& game_board){
+    // copy a player that will be targeted
     Players::Player _target_player = game_board.get_players()[rand() % game_board.get_players().size()];
     // Use dumb loop to find the player that's using this action.
     for(Players::Player _using_player: game_board.get_players()){
         // Look for Airlift in the player's event_cards
-        for(int e=0;e<_using_player.event_cards.size();e++){
-            if(_using_player.event_cards[e].name=="Airlift" && _using_player.event_cards[e].index==50){
+        for(int e: _using_player.event_cards){
+            if(Decks::CARD_NAME(e)=="Airlift" && e==50){
                 int random_city = rand() % Map::CITIES.size();
                 while(random_city==_target_player.get_position().index || isneighbor(random_city,_target_player.get_position().index) || random_city==_target_player.get_last_position()){
                     random_city = rand() % Map::CITIES.size();
@@ -1219,9 +1185,9 @@ std::vector<Actions::Action*> Actions::AirliftConstructor::all_actions(Board::Bo
     std::vector<Actions::Action*> full_list;
     for(Players::Player _using_player : game_board.get_players()){
         // Look for Airlift in the player's event_cards
-        for(int e=0;e<_using_player.event_cards.size();e++){
+        for(int e: _using_player.event_cards){
             // If we found the airlift-holder...
-            if(_using_player.event_cards[e].name=="Airlift" && _using_player.event_cards[e].index==50){
+            if(Decks::CARD_NAME(e)=="Airlift" && e==50){
                 // Then for every possible target player...
                 for(Players::Player _target_player : game_board.get_players()){
                     for(int city=0;city<Map::CITIES.size();city++){
@@ -1242,8 +1208,8 @@ std::vector<Actions::Action*> Actions::AirliftConstructor::all_actions(Board::Bo
 bool Actions::AirliftConstructor::legal(Board::Board& game_board){
     // The legality guard is always true when the card is held by a player. 
     for(Players::Player& pl : game_board.get_players()){
-        for(Decks::PlayerCard& e : pl.event_cards){
-            if(e.name=="Airlift" && e.index==50){
+        for(int& e : pl.event_cards){
+            if(Decks::CARD_NAME(e)=="Airlift" && e==50){
                 return true;
             }
         }
@@ -1264,7 +1230,7 @@ Actions::GovernmentGrant::GovernmentGrant( Players::Player _using_player, int _t
 void Actions::GovernmentGrant::execute(Board::Board& new_board){
     for(Players::Player& p: new_board.get_players()){
         if(p.role.name==using_player.role.name){
-            p.removeCard(Decks::EventCard(49));
+            p.removeCard(49);
         }
     }
     
@@ -1323,8 +1289,8 @@ Actions::Action* Actions::GovernmentGrantConstructor::random_action(Board::Board
     // at this point target_city is guaranteed to not have an existing station.
 
     for(Players::Player this_player : game_board.get_players()){
-        for(int e=0;e<this_player.event_cards.size();e++){
-            if(this_player.event_cards[e].index==49  && this_player.event_cards[e].name=="Government Grant"){
+        for(int e : this_player.event_cards){
+            if(e==49 && Decks::CARD_NAME(e)=="Government Grant"){
                 if(game_board.get_stations().size()>=6){
                     // remove a station at random using its city index
                     return new Actions::GovernmentGrant(this_player,target_city,game_board.get_stations()[rand() % game_board.get_stations().size()] -> index);
@@ -1345,8 +1311,8 @@ std::vector<Actions::Action*> Actions::GovernmentGrantConstructor::all_actions(B
     std::vector<Actions::Action*> full_list;
     for(Players::Player _using_player: game_board.get_players()){
         // Find the using player by looking through event cards
-        for(int e=0;e<_using_player.event_cards.size();e++){
-            if(_using_player.event_cards[e].index==49 && _using_player.event_cards[e].name=="Government Grant"){ // Index of government grant
+        for(int e : _using_player.event_cards){
+            if(e==49 && Decks::CARD_NAME(e)=="Government Grant"){ // Index of government grant
                 if(game_board.get_stations().size()>=6){
                     for(int city=0;city<Map::CITIES.size();city++){
                         bool already_exists = false;
@@ -1384,8 +1350,8 @@ std::vector<Actions::Action*> Actions::GovernmentGrantConstructor::all_actions(B
 
 bool Actions::GovernmentGrantConstructor::legal(Board::Board& game_board){
     for(Players::Player& pl : game_board.get_players()){
-        for(Decks::PlayerCard& e : pl.event_cards){
-            if(e.name=="Government Grant" && e.index==49){
+        for(int& e : pl.event_cards){
+            if(Decks::CARD_NAME(e)=="Government Grant" && e==49){
                 return true;
             }
         }
@@ -1404,7 +1370,7 @@ Actions::QuietNight::QuietNight( Players::Player _using_player):
 void Actions::QuietNight::execute(Board::Board& new_board){
     for(Players::Player& p: new_board.get_players()){
         if(p.role.name==using_player.role.name){
-            p.removeCard(Decks::EventCard(48));
+            p.removeCard(48);
         }
     }
     new_board.quiet_night_status() = true;
@@ -1430,8 +1396,8 @@ int Actions::QuietNightConstructor::n_actions(Board::Board& game_board){
 
 Actions::Action* Actions::QuietNightConstructor::random_action(Board::Board& game_board){
     for(Players::Player this_player: game_board.get_players()){
-        for(int e=0;e<this_player.event_cards.size();e++){
-            if(this_player.event_cards[e].index==48 && this_player.event_cards[e].name=="Quiet Night"){
+        for(int e : this_player.event_cards){
+            if(e==48 && Decks::CARD_NAME(e)=="Quiet Night"){
                 return new Actions::QuietNight(this_player);
             }
         }
@@ -1446,8 +1412,8 @@ std::vector<Actions::Action*> Actions::QuietNightConstructor::all_actions(Board:
     // Find the player that owns the card and return the action with them as the user
     for(int p=0;p<game_board.get_players().size();p++){
         Players::Player this_player = game_board.get_players()[p];
-        for(int e=0;e<this_player.event_cards.size();e++){
-            if(this_player.event_cards[e].index==48 && this_player.event_cards[e].name=="Quiet Night"){
+        for(int e : this_player.event_cards){
+            if(e==48 && Decks::CARD_NAME(e)=="Quiet Night"){
                 full_list.push_back(new Actions::QuietNight(this_player));
                 return full_list;
             }
@@ -1461,8 +1427,8 @@ bool Actions::QuietNightConstructor::legal(Board::Board& game_board){
     // Only bar using this ON the infect step
     if(game_board.get_turn_action()!=5){
         for(Players::Player& pl : game_board.get_players()){
-            for(Decks::PlayerCard& e : pl.event_cards){
-                if(e.name=="Quiet Night" && e.index==48){
+            for(int& e : pl.event_cards){
+                if(Decks::CARD_NAME(e)=="Quiet Night" && e==48){
                     return true;
                 }
             }
@@ -1523,20 +1489,20 @@ bool Actions::DoNothingConstructor::legal(Board::Board& game_board){
 
 // ===== FORCED DISCARD =====
 // Can return an action to discard a city card, or use an event card!
-Actions::ForcedDiscardAction::ForcedDiscardAction( Players::Player _player_to_discard,Decks::PlayerCard _discard_card):
-    discard_card(_discard_card),
+Actions::ForcedDiscardAction::ForcedDiscardAction( Players::Player _player_to_discard,int _discard_card_index):
+    discard_card_index(_discard_card_index),
     player_to_discard(_player_to_discard){
         movetype = "FORCEDDISCARD";
 }
 
 std::string Actions::ForcedDiscardAction::repr(){
-    return movetype+" " + player_to_discard.role.name + " discarded " + discard_card.name;
+    return movetype+" " + player_to_discard.role.name + " discarded " + Decks::CARD_NAME(discard_card_index);
 }
 
 void Actions::ForcedDiscardAction::execute(Board::Board& new_board){
     for(Players::Player& p : new_board.get_players()){
         if(p.role.name==player_to_discard.role.name){
-            p.removeCard(discard_card);
+            p.removeCard(discard_card_index);
         }
     }
 }
@@ -1553,8 +1519,8 @@ int Actions::ForcedDiscardConstructor::n_actions(Board::Board& game_board){
     for(Players::Player& p: game_board.get_players()){
         if(p.hand_full()){
             int total_actions = p.hand.size(); // initialize with # of city cards
-            for(Decks::PlayerCard& e: p.event_cards){
-                switch(e.index){
+            for(int& e: p.event_cards){
+                switch(e){
                     case 48:
                         total_actions+=Actions::QuietNightConstructor().n_actions(game_board);
                         break;
@@ -1566,7 +1532,7 @@ int Actions::ForcedDiscardConstructor::n_actions(Board::Board& game_board){
                         break;
                     default:
                         game_board.broken()=true;
-                        game_board.broken_reasons().push_back("[ForcedDiscardConstructor::n_actions()] Card index ("+std::to_string(e.index)+") isn't an event card");
+                        game_board.broken_reasons().push_back("[ForcedDiscardConstructor::n_actions()] Card index ("+std::to_string(e)+") isn't an event card");
                         break;
                 }
             }
@@ -1593,11 +1559,11 @@ Actions::Action* Actions::ForcedDiscardConstructor::random_action(Board::Board& 
             } else {
                 // Otherwise the random card chosen is one of the event cards.
                 // In this case use existing constructors to choose a random action to return.
-                if(p.event_cards[card_to_discard_or_use - p.hand.size()].index==48){
+                if(p.event_cards[card_to_discard_or_use - p.hand.size()]==48 && Decks::CARD_NAME(p.event_cards[card_to_discard_or_use - p.hand.size()])=="Quiet Night"){
                     return new Actions::QuietNight(p); // Return an action to use quiet night
-                } else if(p.event_cards[card_to_discard_or_use - p.hand.size()].index==49){
+                } else if(p.event_cards[card_to_discard_or_use - p.hand.size()]==49 && Decks::CARD_NAME(p.event_cards[card_to_discard_or_use - p.hand.size()])=="Government Grant"){
                     return GovernmentGrantConstructor().random_action(game_board);
-                } else if(p.event_cards[card_to_discard_or_use - p.hand.size()].index==50){
+                } else if(p.event_cards[card_to_discard_or_use - p.hand.size()]==50 && Decks::CARD_NAME(p.event_cards[card_to_discard_or_use - p.hand.size()])=="Airlift"){
                     return AirliftConstructor().random_action(game_board);
                 }
             }
@@ -1612,19 +1578,19 @@ std::vector<Actions::Action*> Actions::ForcedDiscardConstructor::all_actions(Boa
     // First fill the list with the discardable city cards
     for(Players::Player p: game_board.get_players()){
         if(p.hand_full()){
-            for(Decks::PlayerCard c: p.hand){
+            for(int c: p.hand){
                 full_list.push_back(new Actions::ForcedDiscardAction(p,c));
             }
-            for(Decks::PlayerCard e: p.event_cards){
-                if(e.index==48 && e.name=="Quiet Night"){
+            for(int e: p.event_cards){
+                if(e==48 && Decks::CARD_NAME(e)=="Quiet Night"){
                     std::vector<Actions::Action*> qn_actions = Actions::QuietNightConstructor().all_actions(game_board);
                     full_list.insert(full_list.end(),qn_actions.begin(),qn_actions.end());
-                } else if(e.index==49 && e.name=="Government Grant"){
+                } else if(e==49 && Decks::CARD_NAME(e)=="Government Grant"){
                     // this is potentially hella wasteful - copying the ~100 ish actions onto a very small vector rather than the other way around
                     // but should only happen once per game so maybe w/e
                     std::vector<Actions::Action*> gg_actions = Actions::GovernmentGrantConstructor().all_actions(game_board);
                     full_list.insert(full_list.end(),gg_actions.begin(),gg_actions.end());
-                } else if(e.index==50 && e.name=="Airlift"){
+                } else if(e==50 && Decks::CARD_NAME(e)=="Airlift"){
                     std::vector<Actions::Action*> al_actions = Actions::AirliftConstructor().all_actions(game_board);
                     full_list.insert(full_list.end(),al_actions.begin(),al_actions.end());
                 }   

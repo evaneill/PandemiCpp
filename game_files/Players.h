@@ -45,14 +45,14 @@ namespace Players
         Player(const Player& other){
 
             position = other.position;
-            
+
             hand.clear();
-            for(Decks::PlayerCard c: other.hand){
+            for(int c: other.hand){
                 hand.push_back(c);
             }
 
             event_cards.clear();
-            for(Decks::PlayerCard e: other.event_cards){
+            for(int e: other.event_cards){
                 event_cards.push_back(e);
             }
 
@@ -62,17 +62,11 @@ namespace Players
 
         Role role;
 
-        std::vector<Decks::PlayerCard> hand;// non-event cards
-        std::vector<Decks::PlayerCard> event_cards; // event cards
+        std::vector<int> hand;// non-event cards
+        std::vector<int> event_cards; // event cards
 
-        // Update the non-event-card hand with a CityCard
-        void UpdateHand(Decks::CityCard drawn_card);
-        
-        // Update the event-card hand with an EventCard
-        void UpdateHand(Decks::EventCard drawn_card);
-
-        // Update with either
-        void UpdateHand(Decks::PlayerCard drawn_card);
+        // Update the non-event-card hand with a card denoted by index
+        void UpdateHand(int drawn_card);
 
         // Set the position to a new city
         void set_position(Map::City& new_city);
@@ -84,7 +78,7 @@ namespace Players
         int handsize();
 
         // get rid of the event or city card matching the one in the argument by logical ==
-        void removeCard(Decks::PlayerCard card);
+        void removeCard(int card);
         // Get rid of the last required_cure_cards cards of color col in player hand (called during Cure::execute())
         void removeCureCardColor(int col);
         // Check number of each color of card they have

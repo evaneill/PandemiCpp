@@ -43,16 +43,16 @@ void Scenarios::ForcedDiscardScenario::reset_board(Board::Board* game_board,bool
 
     // Insert a lot of airlift cards in the hand of the first player
     // Compiler LOVES to skip this if I loop it
-    game_board -> active_player().UpdateHand(Decks::PlayerCard(50));
-    game_board -> active_player().UpdateHand(Decks::PlayerCard(50));
-    game_board -> active_player().UpdateHand(Decks::PlayerCard(50));
-    game_board -> active_player().UpdateHand(Decks::PlayerCard(50));
-    game_board -> active_player().UpdateHand(Decks::PlayerCard(50));
-    game_board -> active_player().UpdateHand(Decks::PlayerCard(50));
-    game_board -> active_player().UpdateHand(Decks::PlayerCard(50));
+    game_board -> active_player().UpdateHand(50);
+    game_board -> active_player().UpdateHand(50);
+    game_board -> active_player().UpdateHand(50);
+    game_board -> active_player().UpdateHand(50);
+    game_board -> active_player().UpdateHand(50);
+    game_board -> active_player().UpdateHand(50);
+    game_board -> active_player().UpdateHand(50);
 
-    for(Decks::PlayerCard& card: game_board -> active_player().event_cards){
-        DEBUG_MSG(std::endl << "[Scenarios::ForcedDiscardScenario()] "<< game_board -> active_player().role.name << " has event card: " << card.name);
+    for(int& card: game_board -> active_player().event_cards){
+        DEBUG_MSG(std::endl << "[Scenarios::ForcedDiscardScenario()] "<< game_board -> active_player().role.name << " has event card: " << Decks::CARD_NAME(card));
     }
 }
 
@@ -96,16 +96,16 @@ void Scenarios::BusyBoardScenario::reset_board(Board::Board* game_board,bool ver
         game_board -> get_players()[p].set_position(Map::CITIES[(random_city+p )% Map::CITIES.size()]);
 
         // Give them a card of the city they're in
-        game_board -> get_players()[p].UpdateHand(Decks::PlayerCard((random_city+p )% Map::CITIES.size()));
+        game_board -> get_players()[p].UpdateHand((random_city+p )% Map::CITIES.size());
         // And a card for each neighboring city
         for(int neighbor: Map::CITIES[(random_city+p) % Map::CITIES.size()].neighbors){
             // and give them a card for each neighboring city - hopefully they try to build?
-            game_board -> get_players()[p].UpdateHand(Decks::PlayerCard(neighbor));
+            game_board -> get_players()[p].UpdateHand(neighbor);
         }
         if(verbose){
             DEBUG_MSG("[Scenarios::BusyBoardTest()] " << game_board -> get_players()[p].role.name << " has cards: " );
-            for(Decks::PlayerCard& card: game_board ->get_players()[p].hand){
-                DEBUG_MSG("[Scenarios::BusyBoardTest()] ... " << card.name << std::endl);
+            for(int& card: game_board ->get_players()[p].hand){
+                DEBUG_MSG("[Scenarios::BusyBoardTest()] ... " << Decks::CARD_NAME(card) << std::endl);
             }
         }
     }
@@ -202,38 +202,38 @@ void Scenarios::CanWinScenario::reset_board(Board::Board* game_board,bool verbos
 
     // Give each player 7 cards of a distinct color
     // blue card player
-    game_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(7));
-    game_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(8));
-    game_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(6));
-    game_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(9));
-    game_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(10));
-    game_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(11));
-    game_board -> get_players()[Map::BLUE].UpdateHand(Decks::PlayerCard(12));
+    game_board -> get_players()[Map::BLUE].UpdateHand(7);
+    game_board -> get_players()[Map::BLUE].UpdateHand(8);
+    game_board -> get_players()[Map::BLUE].UpdateHand(6);
+    game_board -> get_players()[Map::BLUE].UpdateHand(9);
+    game_board -> get_players()[Map::BLUE].UpdateHand(10);
+    game_board -> get_players()[Map::BLUE].UpdateHand(11);
+    game_board -> get_players()[Map::BLUE].UpdateHand(12);
 
     // yellow card player
-    game_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(7+12));
-    game_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(8+12));
-    game_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(9+12));
-    game_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(10+12));
-    game_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(11+12));
-    game_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(6+12));
-    game_board -> get_players()[Map::YELLOW].UpdateHand(Decks::PlayerCard(12+12));
+    game_board -> get_players()[Map::YELLOW].UpdateHand(7+12);
+    game_board -> get_players()[Map::YELLOW].UpdateHand(8+12);
+    game_board -> get_players()[Map::YELLOW].UpdateHand(9+12);
+    game_board -> get_players()[Map::YELLOW].UpdateHand(10+12);
+    game_board -> get_players()[Map::YELLOW].UpdateHand(11+12);
+    game_board -> get_players()[Map::YELLOW].UpdateHand(6+12);
+    game_board -> get_players()[Map::YELLOW].UpdateHand(12+12);
 
     // black card player
-    game_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(6+24));
-    game_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(7+24));
-    game_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(8+24));
-    game_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(9+24));
-    game_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(10+24));
-    game_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(11+24));
-    game_board -> get_players()[Map::BLACK].UpdateHand(Decks::PlayerCard(12+24));
+    game_board -> get_players()[Map::BLACK].UpdateHand(6+24);
+    game_board -> get_players()[Map::BLACK].UpdateHand(7+24);
+    game_board -> get_players()[Map::BLACK].UpdateHand(8+24);
+    game_board -> get_players()[Map::BLACK].UpdateHand(9+24);
+    game_board -> get_players()[Map::BLACK].UpdateHand(10+24);
+    game_board -> get_players()[Map::BLACK].UpdateHand(11+24);
+    game_board -> get_players()[Map::BLACK].UpdateHand(12+24);
 
     // red card player
-    game_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(6+36));
-    game_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(7+36));
-    game_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(8+36));
-    game_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(9+36));
-    game_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(10+36));
-    game_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(11+36));
-    game_board -> get_players()[Map::RED].UpdateHand(Decks::PlayerCard(12+36));
+    game_board -> get_players()[Map::RED].UpdateHand(6+36);
+    game_board -> get_players()[Map::RED].UpdateHand(7+36);
+    game_board -> get_players()[Map::RED].UpdateHand(8+36);
+    game_board -> get_players()[Map::RED].UpdateHand(9+36);
+    game_board -> get_players()[Map::RED].UpdateHand(10+36);
+    game_board -> get_players()[Map::RED].UpdateHand(11+36);
+    game_board -> get_players()[Map::RED].UpdateHand(12+36);
 }

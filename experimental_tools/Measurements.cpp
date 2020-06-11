@@ -193,8 +193,8 @@ void Measurements::EventCardUse::update(){
     bool airlift_found=false;
 
     for(Players::Player& p: active_board -> get_players()){
-        for(Decks::PlayerCard& card: p.event_cards){
-            switch(card.index){
+        for(int& card: p.event_cards){
+            switch(card){
                 case 48:
                     quiet_night_found=true;
                     if(firstQuietNightPresence==-1){

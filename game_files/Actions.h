@@ -74,10 +74,9 @@ namespace Actions
 
     // ===== DirectFlight ===== 
     class DirectFlight: public Action{
-        Decks::PlayerCard citycard; // card to discard
+        int citycard_index; // card to discard
     public:
-        DirectFlight( int hand_idx); // instantiate with index in hand (useful for randomization)
-        DirectFlight( Decks::CityCard _citycard);
+        DirectFlight(int city_index); // instantiate with index in hand (useful for randomization)
         ~DirectFlight(){};
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
@@ -85,10 +84,9 @@ namespace Actions
 
     // ===== CharterFlight =====
     class CharterFlight: public Action{
-        Map::City& target_city;
+        int target_city;
     public:
         CharterFlight( int _target_city);
-        CharterFlight( Map::City& _target_city);
         ~CharterFlight(){};
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
@@ -96,10 +94,9 @@ namespace Actions
 
     // ===== ShuttleFlight =====
     class ShuttleFlight: public Action{
-        Map::City& target_station;
+        int target_station_city_idx;
     public:
         ShuttleFlight( int _target_station);
-        ShuttleFlight( Map::City& _target_station);
         ~ShuttleFlight(){};
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
@@ -108,11 +105,9 @@ namespace Actions
     // ===== OperationsExpertFlight =====
     // (Like shuttle flight, but to ANY city)
     class OperationsExpertFlight: public Action{
-        Map::City& target_city;
-        Decks::CityCard discard_card;
+        int target_city;
+        int discard_card_card_idx;
     public:
-        OperationsExpertFlight( int _target_city,Decks::CityCard _discard);
-        OperationsExpertFlight( Map::City& _target_city,Decks::CityCard _discard);
         OperationsExpertFlight( int _target_city,int _discard_city_idx);
         ~OperationsExpertFlight(){};
         void execute(Board::Board& new_board); // To execute on a given board
@@ -157,9 +152,8 @@ namespace Actions
     // ===== Give ===== 
     class Give: public Action{
         Players::Player other_player;
-        Decks::CityCard card_to_give;
+        int card_to_give_city_idx;
     public:
-        Give( Players::Player _other_player, Decks::CityCard _card_to_give);
         Give( Players::Player _other_player, int _card_to_give_cityidx);
         ~Give(){};
         void execute(Board::Board& new_board); // To execute on a given board
@@ -169,9 +163,8 @@ namespace Actions
     // ===== Take ===== 
     class Take: public Action{
         Players::Player other_player;
-        Decks::CityCard card_to_take;
+        int card_to_take_city_idx;
     public:
-        Take( Players::Player _other_player, Decks::CityCard _card_to_take);
         Take( Players::Player _other_player, int _card_to_take_city_idx);
         ~Take(){};
         void execute(Board::Board& new_board); // To execute on a given board
@@ -214,10 +207,10 @@ namespace Actions
 
     // ===== Forced Discard Action 
     class ForcedDiscardAction: public Actions::Action{
-    Decks::PlayerCard discard_card;
+    int discard_card_index;
     Players::Player player_to_discard;
     public:
-        ForcedDiscardAction( Players::Player player_to_discard,Decks::PlayerCard _discard_card);
+        ForcedDiscardAction( Players::Player player_to_discard,int _discard_card_index);
         ~ForcedDiscardAction(){};
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr();
