@@ -22,10 +22,11 @@ void Play(std::vector<int> roles, int difficulty){
     DEBUG_MSG("done!" << std::endl << "About to create the game...");
     // Use vanilla scenario to setup the board
     Scenarios::Scenario* vanilla_scenario = new Scenarios::VanillaGameScenario();
-    Board::Board vanilla_board = vanilla_scenario -> make_board(roles,difficulty,true);
+    Board::Board*  vanilla_board = vanilla_scenario -> make_board(roles,difficulty,true);
 
     // Give the game to the GameLogic
-    GameLogic::Game the_game = GameLogic::Game(vanilla_board);
+    GameLogic::Game the_game = GameLogic::Game();
+    the_game.reset_board(vanilla_board);
     DEBUG_MSG("done!" << std::endl << "About to create an agent...");
 
     // // Instantiate an agent pointer with abstract BaseClass
