@@ -120,10 +120,10 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(Board::Board& game_b
     if(verbose){
         Players::Player& active_player = game_board.active_player();
         DEBUG_MSG("[Game::get_random_action_uniform()] "<< active_player.role.name << " is in " << active_player.get_position().name <<  " and has hand: ");
-        for(Decks::PlayerCard card: active_player.hand){
+        for(Decks::PlayerCard& card: active_player.hand){
             DEBUG_MSG(card.name << "; ");
         }
-        for(Decks::PlayerCard card: active_player.event_cards){
+        for(Decks::PlayerCard& card: active_player.event_cards){
             DEBUG_MSG(card.name << "; ");
         }
         DEBUG_MSG(" (color count BLUE: "<<game_board.active_player().get_color_count()[Map::BLUE]<< ", YELLOW: " << game_board.active_player().get_color_count()[Map::YELLOW] << ", BLACK: " << game_board.active_player().get_color_count()[Map::BLACK] << ", RED: " << game_board.active_player().get_color_count()[Map::RED] << ")");
@@ -216,10 +216,10 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(Board::Board& game_b
     
     if(verbose){
         DEBUG_MSG("[Game::get_random_action_bygroup()] " << game_board.active_player().role.name << " is in " << game_board.active_player().get_position().name <<  " and has hand: ");
-        for(Decks::PlayerCard card: game_board.active_player().hand){
+        for(Decks::PlayerCard& card: game_board.active_player().hand){
             DEBUG_MSG(card.name << "; ");
         }
-        for(Decks::PlayerCard card: game_board.active_player().event_cards){
+        for(Decks::PlayerCard& card: game_board.active_player().event_cards){
             DEBUG_MSG(card.name << "; ");
         }
         DEBUG_MSG(" (color count BLUE: "<<game_board.active_player().get_color_count()[Map::BLUE]<< ", YELLOW: " << game_board.active_player().get_color_count()[Map::YELLOW] << ", BLACK: " << game_board.active_player().get_color_count()[Map::BLACK] << ", RED: " << game_board.active_player().get_color_count()[Map::RED] << ")");
@@ -294,12 +294,12 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(Board::Board& game_b
     std::vector<Actions::Action*> full_out;
 
     if(verbose){
-        Players::Player active_player = game_board.active_player();
+        Players::Player& active_player = game_board.active_player();
         DEBUG_MSG("[Game::list_actions()] "<< active_player.role.name << " is in " << active_player.get_position().name <<  " and has hand: ");
-        for(Decks::PlayerCard card: active_player.hand){
+        for(Decks::PlayerCard& card: active_player.hand){
             DEBUG_MSG(card.name << "; ");
         }
-        for(Decks::PlayerCard card: active_player.event_cards){
+        for(Decks::PlayerCard& card: active_player.event_cards){
             DEBUG_MSG(card.name << "; ");
         }
         DEBUG_MSG(std::endl);

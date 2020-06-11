@@ -86,8 +86,8 @@ void Scenarios::BusyBoardScenario::reset_board(Board::Board* game_board,bool ver
 
     if(verbose){
         DEBUG_MSG(std::endl << "[Scenarios::BusyBoardTest()] This board has research stations at: ");
-        for(Map::City& st: game_board -> get_stations()){
-            DEBUG_MSG(st.name << ", ");
+        for(Map::City* st: game_board -> get_stations()){
+            DEBUG_MSG((*st).name << ", ");
         }
         DEBUG_MSG(std::endl);
     }

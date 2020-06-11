@@ -82,7 +82,7 @@ void StochasticActions::EpidemicDrawAction::execute(Board::Board& game_board){
 
     // Check for existence & adjacency of quarantine specialist
     for(Players::Player& p: game_board.get_players()){
-        if(p.role.name=="Quarantine Specialist"){
+        if(p.role.quarantinespecialist){
             if(p.get_position().index==card_drawn.index){
                 quarantine_adjacent=true;
             }
@@ -195,7 +195,7 @@ void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
 
             // Check for existence & adjacency of quarantine specialist
             for(Players::Player& p: game_board.get_players()){
-                if(typeid(p.role)==typeid(Players::QuarantineSpecialist)){
+                if(p.role.quarantinespecialist){
                     if(p.get_position().index==card_drawn.index){
                         QuarantineSpecialistBlocked=true;
                         break;

@@ -18,14 +18,20 @@ namespace Players
         ~Role(){};
         std::string name;
         int required_cure_cards;// 5 for all but scientist (4)
+
+        bool quarantinespecialist= false;
+        bool medic= false;
+        bool scientist= false;
+        bool researcher= false;
+        bool operationsexpert= false;
     };
 
     class Player{
     protected:
         int hand_limit = 7;
 
-        // Map::City position of player.
-        Map::City position; 
+        // Map::City position of player (by reference)
+        Map::City* position; 
 
         int last_position=-1; // Track last position to reduce search
     public:
@@ -37,8 +43,9 @@ namespace Players
         // reset for a new game (keep role but empty hand and put in atlanta, just like in constructor)
         void reset(); 
         Player(const Player& other){
-            position = other.position;
 
+            position = other.position;
+            
             hand.clear();
             for(Decks::PlayerCard c: other.hand){
                 hand.push_back(c);
@@ -68,7 +75,7 @@ namespace Players
         void UpdateHand(Decks::PlayerCard drawn_card);
 
         // Set the position to a new city
-        void set_position(Map::City new_city);
+        void set_position(Map::City& new_city);
         void set_position(int new_city); // new_city index
         void reset_last_position(int old_position=-1); // Change last_position tracker to old_position (by default remove tracking status)
 

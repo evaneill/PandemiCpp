@@ -34,7 +34,7 @@ bool isneighbor(int city_idx1, int city_idx2){
 // ========================
 
 // ===== MOVE =====
-Actions::Move::Move( Map::City _to): to(_to){
+Actions::Move::Move(Map::City& _to): to(_to){
     movetype = "MOVE";
 }
 
@@ -201,7 +201,7 @@ Actions::CharterFlight::CharterFlight( int _target_city):
     movetype = "CHARTERFLIGHT";
 }
 
-Actions::CharterFlight::CharterFlight( Map::City _target_city):  target_city(_target_city){
+Actions::CharterFlight::CharterFlight(Map::City& _target_city):  target_city(_target_city){
     movetype = "CHARTERFLIGHT";
 }
 
@@ -287,7 +287,7 @@ Actions::ShuttleFlight::ShuttleFlight( int _target_station):
     movetype = "SHUTTLEFLIGHT";
 }
 
-Actions::ShuttleFlight::ShuttleFlight( Map::City _target_station):  target_station(_target_station){
+Actions::ShuttleFlight::ShuttleFlight(Map::City& _target_station):  target_station(_target_station){
     movetype = "SHUTTLEFLIGHT";
 }
 
@@ -315,8 +315,8 @@ std::string Actions::ShuttleFlightConstructor::get_movetype(){
 int Actions::ShuttleFlightConstructor::n_actions(Board::Board& game_board){
     if(legal(game_board)){
         int n_actions=0;
-        for(Map::City& st: game_board.get_stations()){
-            if(st.index!=game_board.active_player().get_position().index && st.index!=game_board.active_player().get_last_position()){
+        for(Map::City* st: game_board.get_stations()){
+            if((*st).index!=game_board.active_player().get_position().index && (*st).index!=game_board.active_player().get_last_position()){
                 n_actions++;
             }
         }
@@ -329,20 +329,20 @@ int Actions::ShuttleFlightConstructor::n_actions(Board::Board& game_board){
 Actions::Action* Actions::ShuttleFlightConstructor::random_action(Board::Board& game_board){
     int position  = game_board.active_player().get_position().index;
     int random_position = rand() % game_board.get_stations().size();
-    while(game_board.get_stations()[random_position].index==position || game_board.get_stations()[random_position].index==game_board.active_player().get_last_position()){
+    while(game_board.get_stations()[random_position] -> index==position || game_board.get_stations()[random_position] -> index==game_board.active_player().get_last_position()){
         // Keep randomizing until you find a station that isn't your present or last location
         random_position = rand() % game_board.get_stations().size(); 
     }
-    return new Actions::ShuttleFlight(game_board.get_stations()[random_position]);
+    return new Actions::ShuttleFlight(*(game_board.get_stations()[random_position]));
 }
 
 std::vector<Actions::Action*> Actions::ShuttleFlightConstructor::all_actions(Board::Board& game_board){
     std::vector<Actions::Action*> full_list;
-    std::vector<Map::City> stations = game_board.get_stations();
+    std::vector<Map::City*>& stations = game_board.get_stations();
 
-    for(Map::City& st: stations){
-        if(st.index!=game_board.active_player().get_position().index && st.index!=game_board.active_player().get_last_position()){
-            full_list.push_back(new Actions::ShuttleFlight(st));
+    for(Map::City* st: stations){
+        if((*st).index!=game_board.active_player().get_position().index && (*st).index!=game_board.active_player().get_last_position()){
+            full_list.push_back(new Actions::ShuttleFlight(*st));
         } 
     }
     return full_list;
@@ -354,12 +354,12 @@ bool Actions::ShuttleFlightConstructor::legal(Board::Board& game_board){
     if(game_board.get_turn_action()<4){
         // and there's at least 2 stations
         if(game_board.get_stations().size()>1){
-            for(Map::City st: game_board.get_stations()){
+            for(Map::City* st: game_board.get_stations()){
                 // and the player is at a station
-                if(st.index==active_player.get_position().index){
-                    for(Map::City& other_st : game_board.get_stations()){
+                if((*st).index==active_player.get_position().index){
+                    for(Map::City* other_st : game_board.get_stations()){
                         // and at least one of the other stations isn't their previous position...
-                        if(other_st.index!=active_player.get_last_position() && other_st.index!=st.index){
+                        if((*other_st).index!=active_player.get_last_position() && (*other_st).index!=(*st).index){
                             return true;
                         }
                     }
@@ -386,7 +386,7 @@ Actions::OperationsExpertFlight::OperationsExpertFlight( int _target_city,int _d
     movetype = "OPERATIONSEXPERTFLIGHT";
 }
 
-Actions::OperationsExpertFlight::OperationsExpertFlight( Map::City _target_city,Decks::CityCard _discard): 
+Actions::OperationsExpertFlight::OperationsExpertFlight(Map::City& _target_city,Decks::CityCard _discard): 
     target_city(_target_city),
     discard_card(_discard) 
     {
@@ -470,12 +470,12 @@ std::vector<Actions::Action*> Actions::OperationsExpertFlightConstructor::all_ac
 bool Actions::OperationsExpertFlightConstructor::legal(Board::Board& game_board){
     Players::Player& active_player = game_board.active_player();
     // If active player is the operations expert
-    if(active_player.role.name=="Operations Expert"){
+    if(active_player.role.operationsexpert){
         // and it's still players turn to do stuff
         if(game_board.get_turn_action()<4){
-            for(Map::City& st: game_board.get_stations()){
+            for(Map::City* st: game_board.get_stations()){
                 // And they're at the position of a station
-                if(st.index==active_player.get_position().index){
+                if((*st).index==active_player.get_position().index){
                     // And they have at least one card to discard
                     if(active_player.hand.size()>0){
                         return true;
@@ -514,7 +514,7 @@ void Actions::Build::execute(Board::Board& new_board){
     new_board.AddStation(Map::CITIES[place_station]);
 
     //Check whether active player is Operations Expert. If not, discard necessary card.
-    if(active_player.role.name!="Operations Expert"){
+    if(!active_player.role.operationsexpert){
         active_player.removeCard(Decks::CityCard(place_station));
     }
 
@@ -561,16 +561,16 @@ Actions::Action* Actions::BuildConstructor::random_action(Board::Board& game_boa
 
 std::vector<Actions::Action*> Actions::BuildConstructor::all_actions(Board::Board& game_board){
     std::vector<Actions::Action*> full_list;
-    std::vector<Map::City> stations = game_board.get_stations();
+    std::vector<Map::City*>& stations = game_board.get_stations();
 
     Players::Player& active_player = game_board.active_player();
 
     if(stations.size()>=6){
         // Should never be >6 but just in case...
-        for(int st=0;st<stations.size();st++){
+        for(Map::City* st : game_board.get_stations()){
             // If this station isn't at your current location (shouldn't be possible when guarded by legal())
-            if(stations[st].index!=active_player.get_position().index){
-                full_list.push_back(new Actions::Build(active_player.get_position().index,st));
+            if((st -> index)!=active_player.get_position().index){
+                full_list.push_back(new Actions::Build(active_player.get_position().index,st -> index));
             } 
         }
     } else {
@@ -582,10 +582,10 @@ std::vector<Actions::Action*> Actions::BuildConstructor::all_actions(Board::Boar
 bool Actions::BuildConstructor::legal(Board::Board& game_board){
     Players::Player& active_player = game_board.active_player();
     if(game_board.get_turn_action()<4){
-        if(active_player.role.name=="Operations Expert"){
+        if(active_player.role.operationsexpert){
             bool already_station = false;
-            for(Map::City& st: game_board.get_stations()){
-                if(st.index==active_player.get_position().index){
+            for(Map::City* st: game_board.get_stations()){
+                if((*st).index==active_player.get_position().index){
                     already_station=true;
                     break;
                 }
@@ -599,8 +599,8 @@ bool Actions::BuildConstructor::legal(Board::Board& game_board){
                 if(c.index==active_player.get_position().index){
                     bool already_station = false;
                     // If no station is already on this city..
-                    for(Map::City& st: game_board.get_stations()){
-                        if(st.index==active_player.get_position().index){
+                    for(Map::City* st: game_board.get_stations()){
+                        if((*st).index==active_player.get_position().index){
                             already_station=true;
                             break;
                         }
@@ -629,7 +629,7 @@ void Actions::Treat::execute(Board::Board& new_board){
     // Player has "done something" -> now it doesn't matter what the last position was
     active_player.reset_last_position();
     
-    if(active_player.role.name=="Medic" || new_board.is_cured(color)){
+    if(active_player.role.medic || new_board.is_cured(color)){
         n_treated = new_board.get_disease_count()[color][active_player.get_position().index];
         new_board.get_disease_count()[color][active_player.get_position().index]=0;
     } else {
@@ -757,8 +757,8 @@ void Actions::Cure::execute(Board::Board& new_board){
     // Player has "done something" -> now it doesn't matter what the last position was
     active_player.reset_last_position();
 
-    for(Map::City st: new_board.get_stations()){
-        if(st.index==active_player.get_position().index){
+    for(Map::City* st: new_board.get_stations()){
+        if((*st).index==active_player.get_position().index){
             std::array<int,4> color_count = active_player.get_color_count();
 
             if(color_count[Map::BLUE]>=active_player.role.required_cure_cards && !new_board.is_cured(Map::BLUE)){
@@ -851,9 +851,9 @@ bool Actions::CureConstructor::legal(Board::Board& game_board){
             (color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !game_board.is_cured(Map::YELLOW)) ||
             (color_count[Map::BLACK]>=active_player.role.required_cure_cards && !game_board.is_cured(Map::BLACK)) ||
             (color_count[Map::RED]>=active_player.role.required_cure_cards && !game_board.is_cured(Map::RED))){
-            for(Map::City& st: game_board.get_stations()){
+            for(Map::City* st: game_board.get_stations()){
                 // And they're at a research station...
-                if(st.index==active_player.get_position().index){
+                if((*st).index==active_player.get_position().index){
                     // Then they can cure
                     return true;
                 }
@@ -890,8 +890,6 @@ void Actions::Give::execute(Board::Board& new_board){
 
     for(Players::Player& p: new_board.get_players()){
         if(p.role.name==other_player.role.name){
-            // other_player is a reference to the player on the active board, 
-            // but we want to trade cards between players on the same board, and not open up interdimensional portals between game timelines
             p.UpdateHand(card_to_give);
         }
     }
@@ -920,7 +918,7 @@ int Actions::GiveConstructor::n_actions(Board::Board& game_board){
                 n_other_players_here++;
             }
         }
-        if(active_player.role.name=="Researcher"){
+        if(active_player.role.researcher){
             return active_player.hand.size()*n_other_players_here;
         } else {
             return n_other_players_here;
@@ -935,7 +933,7 @@ Actions::Action* Actions::GiveConstructor::random_action(Board::Board& game_boar
     Decks::CityCard card_to_give = NULL;
 
     // First randomize the card that active_player will give based on their role
-    if(active_player.role.name=="Researcher"){
+    if(active_player.role.researcher){
         card_to_give = Decks::CityCard(active_player.hand[rand() % active_player.hand.size()].index);
     } else {
         card_to_give = Decks::CityCard(active_player.get_position());
@@ -974,7 +972,7 @@ std::vector<Actions::Action*> Actions::GiveConstructor::all_actions(Board::Board
     Players::Player& active_player = game_board.active_player();
     std::vector<Decks::PlayerCard> cards_to_give = {};
 
-    if(active_player.role.name=="Researcher"){
+    if(active_player.role.researcher){
         cards_to_give = active_player.hand;
     } else {
         cards_to_give = {Decks::CityCard(active_player.get_position())};
@@ -1001,7 +999,7 @@ bool Actions::GiveConstructor::legal(Board::Board& game_board){
             if(p.get_position().index==active_player.get_position().index && active_player.role.name!=p.role.name){
                 if(active_player.hand.size()>0){
                     // And the active player has cards
-                    if(active_player.role.name=="Researcher"){
+                    if(active_player.role.researcher){
                         return true;
                     } else {
                         for(Decks::PlayerCard& card: active_player.hand){
@@ -1042,7 +1040,6 @@ void Actions::Take::execute(Board::Board& new_board){
 
     for(Players::Player& p: new_board.get_players()){
         if(p.role.name==other_player.role.name){
-            // Like with GIVE, need to remove a card from the hand of the player on THIS board, not the active_board.
             p.removeCard(card_to_take);
         }
     }
@@ -1068,12 +1065,11 @@ int Actions::TakeConstructor::n_actions(Board::Board& game_board){
         // Have to check each same-city player and add based on researcher status and active_player hand fullness
         int n_actions = 0; 
         // For every player, check whether they're in the same position as active_player but aren't active_player
-        for(int p=0;p<game_board.get_players().size();p++){
-            Players::Player& _other_player = game_board.get_players()[p];
+        for(Players::Player& _other_player : game_board.get_players()){
             // If they're in the same city...
             if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
                 // and it's the researcher...
-                if(_other_player.role.name=="Researcher"){
+                if(_other_player.role.researcher){
                     // then we could take any of their cards
                     n_actions+=_other_player.hand.size();
                 } else {
@@ -1113,7 +1109,7 @@ std::vector<Actions::Action*> Actions::TakeConstructor::all_actions(Board::Board
             // Then check through each card...
             for(Decks::PlayerCard card: _other_player.hand){
                 // And if they're a researcher or the card index is the same as active_players position
-                if(card.index==active_player.get_position().index || _other_player.role.name=="Researcher"){
+                if(card.index==active_player.get_position().index || _other_player.role.researcher){
                     // Then add it to the list
                     full_list.push_back(new Actions::Take(_other_player,card.index));
                 }
@@ -1129,7 +1125,7 @@ bool Actions::TakeConstructor::legal(Board::Board& game_board){
         for(Players::Player& _other_player: game_board.get_players()){
 
             if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
-                if(_other_player.role.name=="Researcher"){
+                if(_other_player.role.researcher){
                     if(_other_player.hand.size()>0){
                         return true;
                     }
@@ -1315,8 +1311,8 @@ Actions::Action* Actions::GovernmentGrantConstructor::random_action(Board::Board
     // Loop until 4 sure target_city isn't already occupied by a research station
     while(already_station){
         already_station = false; 
-        for(Map::City& st: game_board.get_stations()){
-            if(st.index==target_city){
+        for(Map::City* st: game_board.get_stations()){
+            if((*st).index==target_city){
                 target_city = Map::CITIES[rand() % Map::CITIES.size()].index;
                 already_station=true;
                 break;
@@ -1331,7 +1327,7 @@ Actions::Action* Actions::GovernmentGrantConstructor::random_action(Board::Board
             if(this_player.event_cards[e].index==49  && this_player.event_cards[e].name=="Government Grant"){
                 if(game_board.get_stations().size()>=6){
                     // remove a station at random using its city index
-                    return new Actions::GovernmentGrant(this_player,target_city,game_board.get_stations()[rand() % game_board.get_stations().size()].index);
+                    return new Actions::GovernmentGrant(this_player,target_city,game_board.get_stations()[rand() % game_board.get_stations().size()] -> index);
                 }else{
                     return new Actions::GovernmentGrant(this_player,target_city);
                 }  
@@ -1354,23 +1350,23 @@ std::vector<Actions::Action*> Actions::GovernmentGrantConstructor::all_actions(B
                 if(game_board.get_stations().size()>=6){
                     for(int city=0;city<Map::CITIES.size();city++){
                         bool already_exists = false;
-                        for(Map::City& st: game_board.get_stations()){
-                            if(city==st.index){
+                        for(Map::City* st: game_board.get_stations()){
+                            if(city==(*st).index){
                                 already_exists=true;
                                 break;
                             }   
                         }
                         if(!already_exists){
                             for(int st=0;st<game_board.get_stations().size();st++){
-                                full_list.push_back(new Actions::GovernmentGrant(_using_player,city,game_board.get_stations()[st].index));
+                                full_list.push_back(new Actions::GovernmentGrant(_using_player,city,game_board.get_stations()[st] -> index));
                             }  
                         }
                     }
                 } else {
                     for(int c=0;c<Map::CITIES.size();c++){
                         bool already_exists=false;
-                        for(Map::City& st: game_board.get_stations()){
-                            if(c==st.index){
+                        for(Map::City* st: game_board.get_stations()){
+                            if(c==(*st).index){
                                 already_exists=true;
                                 break;
                             } 

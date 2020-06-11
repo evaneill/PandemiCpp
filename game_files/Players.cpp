@@ -9,7 +9,7 @@
 #include "Debug.h"
 
 Players::Player::Player(int role_id): 
-    position(Map::CITIES[3]),
+    position(&Map::CITIES[3]),
     hand({}),
     used_OperationsExpertFlight(false)
     {
@@ -37,7 +37,7 @@ Players::Player::Player(int role_id):
 }
 
 Players::Player::Player(){
-    position = Map::City();
+    position=nullptr;
     hand = {};
     used_OperationsExpertFlight=false;
     role = Role(NULL,0);
@@ -45,7 +45,7 @@ Players::Player::Player(){
 
 void Players::Player::reset(){
     // put them back in hotlanta
-    position = Map::CITIES[3];
+    position = &Map::CITIES[3];
     last_position = -1;
     hand.clear();
     event_cards.clear();
@@ -103,12 +103,12 @@ std::array<int,4> Players::Player::get_color_count(){
     return {BLUE_count,YELLOW_count,BLACK_count,RED_count};
 }
 
-void Players::Player::set_position(Map::City new_city){
-    position = new_city;
+void Players::Player::set_position(Map::City& new_city){
+    position = &new_city;
 };
 
 void Players::Player::set_position(int new_city){
-    position = Map::CITIES[new_city];
+    position = &Map::CITIES[new_city];
 };
 
 void Players::Player::reset_last_position(int old_position){
@@ -149,7 +149,7 @@ void Players::Player::removeCureCardColor(int col){
 }
 
 Map::City Players::Player::get_position(){
-    return position;
+    return *position;
 }
 
 int Players::Player::get_last_position(){
@@ -162,8 +162,18 @@ Players::Role::Role(std::string _name,int req_cure_cards){
 }
 Players::Role::Role(){};
 
-Players::QuarantineSpecialist::QuarantineSpecialist(): Role("Quarantine Specialist",5){};
-Players::Medic::Medic(): Role("Medic",5){};
-Players::Scientist::Scientist(): Role("Scientist",4){};
-Players::Researcher::Researcher(): Role("Researcher",5){};
-Players::OperationsExpert::OperationsExpert(): Role("Operations Expert",5){};
+Players::QuarantineSpecialist::QuarantineSpecialist(): Role("Quarantine Specialist",5){
+    quarantinespecialist=true;
+};
+Players::Medic::Medic(): Role("Medic",5){
+    medic=true;
+};
+Players::Scientist::Scientist(): Role("Scientist",4){
+    scientist=true;
+};
+Players::Researcher::Researcher(): Role("Researcher",5){
+    researcher=true;
+};
+Players::OperationsExpert::OperationsExpert(): Role("Operations Expert",5){
+    operationsexpert=true;
+};

@@ -55,10 +55,10 @@ void Board::Board::setup(bool verbose){
             }
             if(verbose){
                 DEBUG_MSG(std::endl << "[SETUP] " << p.role.name << " has cards: ");
-                for(Decks::PlayerCard card: p.hand){
+                for(Decks::PlayerCard& card: p.hand){
                     DEBUG_MSG(card.name << "; ");
                 }
-                for(Decks::PlayerCard card: p.event_cards){
+                for(Decks::PlayerCard& card: p.event_cards){
                     DEBUG_MSG(card.name << "; ");
                 }
                 DEBUG_MSG(std::endl);
@@ -99,7 +99,7 @@ void Board::Board::setup(bool verbose){
         if(verbose){
             for(int col=0;col<4;col++){
                 DEBUG_MSG(std::endl << "[SETUP] =====RESULT OF " << Map::COLORS[col] << " INFECTS =====" << std::endl); 
-                for(Map::City city: Map::CITIES){
+                for(Map::City& city: Map::CITIES){
                     DEBUG_MSG("[SETUP] " << Map::COLORS[col] << ": " << city.name << " = " << disease_count[col][city.index] << std::endl);
                 }
             }
@@ -185,7 +185,7 @@ void Board::Board::is_setup(){
 void Board::Board::reset_disease_count(){
     // Set all of the disease counts to 0 (I didn't think I had to do this but...)
     for(int col=0;col<4;col++){
-        for(Map::City city: Map::CITIES){
+        for(Map::City& city: Map::CITIES){
             disease_count[col][city.index]=0;
         }
     }
@@ -218,8 +218,8 @@ std::array<int,2> Board::Board::infect_city(int city_idx, int col,int add){
 
     // Check for existence & adjacency of quarantine specialist, if the game has already been set up
     if(IS_SETUP){
-        for(Players::Player p: players){
-            if(p.role.name=="Quarantine Specialist"){
+        for(Players::Player& p: players){
+            if(p.role.quarantinespecialist){
                 // If they're in the same city
                 if(p.get_position().index==city_idx){
                     if(disease_count[col][city_idx]+add>3){
@@ -295,7 +295,7 @@ std::array<int,2> Board::Board::outbreak(int city_idx,int col){
     return {n_outbreaks,n_blocked};
 }
 
-std::array<int,2> Board::Board::outbreak(Map::City city, int col){
+std::array<int,2> Board::Board::outbreak(Map::City& city, int col){
     return outbreak(city.index,col);
 }
 
@@ -327,9 +327,9 @@ int Board::Board::win_lose(){
 }
 
 void Board::Board::update_medic_position(){
-    for(Players::Player p: players){
+    for(Players::Player& p: players){
         // If any player is the medic
-        if(p.role.name=="Medic"){
+        if(p.role.medic){
             for(int col=0;col<4;col++){
                 // and a disease is cured
                 if(cured[col]){
@@ -384,18 +384,18 @@ Players::Player& Board::Board::active_player(){
     return players[turn];
 }
 
-std::vector<Map::City> Board::Board::get_stations(){
+std::vector<Map::City*>& Board::Board::get_stations(){
     return research_stations;
 }
 
-void Board::Board::AddStation(Map::City new_station){
-    research_stations.push_back(new_station);
+void Board::Board::AddStation(Map::City& new_station){
+    research_stations.push_back(&new_station);
 }
 
 void Board::Board::RemoveStation(int station_city_idx){
     // Takes the city index of the station to be erased
     for(int st=0; st<research_stations.size();st++){
-        if(research_stations[st].index==station_city_idx){
+        if(research_stations[st] -> index==station_city_idx){
             research_stations.erase(research_stations.begin() + st);
             return;
         }

@@ -64,9 +64,9 @@ namespace Actions
     // ===== Move ===== 
     class Move: public Action{
         // to incorporate dispatcher would either need a new action, or include player, from, and to here.
-        Map::City to;
+        Map::City& to;
     public:
-        Move( Map::City _to);
+        Move(Map::City& _to);
         ~Move(){};
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
@@ -85,10 +85,10 @@ namespace Actions
 
     // ===== CharterFlight =====
     class CharterFlight: public Action{
-        Map::City target_city;
+        Map::City& target_city;
     public:
         CharterFlight( int _target_city);
-        CharterFlight( Map::City _target_city);
+        CharterFlight( Map::City& _target_city);
         ~CharterFlight(){};
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
@@ -96,10 +96,10 @@ namespace Actions
 
     // ===== ShuttleFlight =====
     class ShuttleFlight: public Action{
-        Map::City target_station;
+        Map::City& target_station;
     public:
         ShuttleFlight( int _target_station);
-        ShuttleFlight( Map::City _target_station);
+        ShuttleFlight( Map::City& _target_station);
         ~ShuttleFlight(){};
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
@@ -108,11 +108,11 @@ namespace Actions
     // ===== OperationsExpertFlight =====
     // (Like shuttle flight, but to ANY city)
     class OperationsExpertFlight: public Action{
-        Map::City target_city;
+        Map::City& target_city;
         Decks::CityCard discard_card;
     public:
         OperationsExpertFlight( int _target_city,Decks::CityCard _discard);
-        OperationsExpertFlight( Map::City _target_city,Decks::CityCard _discard);
+        OperationsExpertFlight( Map::City& _target_city,Decks::CityCard _discard);
         OperationsExpertFlight( int _target_city,int _discard_city_idx);
         ~OperationsExpertFlight(){};
         void execute(Board::Board& new_board); // To execute on a given board

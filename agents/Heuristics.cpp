@@ -36,7 +36,7 @@ double Heuristics::CureGoalConditions(Board::Board& game_board){
     double RED_closeness=0;
     
     // Go through each player
-    for(Players::Player p: game_board.get_players()){
+    for(Players::Player& p: game_board.get_players()){
         // find out how many of each color card they have
         std::array<int,4> color_count = p.get_color_count();
         
