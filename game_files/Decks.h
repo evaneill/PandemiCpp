@@ -11,7 +11,15 @@
 
 namespace Decks
 {
+	// Utility
+	std::string CARD_NAME(int card_index);
+	int CARD_COLOR(int card_index);
+
 	// All declarations necessary for player deck
+
+	bool IS_EVENT(int card_index);
+	bool IS_EPIDEMIC(int card_index);
+	int POPULATION(int card_index);
 
 	// Base class
 	class PlayerCard{
@@ -60,14 +68,14 @@ namespace Decks
 			total_cards_drawn = other.total_cards_drawn;
 		}
 		// These two methods in combination make a card.
-		PlayerCard draw(bool setup=false); // puts two methods below together.
+		int draw(bool setup=false); // puts two methods below together.
 		int draw_index(bool setup);  // an index according to stochastic rules of deck organization.
-		PlayerCard draw_inplace(); // produce a card that could be drawn, but don't remove it from the deck
+		int draw_inplace(); // produce a card that could be drawn, but don't remove it from the deck
 
-		void update(PlayerCard card); // for forcing the deck to update it's status according to a drawn card (i.e. in collaboration with a card produced by draw_inplace())
+		void update(int card); // for forcing the deck to update it's status according to a drawn card (i.e. in collaboration with a card produced by draw_inplace())
 		
-		PlayerCard make_card_by_vector_index(int index,bool setup=false); // make a card from its index in remaining_nonepi_cards
-		PlayerCard make_card_by_indices(int vec_index, int card_index, bool setup=false); // Actually instantiates cards
+		int make_card_by_vector_index(int index,bool setup=false); // make a card from its index in remaining_nonepi_cards
+		int make_card_by_indices(int vec_index, int card_index, bool setup=false); // Actually instantiates cards
 
 		void setup_shuffle_deck(); // used after ever player has their cards.
 		
@@ -89,65 +97,12 @@ namespace Decks
 
 	};
 
-	class CityCard: public PlayerCard{
-	public:
-		CityCard(Map::City &city);
-		CityCard(Map::City city);
-		CityCard(int city_idx);
-		~CityCard(){};
-		int population;
-
-		// logical == and !=
-		const bool operator == (CityCard & rhs) {return index == rhs.index && name == rhs.name && epidemic== rhs.epidemic && event==rhs.event && color==rhs.color;};
-		const bool operator != (CityCard & rhs) {return index != rhs.index || name != rhs.name || epidemic!= rhs.epidemic || event!=rhs.event || color!=rhs.color;};
-	};
-
-	class EpidemicCard: public PlayerCard{
-	// Will have to use board-level logic to resolve.
-	public:
-		EpidemicCard(int index);
-		~EpidemicCard(){};
-	};
-	
-	class EventCard: public PlayerCard{
-
-	public:
-		EventCard(int index);
-		~EventCard(){};
-	};
-
-	// All declarations for Infect Deck 
-	class InfectCard{
-	public:
-		InfectCard(Map::City city);
-		InfectCard(int city_idx);
-		~InfectCard(){};
-		int index;
-		int color;
-		std::string name;
-
-	};
-
-	class InfectCardGroup{
-		public:
-			InfectCardGroup(std::vector<InfectCard> _cards);
-			~InfectCardGroup(){};
-			InfectCardGroup(const InfectCardGroup& other){
-				// copy the cards
-				cards={};
-				for(InfectCard c: other.cards){
-					cards.push_back(c);
-				}
-			}
-			std::vector<InfectCard> cards;
-	};
-
 	class InfectDeck{
 
 		// This vector stores a pop-able stack of distinct chunks of cards
 		// Each such group uniquely determines the distribution from which cards are drawn.
-		std::vector<InfectCardGroup> deck_stack;
-		std::vector<InfectCard> current_discard;
+		std::vector<std::vector<int>> deck_stack;
+		std::vector<int> current_discard;
 
 	public:
 		InfectDeck();
@@ -155,23 +110,23 @@ namespace Decks
 		InfectDeck(const InfectDeck& other){
 			// copy the deck stack
 			deck_stack = {};
-			for(InfectCardGroup g: other.deck_stack){
+			for(std::vector<int> g: other.deck_stack){
 				deck_stack.push_back(g);
 			}
 
 			// Copy the current discard
 			current_discard={};
-			for(InfectCard c: other.current_discard){
+			for(int c: other.current_discard){
 				current_discard.push_back(c);
 			}
 		}
-		InfectCard draw();// return a card that could be drawn, removing it from the deck
-		InfectCard draw_inplace(); // return a card that could be drawn, without removing it from the deck
+		int draw();// return a card that could be drawn, removing it from the deck
+		int draw_inplace(); // return a card that could be drawn, without removing it from the deck
 		
-		InfectCard draw_bottom(); // for epidemics
-		InfectCard draw_bottom_inplace(); 
+		int draw_bottom(); // for epidemics
+		int draw_bottom_inplace(); 
 
-		void update(InfectCard card,bool bottom=false); // for forcing an infect deck to put this on the discard and pull it from the top group (i.e for use in collaboration with draw_inplace)
+		void update(int card,bool bottom=false); // for forcing an infect deck to put this on the discard and pull it from the top group (i.e for use in collaboration with draw_inplace)
 
 		int top_group_size(bool top=true); // number of infect cards in the top infect-card group
 		

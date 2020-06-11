@@ -21,8 +21,8 @@ int main(){
     cout << "First 5 cards: \n";
     for(int k=0;k<5;k++){
         cout << "Card " << k+1;
-        Decks::InfectCard drawn_card = my_deck.draw();
-        cout << " = " << drawn_card.name << "\n";
+        int drawn_card = my_deck.draw();
+        cout << " = " << Decks::CARD_NAME(drawn_card) << "\n";
     }
 
     cout << "Now let's put it back on top!\n";
@@ -32,15 +32,15 @@ int main(){
     cout << "The next 5 cards should be ALL THE SAME as those you just saw: \n";
     for(int k=0;k<5;k++){
         cout << "Card " << k+1;
-        Decks::InfectCard drawn_card = my_deck.draw();
-        cout << " = " << drawn_card.name << "\n";
+        int drawn_card = my_deck.draw();
+        cout << " = " << Decks::CARD_NAME(drawn_card) << "\n";
     }
 
     cout << "\nThe next 3 cards should not be any of the ones you've just seen:\n";
     for(int k=0;k<3;k++){
         cout << "Card " << k+1;
-        Decks::InfectCard drawn_card = my_deck.draw();
-        cout << " = " << drawn_card.name << "\n";
+        int drawn_card = my_deck.draw();
+        cout << " = " << Decks::CARD_NAME(drawn_card) << "\n";
     }
 
     cout << "Making a new deck...\n";
@@ -50,8 +50,8 @@ int main(){
     cout << "First 10 cards: \n";
     for(int k=0;k<10;k++){
         cout << "Card " << k+1;
-        Decks::InfectCard drawn_card = new_deck.draw();
-        cout << " = " << drawn_card.name << "\n";
+        int drawn_card = new_deck.draw();
+        cout << " = " << Decks::CARD_NAME(drawn_card) << "\n";
     }
 
     cout << "Now let's put it back on top!\n";
@@ -61,8 +61,8 @@ int main(){
     cout << "Next cards should be 5 of those you just saw: \n";
     for(int k=0;k<5;k++){
         cout << "Card " << k+1;
-        Decks::InfectCard drawn_card = new_deck.draw();
-        cout << " = " << drawn_card.name << "\n";
+        int drawn_card = new_deck.draw();
+        cout << " = " << Decks::CARD_NAME(drawn_card) << "\n";
     }
 
     cout << "Now let's put those 5 back on top!\n";
@@ -72,15 +72,15 @@ int main(){
     cout << "These 5 cards should be exactly those you just saw: \n";
     for(int k=0;k<5;k++){
         cout << "Card " << k+1;
-        Decks::InfectCard drawn_card =new_deck.draw();
-        cout << " = " << drawn_card.name << "\n";
+        int drawn_card =new_deck.draw();
+        cout << " = " << Decks::CARD_NAME(drawn_card) << "\n";
     }
 
     cout << "These 10 cards should start with 5 of original 10 that weren't originally discarded, then 5 brand new: \n";
     for(int k=0;k<10;k++){
         cout << "Card " << k+1;
-        Decks::InfectCard drawn_card =new_deck.draw();
-        cout << " = " << drawn_card.name << "\n";
+        int drawn_card =new_deck.draw();
+        cout << " = " << Decks::CARD_NAME(drawn_card) << "\n";
     }
 
 

@@ -8,59 +8,52 @@
 #include "Map.h"
 #include "Decks.h"
 
-Decks::EventCard::EventCard(int ind):PlayerCard(ind){}
-
-Decks::EpidemicCard::EpidemicCard(int ind):PlayerCard(ind){}
-
-Decks::CityCard::CityCard(Map::City &city):PlayerCard(city.index){}
-
-Decks::CityCard::CityCard(Map::City city):PlayerCard(city.index){}
-
-Decks::CityCard::CityCard(int city_idx):PlayerCard(city_idx){}
-
-Decks::PlayerCard::PlayerCard(int card_idx){
-    if(card_idx<48){
-        name = Map::CITIES[card_idx].name;
-        index = Map::CITIES[card_idx].index;
-        color = Map::CITIES[card_idx].color;
-        population = Map::CITIES[card_idx].population;
-
-        epidemic = false;
-        event = false;
-    } else if(card_idx>=48 && card_idx<=50){
-        index = card_idx;
-        color = -1;
-        population = -1;
-
-        epidemic = false;
-        event = true;
-        switch(card_idx){
+std::string Decks::CARD_NAME(int card_index){
+    if(card_index<Map::CITIES.size()){
+        return Map::CITIES[card_index].name;
+    } else if(card_index<Map::CITIES.size()+3){
+        switch(card_index){
             case 48:
-                name = "Quiet Night";
+                return "Quiet Night";
                 break;
             case 49:
-                name = "Government Grant";
+                return "Government Grant";
                 break;
             case 50:
-                name = "Airlift";
+                return "Airlift";
+                break;
+            default:
+                return "";
                 break;
         }
-    } else if(card_idx>=51){
-        name = "Epidemic";
-        index = card_idx;
-        epidemic = true;
-
-        event = false;
-        color=-1;
-        population=-1;
+    } else {
+        return "Epidemic";
     }
 }
-// Player Deck Section
-// Setting up the Player deck steps
-//  1. Initialize deck w/ the constructor
-//  2. for each player, use draw(true) to retrieve player hands during setup. 
-//  3. setup_shuffle_deck() to set parameters that can track probability distribution over each draw().
 
+int Decks::CARD_COLOR(int card_index){
+    if(card_index<Map::CITIES.size()){
+        return Map::CITIES[card_index].color;
+    } else {
+        return -1;
+    }
+}
+
+bool Decks::IS_EPIDEMIC(int card_index){
+    return card_index>=Map::CITIES.size()+3;
+}
+
+bool Decks::IS_EVENT(int card_index){
+    return card_index>=Map::CITIES.size() && !Decks::IS_EPIDEMIC(card_index);
+}
+
+int Decks::POPULATION(int card_index){
+    if(card_index<Map::CITIES.size()){
+        return Map::CITIES[card_index].population;
+    } else {
+        return -1;
+    }
+}
 
 Decks::PlayerDeck::PlayerDeck(int diff){
     // Takes difficulty in 4,5,6 but you could throw whatever garbage in here you want
@@ -152,13 +145,13 @@ int Decks::PlayerDeck::draw_index(bool setup){
     return -1;
 }
 
-Decks::PlayerCard Decks::PlayerDeck::draw(bool setup){
+int Decks::PlayerDeck::draw(bool setup){
     int drop_idx = draw_index(setup);
-    Decks::PlayerCard drawn_card = make_card_by_vector_index(drop_idx,setup);
+    int drawn_card = make_card_by_vector_index(drop_idx,setup);
     return drawn_card;
 }
 
-Decks::PlayerCard Decks::PlayerDeck::draw_inplace(){
+int Decks::PlayerDeck::draw_inplace(){
     int drop_idx = draw_index(false);
 
     int idx;
@@ -168,20 +161,20 @@ Decks::PlayerCard Decks::PlayerDeck::draw_inplace(){
         idx = remaining_nonepi_cards[drop_idx];
     }
 
-    return PlayerCard(idx);
+    return idx;
 }
 
-void Decks::PlayerDeck::update(PlayerCard card){
+void Decks::PlayerDeck::update(int card){
     // remove it from the remaining_nonepi_cards
     
     // Incrementing total_cards_drawn implicitly implies 
-    if(card.index>=51){
+    if(card>=51){
         epidemics_drawn++;
         total_cards_drawn++;
     } else {
         total_cards_drawn++;
         for(int ind=0;ind<remaining_nonepi_cards.size();ind++){
-            if(remaining_nonepi_cards[ind]==card.index){
+            if(remaining_nonepi_cards[ind]==card){
                 remaining_nonepi_cards.erase(remaining_nonepi_cards.begin() + ind);
                 break;
             }
@@ -189,7 +182,7 @@ void Decks::PlayerDeck::update(PlayerCard card){
     }
 
     // insert it into drawn_cards
-    drawn_cards.insert(card.index);
+    drawn_cards.insert(card);
 }
 
 bool Decks::PlayerDeck::isempty(){
@@ -230,7 +223,7 @@ bool Decks::PlayerDeck::epidemic_possible(){
     }
 }
 
-Decks::PlayerCard Decks::PlayerDeck::make_card_by_vector_index(int drop_index,bool setup){
+int Decks::PlayerDeck::make_card_by_vector_index(int drop_index,bool setup){
 
     int idx;
     if(drop_index>Map::CITIES.size() && !setup){
@@ -242,7 +235,7 @@ Decks::PlayerCard Decks::PlayerDeck::make_card_by_vector_index(int drop_index,bo
     return make_card_by_indices(drop_index, idx,setup);
 }
 
-Decks::PlayerCard Decks::PlayerDeck::make_card_by_indices(int drop_index, int idx, bool setup){
+int Decks::PlayerDeck::make_card_by_indices(int drop_index, int idx, bool setup){
     
     drawn_cards.insert(idx);
     if(!setup){
@@ -253,7 +246,7 @@ Decks::PlayerCard Decks::PlayerDeck::make_card_by_indices(int drop_index, int id
     } else {
         remaining_nonepi_cards.erase(remaining_nonepi_cards.begin()+drop_index);
     }
-    return PlayerCard(idx);
+    return idx;
 }
 
 // These are only called for testing so far. 
@@ -267,23 +260,11 @@ int& Decks::PlayerDeck::_epidemics_drawn(){return epidemics_drawn;}
 
 // INFECTION DECK section
 
-Decks::InfectCard::InfectCard(Map::City city){
-    index = city.index;
-    color = city.color;
-    name = city.name;
-}
-
-Decks::InfectCard::InfectCard(int city_idx){
-    index = Map::CITIES[city_idx].index;
-    color = Map::CITIES[city_idx].color;
-    name = Map::CITIES[city_idx].name;
-}
-
 Decks::InfectDeck::InfectDeck(){
     // phattest because it's the phattest InfectCardGroup there will be during the game
-    Decks::InfectCardGroup phattest_stack = InfectCardGroup({});
+    std::vector<int> phattest_stack = {};
     for(int c=0;c<Map::CITIES.size();c++){
-        phattest_stack.cards.push_back(Decks::InfectCard(Map::CITIES[c]));
+        phattest_stack.push_back(c);
     }
 
     // The Deck will be represented by one group of cards, which contains all of them.
@@ -292,26 +273,24 @@ Decks::InfectDeck::InfectDeck(){
 
 void Decks::InfectDeck::readd_discard(){
 
-    Decks::InfectCardGroup newest_group = Decks::InfectCardGroup(current_discard);
+    std::vector<int> newest_group = current_discard;
 
     deck_stack.push_back(newest_group);
 
-    current_discard = {};
+    current_discard.clear();
 }
 
-Decks::InfectCardGroup::InfectCardGroup(std::vector<InfectCard> _cards): cards(_cards){};
-
-Decks::InfectCard Decks::InfectDeck::draw(){
+int Decks::InfectDeck::draw(){
     
-    Decks::InfectCardGroup& current_stack = deck_stack.back();
+    std::vector<int>& current_stack = deck_stack.back();
 
     // 
-    int chosen_index = rand() % current_stack.cards.size();
+    int chosen_index = rand() % current_stack.size();
 
-    Decks::InfectCard chosen_card = current_stack.cards[chosen_index];
-    current_stack.cards.erase(current_stack.cards.begin()+chosen_index);
+    int chosen_card = current_stack[chosen_index];
+    current_stack.erase(current_stack.begin()+chosen_index);
 
-    if(current_stack.cards.empty()){
+    if(current_stack.empty()){
         // If we just removed the last card from the most recently added group, get rid of it.
         deck_stack.pop_back();
     }
@@ -321,30 +300,30 @@ Decks::InfectCard Decks::InfectDeck::draw(){
     return chosen_card;
 }
 
-Decks::InfectCard Decks::InfectDeck::draw_inplace(){
+int Decks::InfectDeck::draw_inplace(){
     
-    Decks::InfectCardGroup& current_stack = deck_stack.back();
+    std::vector<int>& current_stack = deck_stack.back();
 
-    int chosen_index = rand() % current_stack.cards.size();
+    int chosen_index = rand() % current_stack.size();
 
-    Decks::InfectCard chosen_card = current_stack.cards[chosen_index];
+    int chosen_card = current_stack[chosen_index];
 
     // No erasure or discard has been done at this point.
     return chosen_card;
 }
 
-void Decks::InfectDeck::update(InfectCard card,bool bottom){
+void Decks::InfectDeck::update(int card,bool bottom){
     // remove it from the top/bottom group depending
-    Decks::InfectCardGroup& current_stack = bottom ? deck_stack[0] : deck_stack.back();
+    std::vector<int>& current_stack = bottom ? deck_stack[0] : deck_stack.back();
 
-    for(int ind=0;ind<current_stack.cards.size();ind++){
-        if(current_stack.cards[ind].index==card.index){
-            current_stack.cards.erase(current_stack.cards.begin()+ind);
+    for(int ind=0;ind<current_stack.size();ind++){
+        if(current_stack[ind]==card){
+            current_stack.erase(current_stack.begin()+ind);
             break;
         }
     }
     // always check top stack (it's the only one we'd want to pop) for emptiness
-    if(deck_stack.back().cards.empty()){
+    if(deck_stack.back().empty()){
         deck_stack.pop_back();
     }
 
@@ -352,17 +331,17 @@ void Decks::InfectDeck::update(InfectCard card,bool bottom){
     current_discard.push_back(card);
 }
 
-Decks::InfectCard Decks::InfectDeck::draw_bottom(){
+int Decks::InfectDeck::draw_bottom(){
     
-    Decks::InfectCardGroup& current_stack = deck_stack[0];
+    std::vector<int>& current_stack = deck_stack[0];
     
     // 
-    int chosen_index = rand() % current_stack.cards.size();
+    int chosen_index = rand() % current_stack.size();
 
-    Decks::InfectCard chosen_card = current_stack.cards[chosen_index];
-    current_stack.cards.erase(current_stack.cards.begin()+chosen_index);
+    int chosen_card = current_stack[chosen_index];
+    current_stack.erase(current_stack.begin()+chosen_index);
 
-    if(current_stack.cards.empty()){
+    if(current_stack.empty()){
         // If we just removed the last card from the original bottom of the infect deck, remove it (this might be impossible?)
         deck_stack.erase(deck_stack.begin()+0);
     }
@@ -372,22 +351,22 @@ Decks::InfectCard Decks::InfectDeck::draw_bottom(){
     return chosen_card;
 }
 
-Decks::InfectCard Decks::InfectDeck::draw_bottom_inplace(){
+int Decks::InfectDeck::draw_bottom_inplace(){
     
-    Decks::InfectCardGroup& current_stack = deck_stack[0];
+    std::vector<int>& current_stack = deck_stack[0];
     
-    int chosen_index = rand() % current_stack.cards.size();
+    int chosen_index = rand() % current_stack.size();
 
-    Decks::InfectCard chosen_card = current_stack.cards[chosen_index];
+    int chosen_card = current_stack[chosen_index];
 
     return chosen_card;
 }
 
 int Decks::InfectDeck::top_group_size(bool top){
     if(top){
-        return deck_stack.back().cards.size();
+        return deck_stack.back().size();
     } else {
-        return deck_stack[0].cards.size();
+        return deck_stack[0].size();
     }
     
 }

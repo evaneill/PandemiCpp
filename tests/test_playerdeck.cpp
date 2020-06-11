@@ -38,44 +38,44 @@ int main(){
     cout << "\n======= Now we want to make sure that the draw() action acts as it should.\n";
     cout << "======= I will draw through the entirety of the FIRST chunk in sequence:\n";
     for(int i=1;i<12+1;i++){
-        Decks::PlayerCard card = new_board.draw_playerdeck_inplace();
-        cout << "\tCard " << i << " is " << card.name;
+        int card = new_board.draw_playerdeck_inplace();
+        cout << "\tCard " << i << " is " << Decks::CARD_NAME(card);
         new_board.updatePlayerDeck(card);
         cout << " \t\t (" << new_board.remaining_player_cards() << " player cards left to draw)\n";
-        if(card.epidemic==true){
+        if(Decks::IS_EPIDEMIC(card)==true){
             cout << "\t --- > This should be the only epidemic drawn in this chunk!!!! < -----\n";
         }
     }
 
     cout << "======= I will draw through the entirety of the SECOND chunk in sequence:\n";
     for(int i=1;i<12+1;i++){
-        Decks::PlayerCard card = new_board.draw_playerdeck_inplace();
-        cout << "\tCard " << i+12 << " is " << card.name;
+        int card = new_board.draw_playerdeck_inplace();
+        cout << "\tCard " << i+12 << " is " << Decks::CARD_NAME(card);
         new_board.updatePlayerDeck(card);
         cout << " \t\t (" << new_board.remaining_player_cards() << " player cards left to draw)\n";
-        if(card.epidemic==true){
+        if(Decks::IS_EPIDEMIC(card)==true){
             cout << "\t --- > This should be the only epidemic drawn in this chunk!!!! < -----\n";
         }
     }
 
     cout << "======= I will draw through the entirety of the THIRD chunk in sequence:\n";
     for(int i=1;i<11+1;i++){
-        Decks::PlayerCard card = new_board.draw_playerdeck_inplace();
-        cout << "\tCard " << i+23 << " is " << card.name;
+        int card = new_board.draw_playerdeck_inplace();
+        cout << "\tCard " << i+23 << " is " << Decks::CARD_NAME(card);
         new_board.updatePlayerDeck(card);
         cout << " \t\t (" << new_board.remaining_player_cards() << " player cards left to draw)\n";
-        if(card.epidemic==true){
+        if(Decks::IS_EPIDEMIC(card)==true){
             cout << "\t --- > This should be the only epidemic drawn in this chunk!!!! < -----\n";
         }
     }
 
     cout << "======= I will draw through the entirety of the FOURTH chunk in sequence:\n";
     for(int i=1;i<11+1;i++){
-        Decks::PlayerCard card = new_board.draw_playerdeck_inplace();
-        cout << "\tCard " << i+34 << " is " << card.name;
+        int card = new_board.draw_playerdeck_inplace();
+        cout << "\tCard " << i+34 << " is " << Decks::CARD_NAME(card);
         new_board.updatePlayerDeck(card);
         cout << " \t\t (" << new_board.remaining_player_cards() << " player cards left to draw)\n";
-        if(card.epidemic==true){
+        if(Decks::IS_EPIDEMIC(card)==true){
             cout << "\t --- > This should be the only epidemic drawn in this chunk!!!! < -----\n";
         }
     }
