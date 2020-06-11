@@ -73,8 +73,8 @@ void Experiments::RunExperiment(Experiments::Experiment* exp){
             // First resolve any necessary non-player transisitions (card draws)
             the_game -> nonplayer_actions();
             
-            // If these transitions haven't made the game terminal, then have the agent choose a transition
-            if(!the_game -> is_terminal(true,false)){
+            // If these transitions haven't made the game terminal, then have the agent choose a transition (no sanity check here)
+            if(!the_game -> is_terminal(false,false)){
                 // Update each measurement
                 for(Measurements::GameMeasurement* meas: game_measures){
                     meas -> update();
