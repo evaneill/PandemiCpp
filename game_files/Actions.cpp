@@ -621,6 +621,8 @@ void Actions::Treat::execute(Board::Board& new_board){
         new_board.Eradicate(color);
     }
 
+    new_board.get_color_count()[color]-=n_treated;
+    
     new_board.get_turn_action()++;
 }
 

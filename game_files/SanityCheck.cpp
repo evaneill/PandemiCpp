@@ -154,4 +154,40 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
         DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
     }
 
+    // Make sure disease_sum is returning same value as the actual disease tracking array disease_count
+    // (this is a very suboptimal sanity check, but my experiments show that even with it, keeping a separate integer tracker reaps small rewards)
+    if(verbose){
+        DEBUG_MSG(std::endl <<  "[SANITYCHECK] Checking that integer disease count tracker is the same as the stored disease counts for each city and color" << std::endl);
+    }
+    if(active_board.disease_sum(Map::BLUE)!=std::accumulate(active_board.get_disease_count()[Map::BLUE].begin(),active_board.get_disease_count()[Map::BLUE].end(),0)){
+        if(verbose){
+            DEBUG_MSG("[SANITYCHECK] " << Map::COLORS[Map::BLUE] << " disease_count sum isn't the same as its tracker!");
+        }
+        active_board.broken()=true;
+        active_board.broken_reasons().push_back("[SANITYCHECK] " +Map::COLORS[Map::BLUE] + " disease_count sum isn't the same as its tracker!");
+    }
+    if(active_board.disease_sum(Map::YELLOW)!=std::accumulate(active_board.get_disease_count()[Map::YELLOW].begin(),active_board.get_disease_count()[Map::YELLOW].end(),0)){
+        if(verbose){
+            DEBUG_MSG("[SANITYCHECK] " << Map::COLORS[Map::YELLOW] << " disease_count sum isn't the same as its tracker!");
+        }
+        active_board.broken()=true;
+        active_board.broken_reasons().push_back("[SANITYCHECK] " +Map::COLORS[Map::YELLOW] + " disease_count sum isn't the same as its tracker!");
+    }
+    if(active_board.disease_sum(Map::BLACK)!=std::accumulate(active_board.get_disease_count()[Map::BLACK].begin(),active_board.get_disease_count()[Map::BLACK].end(),0)){
+        if(verbose){
+            DEBUG_MSG("[SANITYCHECK] " << Map::COLORS[Map::BLACK] << " disease_count sum isn't the same as its tracker!");
+        }
+        active_board.broken()=true;
+        active_board.broken_reasons().push_back("[SANITYCHECK] " +Map::COLORS[Map::BLACK] + " disease_count sum isn't the same as its tracker!");
+    }
+    if(active_board.disease_sum(Map::RED)!=std::accumulate(active_board.get_disease_count()[Map::RED].begin(),active_board.get_disease_count()[Map::RED].end(),0)){
+        if(verbose){
+            DEBUG_MSG("[SANITYCHECK] " << Map::COLORS[Map::RED] << " disease_count sum isn't the same as its tracker!");
+        }
+        active_board.broken()=true;
+        active_board.broken_reasons().push_back("[SANITYCHECK] " +Map::COLORS[Map::RED] + " disease_count sum isn't the same as its tracker!");
+    }
+    if(verbose){
+        DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
+    }
 }

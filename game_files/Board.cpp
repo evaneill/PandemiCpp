@@ -154,6 +154,8 @@ void Board::Board::clear(){
     disease_count[Map::BLACK].fill(0);
     disease_count[Map::RED].fill(0);
 
+    color_count = {0,0,0,0};
+
     // vector of 4 bools: whether or not each disease is cured
     cured= {false,false,false,false};
     // vector of 4 bools: whether or not each disease is eradicated
@@ -251,6 +253,7 @@ std::array<int,2> Board::Board::infect_city(int city_idx, int col,int add){
     // This city also can't have been a previously outbroken city during the resolution of this logic
     // If adding the suggested amount would result in there being >3 cubes...
     if((disease_count[col][city_idx]+add)>3){
+        color_count[col]+=(3-disease_count[col][city_idx]);
         // set the count there to 3 whether or not it was already
         disease_count[col][city_idx] = 3;
 
@@ -258,6 +261,7 @@ std::array<int,2> Board::Board::infect_city(int city_idx, int col,int add){
         return outbreak(city_idx,col);
     } else{
         // Otherwise just add "add" number of cubes to it if this city isn't outbroken
+        color_count[col]+=add;
         disease_count[col][city_idx]+=add;
         return {0,0};
     }
@@ -332,18 +336,22 @@ void Board::Board::update_medic_position(){
         if(p.role.medic){
             if(cured[Map::BLUE]){
                 // disease count of this color on their position should be 0
+                color_count[Map::BLUE]-=disease_count[Map::BLUE][p.get_position().index];
                 disease_count[Map::BLUE][p.get_position().index]=0;
             }
             if(cured[Map::YELLOW]){
                 // disease count of this color on their position should be 0
+                color_count[Map::YELLOW]-=disease_count[Map::YELLOW][p.get_position().index];
                 disease_count[Map::YELLOW][p.get_position().index]=0;
             }
             if(cured[Map::BLACK]){
                 // disease count of this color on their position should be 0
+                color_count[Map::BLACK]-=disease_count[Map::BLACK][p.get_position().index];
                 disease_count[Map::BLACK][p.get_position().index]=0;
             }
             if(cured[Map::RED]){
                 // disease count of this color on their position should be 0
+                color_count[Map::RED]-=disease_count[Map::RED][p.get_position().index];
                 disease_count[Map::RED][p.get_position().index]=0;
             }
         }
@@ -440,6 +448,10 @@ std::array<std::array<int,48>,4>& Board::Board::get_disease_count(){
     return disease_count;
 }
 
+std::array<int,4>& Board::Board::get_color_count(){
+    return color_count;
+}
+
 bool  Board::Board::is_eradicated(int col){
     return eradicated[col];
 }
@@ -533,8 +545,7 @@ int& Board::Board::get_turn(){
 }
 
 int Board::Board::disease_sum(int col){
-    std::array<int,48>& arr = disease_count[col];
-    return std::accumulate(arr.begin(),arr.end(),0);
+    return color_count[col];
 }
 
 bool Board::Board::disease_count_safe(){

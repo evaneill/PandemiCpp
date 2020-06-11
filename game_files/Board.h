@@ -38,6 +38,7 @@ namespace Board
         // have to initialize to 0 on setup
         std::array<std::array<int,48>,4> disease_count; 
 
+        std::array<int,4> color_count = {0,0,0,0};
         // vector of 4 bools: whether or not each disease is cured
         std::vector<bool> cured= {false,false,false,false};
         // vector of 4 bools: whether or not each disease is eradicated
@@ -155,12 +156,13 @@ namespace Board
 
         // Check all gamestate variables and set win/lose/break as appropriate, if applicable
         void updatestatus();
-        void update_medic_position(); // Check whether there's a medic and they're on a city with a cured disease
+        void update_medic_position(); // Check whether there's a medic and they're on a city with a cured disease, and remove any disease of that color if so
         void update_eradicated_status(); // Update eradicated status according to cure status and disease_count
 
         // functional additions (lots of them)
         Players::Player& active_player(); // reference to active player
         std::array<std::array<int,48>,4>& get_disease_count(); // reference to disease count to increment
+        std::array<int,4>& get_color_count();
         int disease_sum(int col); // sum of disease cubes of a color
         void reset_disease_count();
         void reset_outbreak_memory();
