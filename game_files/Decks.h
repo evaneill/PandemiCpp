@@ -21,21 +21,6 @@ namespace Decks
 	bool IS_EPIDEMIC(int card_index);
 	int POPULATION(int card_index);
 
-	// Base class
-	class PlayerCard{
-	public:
-		std::string name="";
-		bool epidemic=false;
-		bool event=false;
-		int index=-1;
-		int color=-1; // only instantiated for CityCard
-		int population=-1; // only instantiated for CityCard
-		PlayerCard(int card_idx);
-		PlayerCard()=default;
-
-		const bool operator == (PlayerCard& rhs) {return index == rhs.index && name == rhs.name && epidemic== rhs.epidemic && event==rhs.event;};
-	};
-
 	class PlayerDeck{
 		std::set<int> drawn_cards;
 		std::vector<int> remaining_nonepi_cards;
