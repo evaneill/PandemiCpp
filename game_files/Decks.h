@@ -22,9 +22,10 @@ namespace Decks
 	int POPULATION(int card_index);
 
 	class PlayerDeck{
-		std::set<int> drawn_cards;
+		std::vector<int> drawn_cards;
 		std::vector<int> remaining_nonepi_cards;
-
+		
+		std::vector<int> deck_chunk_sizes;
 		// number of epidemic cards (and number of epidemic-holding segments into which deck is segregated)
 		int difficulty;
 
@@ -43,6 +44,7 @@ namespace Decks
 		PlayerDeck(const PlayerDeck& other){
 			drawn_cards = other.drawn_cards;
 			remaining_nonepi_cards = other.remaining_nonepi_cards;
+			deck_chunk_sizes = other.deck_chunk_sizes;
 
 			difficulty = other.difficulty;
 
@@ -57,10 +59,7 @@ namespace Decks
 		int draw_index(bool setup);  // an index according to stochastic rules of deck organization.
 		int draw_inplace(); // produce a card that could be drawn, but don't remove it from the deck
 
-		void update(int card); // for forcing the deck to update it's status according to a drawn card (i.e. in collaboration with a card produced by draw_inplace())
-		
-		int make_card_by_vector_index(int index,bool setup=false); // make a card from its index in remaining_nonepi_cards
-		int make_card_by_indices(int vec_index, int card_index, bool setup=false); // Actually instantiates cards
+		void update(int card,bool setup=false); // for forcing the deck to update it's status according to a drawn card (i.e. in collaboration with a card produced by draw_inplace())
 
 		void setup_shuffle_deck(); // used after ever player has their cards.
 		

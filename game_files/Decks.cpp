@@ -80,6 +80,9 @@ Decks::PlayerDeck::PlayerDeck(int diff){
     // total cards drawn during play. Only starts to increment after setup. 
     total_cards_drawn = 0;
 
+    // to be initialized by setup_shuffle_deck()
+    deck_chunk_sizes = {};
+
     epidemics_drawn = 0;
     difficulty = diff;
     // index 0-47 city cards corresponding precisely to Map::City indices
@@ -99,79 +102,64 @@ void Decks::PlayerDeck::setup_shuffle_deck(){
         // some chunks will  be 1 card larger than others
         fat_chunk_size = std::floor((remaining_nonepi_cards.size()+difficulty)/difficulty)+1;
         chunk_size = fat_chunk_size-1; 
-
+    }
+    for(int chunk=0; chunk<difficulty; chunk++){
+        if(chunk<(difficulty - remainder) || remainder==0){
+            deck_chunk_sizes.push_back(chunk_size);
+        } else {
+            deck_chunk_sizes.push_back(fat_chunk_size);
+        }
     }
 }
 
 int Decks::PlayerDeck::draw_index(bool setup){
     // Goal is to get and return the index within remaining_nonepi_cards to be given 
     
-    int accounted_for_cards=0; // cards that have preceded the considered chunk in the iteration.
-    int drop_index;    // The index that's randomly generated to pull out a vector element or epidemic card.
-    if(setup){
-        return rand() % remaining_nonepi_cards.size();
-    }
-    for(int chunk=0;chunk<difficulty;chunk++){
-        int this_chunk_size;
-        if(chunk+1>remainder){
-            this_chunk_size = chunk_size;
-        } else{
-            this_chunk_size = fat_chunk_size;
-        }
-
-        // Use accumulator accounted_for_cards to walk through chunks until you see which one you're in.
-        // I don't like this though... seems like there should be some way to keep a few class variables that track something like this.
-        if(total_cards_drawn>=accounted_for_cards && total_cards_drawn<(this_chunk_size + accounted_for_cards)){
-            if(epidemics_drawn>chunk){
-                // If an epidemic has already been drawn in this chunk...
-                //      sample indices from all non-drawn cards uniformly.
-                //      prob of any remaining non_epi card = 1/(remaining_nonepi_cards.size());
-                return rand() % remaining_nonepi_cards.size();
-            } else {
-                // There is still an epidemic card in this chunk. Probability of drawing ranges in [1/(this_chunk_size),1]
-                //      It's probability is (1/(# remaining cards in this chunk))              
-                if((float) rand()< (float) (RAND_MAX/(this_chunk_size + accounted_for_cards - total_cards_drawn))){
-                    // if a random number in [0,RAND_MAX] is between [0,(RAND_MAX/(# remaining cards in chunk))], draw the next epidemic card.
-                    return 48+3+epidemics_drawn; // draw the indices sequentially, doesn't matter.
-                } else{
-                    // Otherwise we're drawing uniformly from all non-epidemic cards.
-                    return rand() % remaining_nonepi_cards.size();
-                }
-            }
+    int& chunk_cards_left = deck_chunk_sizes.back();
+    if(epidemics_drawn==(difficulty - deck_chunk_sizes.size()) && !setup){
+        // number left includes epidemic card
+        if((float) rand()< (float) (RAND_MAX/(chunk_cards_left))){
+            return 48+3+epidemics_drawn;
         } else {
-            accounted_for_cards+=this_chunk_size;
+            return rand() % remaining_nonepi_cards.size();
         }
+    } else {
+        return rand() % remaining_nonepi_cards.size();
     }
     return -1;
 }
 
 int Decks::PlayerDeck::draw(bool setup){
     int drop_idx = draw_index(setup);
-    int drawn_card = make_card_by_vector_index(drop_idx,setup);
-    return drawn_card;
+    if(drop_idx>=51){
+        update(drop_idx,setup);
+        return drop_idx;
+    } else {
+        int card = remaining_nonepi_cards[drop_idx];
+        update(card,setup);
+        return card;
+    }
+    // return drawn_card;
 }
 
 int Decks::PlayerDeck::draw_inplace(){
     int drop_idx = draw_index(false);
 
-    int idx;
-    if(drop_idx>Map::CITIES.size()){
-        idx= drop_idx;
+    if(drop_idx>=51){
+        return drop_idx;
     } else {
-        idx = remaining_nonepi_cards[drop_idx];
+        return remaining_nonepi_cards[drop_idx];
     }
-
-    return idx;
 }
 
-void Decks::PlayerDeck::update(int card){
-    // remove it from the remaining_nonepi_cards
-    
-    // Incrementing total_cards_drawn implicitly implies 
+void Decks::PlayerDeck::update(int card,bool setup){
+
     if(card>=51){
+        // either increment epidemics drawn
         epidemics_drawn++;
         total_cards_drawn++;
     } else {
+        // or remove it from the remaining_nonepi_cards
         total_cards_drawn++;
         for(int ind=0;ind<remaining_nonepi_cards.size();ind++){
             if(remaining_nonepi_cards[ind]==card){
@@ -181,8 +169,16 @@ void Decks::PlayerDeck::update(int card){
         }
     }
 
+    if(!setup){
+        // if being called during setup, then this isn't initialized yet (or shouldn't be), so ignore it
+        deck_chunk_sizes.back()--;
+        if(deck_chunk_sizes.back()==0){
+            deck_chunk_sizes.pop_back();
+        }
+    }
+    
     // insert it into drawn_cards
-    drawn_cards.insert(card);
+    drawn_cards.push_back(card);
 }
 
 bool Decks::PlayerDeck::isempty(){
@@ -198,55 +194,8 @@ int Decks::PlayerDeck::remaining_cards(){
 }
 
 bool Decks::PlayerDeck::epidemic_possible(){
-    // Replicate a lot of the logic for drawing indices, but only to determine if epidemic is possible
-    int accounted_for_cards=0;
-
-    for(int chunk=0;chunk<difficulty;chunk++){
-        int this_chunk_size;
-        if(chunk+1>remainder){
-            this_chunk_size = chunk_size;
-        } else{
-            this_chunk_size = fat_chunk_size;
-        }
-
-        // Use accumulator accounted_for_cards to walk through chunks until you see which one you're in.
-        // I don't like this though... seems like there should be some way to keep a few class variables that track something like this.
-        if(total_cards_drawn>=accounted_for_cards && total_cards_drawn<(this_chunk_size + accounted_for_cards)){
-            if(epidemics_drawn>chunk){
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            accounted_for_cards+=this_chunk_size;
-        }
-    }
-}
-
-int Decks::PlayerDeck::make_card_by_vector_index(int drop_index,bool setup){
-
-    int idx;
-    if(drop_index>Map::CITIES.size() && !setup){
-        idx= drop_index;
-    } else {
-        idx = remaining_nonepi_cards[drop_index];
-    }
-
-    return make_card_by_indices(drop_index, idx,setup);
-}
-
-int Decks::PlayerDeck::make_card_by_indices(int drop_index, int idx, bool setup){
-    
-    drawn_cards.insert(idx);
-    if(!setup){
-        total_cards_drawn++;
-    }
-    if(idx>=51){
-        epidemics_drawn++;
-    } else {
-        remaining_nonepi_cards.erase(remaining_nonepi_cards.begin()+drop_index);
-    }
-    return idx;
+    // Replicate a little bit of logic from draw_index
+    return epidemics_drawn==(difficulty - deck_chunk_sizes.size());
 }
 
 // These are only called for testing so far. 
