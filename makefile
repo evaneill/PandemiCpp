@@ -2,13 +2,13 @@ test_map:
 	g++ -std=c++17 -o tests/map_test.out game_files/Map.cpp tests/test_map.cpp
 	tests/map_test.out
 test_playerdeck:
-	g++ -std=c++17 -o tests/playerdeck_test.out game_files/Map.cpp game_files/Decks.cpp tests/test_playerdeck.cpp game_files/Board.cpp game_files/Actions.cpp game_files/StochasticActions.cpp game_files/Players.cpp
+	g++ -g -std=c++17 -o tests/playerdeck_test.out game_files/Map.cpp game_files/Decks.cpp tests/test_playerdeck.cpp game_files/Board.cpp game_files/Actions.cpp game_files/StochasticActions.cpp game_files/Players.cpp
 	tests/playerdeck_test.out
 test_randomness:
 	g++ -O3 -std=c++17 -o tmp.out tests/test_randomness.cpp
 	./tmp.out
 test_temp:
-	g++ -g -std=c++17 -o tmp.out tests/test.cpp
+	g++ -g -std=c++17 -I tests/test.h -o tmp.out tests/test.cpp 
 	./tmp.out
 test_infectdeck:
 	g++ -std=c++17 -o tests/infectdeck_test.out game_files/Map.cpp game_files/Decks.cpp tests/test_infectdeck.cpp
