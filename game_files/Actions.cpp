@@ -622,7 +622,7 @@ void Actions::Treat::execute(Board::Board& new_board){
     }
 
     new_board.get_color_count()[color]-=n_treated;
-    
+
     new_board.get_turn_action()++;
 }
 
@@ -861,7 +861,7 @@ void Actions::Give::execute(Board::Board& new_board){
     active_player.removeCard(card_to_give_city_idx);
 
     for(Players::Player& p: new_board.get_players()){
-        if(p.role.name==other_player.role.name){
+        if(p.role==other_player.role){
             p.UpdateHand(card_to_give_city_idx);
         }
     }
@@ -886,7 +886,7 @@ int Actions::GiveConstructor::n_actions(Board::Board& game_board){
         // For every player, check whether they're in the same position as active_player but aren't active_player
         for(Players::Player& _other_player: game_board.get_players()){
             // If they're in the same city...
-            if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
+            if(_other_player.get_position().index==active_player.get_position().index && active_player.role!=_other_player.role){
                 n_other_players_here++;
             }
         }
@@ -915,7 +915,7 @@ Actions::Action* Actions::GiveConstructor::random_action(Board::Board& game_boar
     int n_other_players_here = 0; // initialize at -1 since we'll iterate through all players and see active_player at current city
     for(Players::Player& _other_player: game_board.get_players()){
         // If they're in the same city...
-        if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
+        if(_other_player.get_position().index==active_player.get_position().index && active_player.role!=_other_player.role){
             n_other_players_here++;
         }
     }
@@ -926,7 +926,7 @@ Actions::Action* Actions::GiveConstructor::random_action(Board::Board& game_boar
     int track=0;
     for(Players::Player _other_player: game_board.get_players()){
         // If the other player is here and isn't the active_player...
-        if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
+        if(_other_player.get_position().index==active_player.get_position().index && active_player.role!=_other_player.role){
             // If track== the random value generated, return an action!
             if(track==which_player){
                 return new Actions::Give(_other_player,card_to_give);
@@ -953,7 +953,7 @@ std::vector<Actions::Action*> Actions::GiveConstructor::all_actions(Board::Board
     for(int p=0;p<game_board.get_players().size();p++){
         // for each other player 
         Players::Player& _other_player = game_board.get_players()[p];
-        if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
+        if(_other_player.get_position().index==active_player.get_position().index && active_player.role!=_other_player.role){
             // if they're at this location
             for(int c=0;c<cards_to_give.size();c++){
                 // then we *could* give them a card
@@ -971,7 +971,7 @@ bool Actions::GiveConstructor::legal(Board::Board& game_board){
         Players::Player& active_player = game_board.active_player();
         for(Players::Player& p: game_board.get_players()){
             // And there's another player at the active players position
-            if(p.get_position().index==active_player.get_position().index && active_player.role.name!=p.role.name){
+            if(p.get_position().index==active_player.get_position().index && active_player.role!=p.role){
                 if(active_player.hand.size()>0){
                     // And the active player has cards
                     if(active_player.role.researcher){
@@ -1006,7 +1006,7 @@ void Actions::Take::execute(Board::Board& new_board){
     active_player.reset_last_position();
 
     for(Players::Player& p: new_board.get_players()){
-        if(p.role.name==other_player.role.name){
+        if(p.role==other_player.role){
             p.removeCard(card_to_take_city_idx);
         }
     }
@@ -1034,7 +1034,7 @@ int Actions::TakeConstructor::n_actions(Board::Board& game_board){
         // For every player, check whether they're in the same position as active_player but aren't active_player
         for(Players::Player& _other_player : game_board.get_players()){
             // If they're in the same city...
-            if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
+            if(_other_player.get_position().index==active_player.get_position().index && active_player.role!=_other_player.role){
                 // and it's the researcher...
                 if(_other_player.role.researcher){
                     // then we could take any of their cards
@@ -1072,7 +1072,7 @@ std::vector<Actions::Action*> Actions::TakeConstructor::all_actions(Board::Board
 
     for(Players::Player _other_player : game_board.get_players()){
         // If the other player is at active_players position
-        if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
+        if(_other_player.get_position().index==active_player.get_position().index && active_player.role!=_other_player.role){
             // Then check through each card...
             for(int card: _other_player.hand){
                 // And if they're a researcher or the card index is the same as active_players position
@@ -1091,7 +1091,7 @@ bool Actions::TakeConstructor::legal(Board::Board& game_board){
         Players::Player& active_player = game_board.active_player();
         for(Players::Player& _other_player: game_board.get_players()){
 
-            if(_other_player.get_position().index==active_player.get_position().index && active_player.role.name!=_other_player.role.name){
+            if(_other_player.get_position().index==active_player.get_position().index && active_player.role!=_other_player.role){
                 if(_other_player.role.researcher){
                     if(_other_player.hand.size()>0){
                         return true;
@@ -1124,12 +1124,12 @@ void Actions::Airlift::execute(Board::Board& new_board){
     // Target player last_position better be updated
     for(Players::Player& p: new_board.get_players()){
         // If they're the target_player in new_board, set their position & update last_position.
-        if(p.role.name==target_player.role.name){
+        if(p.role==target_player.role){
             p.reset_last_position(p.get_position().index);
             p.set_position(Map::CITIES[target_city]);
         }
         // If they're the using player, remove the card from their hand
-        if(p.role.name==using_player.role.name){
+        if(p.role==using_player.role){
             p.removeCard(50);
         }
     }
@@ -1231,7 +1231,7 @@ Actions::GovernmentGrant::GovernmentGrant( Players::Player _using_player, int _t
 
 void Actions::GovernmentGrant::execute(Board::Board& new_board){
     for(Players::Player& p: new_board.get_players()){
-        if(p.role.name==using_player.role.name){
+        if(p.role==using_player.role){
             p.removeCard(49);
         }
     }
@@ -1371,7 +1371,7 @@ Actions::QuietNight::QuietNight( Players::Player _using_player):
 
 void Actions::QuietNight::execute(Board::Board& new_board){
     for(Players::Player& p: new_board.get_players()){
-        if(p.role.name==using_player.role.name){
+        if(p.role==using_player.role){
             p.removeCard(48);
         }
     }
@@ -1503,7 +1503,7 @@ std::string Actions::ForcedDiscardAction::repr(){
 
 void Actions::ForcedDiscardAction::execute(Board::Board& new_board){
     for(Players::Player& p : new_board.get_players()){
-        if(p.role.name==player_to_discard.role.name){
+        if(p.role==player_to_discard.role){
             p.removeCard(discard_card_index);
         }
     }

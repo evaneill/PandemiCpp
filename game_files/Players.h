@@ -24,6 +24,25 @@ namespace Players
         bool scientist= false;
         bool researcher= false;
         bool operationsexpert= false;
+
+        bool operator == (const Role& rhs){
+            // fail-fast check (return false as soon as inequality observed)
+            if(quarantinespecialist==rhs.quarantinespecialist){
+                if(medic==rhs.medic){
+                    if(scientist==rhs.scientist){
+                        if(researcher==rhs.researcher){
+                            if(operationsexpert==rhs.operationsexpert){
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        bool operator != (const Role& rhs){
+            return !(*this==rhs);
+        }
     };
 
     class Player{
