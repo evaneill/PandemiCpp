@@ -81,7 +81,7 @@ namespace Board
 
         // custom copy constructor
         Board(const Board& other){
-            // ===== explicitly copy everything - I'm not convinced it was doing any of this
+            // ===== explicitly copy everything - I'm not sure of how much it was doing already
             IS_SETUP = other.IS_SETUP;
 
             outbreak_count = other.outbreak_count;
@@ -116,6 +116,7 @@ namespace Board
             eradicated = other.eradicated;
 
             disease_count = other.disease_count;
+            color_count = other.color_count;
 
             // Both of these require an overloaded = operator
             player_deck = other.player_deck;
