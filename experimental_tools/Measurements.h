@@ -134,6 +134,43 @@ namespace Measurements
         GameMeasurement* construct_measure(Board::Board& active_board);
     };
 
+    // A measurement of when each event card first appeared, and when it was used
+    class ActionCount: public GameMeasurement{
+
+    int Move_count = 0;
+    int DirectFlight_count = 0;
+    int CharterFlight_count = 0;
+    int ShuttleFlight_count = 0;
+    int OperationsExpertFlight_count = 0;
+    int Build_count = 0;
+    int Treat_count = 0;
+    int Cure_count = 0;
+    int Give_count = 0;
+    int Take_count = 0;
+    int DoNothing_count = 0;
+    int Airlift_count = 0;
+    int GovernmentGrant_count = 0;
+    int QuietNight_count = 0;
+    int ForcedDiscard_count = 0;
+
+    public:
+        ActionCount(Board::Board& _active_board);
+        ~ActionCount(){};
+
+        std::vector<double> get_values();
+        void update();
+        void reset(Board::Board& game_board);
+    };
+
+    class ActionCountConstructor: public MeasurementConstructor{
+    public:
+        ActionCountConstructor();
+        ~ActionCountConstructor(){};
+
+        std::vector<std::string> get_value_keys();
+        GameMeasurement* construct_measure(Board::Board& active_board);
+    };
+
     // To track how many diseases were cured in the game. Trackers indicate turn on which each was cured, or -1 if never cured.
     class CuredDisease: public GameMeasurement{
         int BlueCured = -1;

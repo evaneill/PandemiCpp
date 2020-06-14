@@ -27,6 +27,7 @@ Experiments::SingleSampleNaiveUCTAgentExperiment::SingleSampleNaiveUCTAgentExper
         new Measurements::WinLoseConstructor(),
         new Measurements::LoseStatusConstructor(),
         new Measurements::EventCardUseConstructor(),
+        new Measurements::ActionCountConstructor(),
         new Measurements::EpidemicsDrawnConstructor(),
         new Measurements::CuredDiseaseConstructor(),
         new Measurements::ResearchStationsConstructor(),

@@ -259,6 +259,130 @@ void Measurements::EventCardUse::reset(Board::Board& game_board){
     active_board = &game_board;
 };
 
+// ===== ActionCount measurements ===== 
+Measurements::ActionCountConstructor::ActionCountConstructor(){
+    name="Action Counts";
+    description="Count of each type of action used during the game. By current construction, *WON'T* be able to capture the last action of the game (whether winning or not)";
+}
+
+Measurements::GameMeasurement* Measurements::ActionCountConstructor::construct_measure(Board::Board& active_board){
+    return new Measurements::ActionCount(active_board);
+}
+
+std::vector<std::string> Measurements::ActionCountConstructor::get_value_keys(){
+    return {
+        "Move_count",
+        "DirectFlight_count",
+        "CharterFlight_count",
+        "ShuttleFlight_count",
+        "OperationsExpertFlight_count",
+        "Build_count",
+        "Treat_count",
+        "Cure_count",
+        "Give_count",
+        "Take_count",
+        "DoNothing_count",
+        "Airlift_count",
+        "GovernmentGrant_count",
+        "QuietNight_count",
+        "ForcedDiscard_count"
+    };
+}
+
+Measurements::ActionCount::ActionCount(Board::Board& _active_board){
+    active_board = &_active_board;
+}
+
+std::vector<double> Measurements::ActionCount::get_values(){
+    return {
+        (double) Move_count,
+        (double) DirectFlight_count,
+        (double) CharterFlight_count,
+        (double) ShuttleFlight_count,
+        (double) OperationsExpertFlight_count,
+        (double) Build_count,
+        (double) Treat_count,
+        (double) Cure_count,
+        (double) Give_count,
+        (double) Take_count,
+        (double) DoNothing_count,
+        (double) Airlift_count,
+        (double) GovernmentGrant_count,
+        (double) QuietNight_count,
+        (double) ForcedDiscard_count
+    };
+}
+
+//  Unfortunately most of the work here is in updating
+void Measurements::ActionCount::update(){
+    if(active_board -> LastAction_Move){
+        Move_count++;
+    }
+    if(active_board -> LastAction_DirectFlight){
+        DirectFlight_count++;
+    }
+    if(active_board -> LastAction_CharterFlight){
+        CharterFlight_count++;
+    }
+    if(active_board -> LastAction_ShuttleFlight){
+        ShuttleFlight_count++;
+    }
+    if(active_board -> LastAction_OperationsExpertFlight){
+        OperationsExpertFlight_count++;
+    }
+    if(active_board -> LastAction_Build){
+        Build_count++;
+    }
+    if(active_board -> LastAction_Treat){
+        Treat_count++;
+    }
+    if(active_board -> LastAction_Cure){
+        Cure_count++;
+    }
+    if(active_board -> LastAction_Give){
+        Give_count++;
+    }
+    if(active_board -> LastAction_Take){
+        Take_count++;
+    }
+    if(active_board -> LastAction_DoNothing){
+        DoNothing_count++;
+    }
+    if(active_board -> LastAction_Airlift){
+        Airlift_count++;
+    }
+    if(active_board -> LastAction_GovernmentGrant){
+        GovernmentGrant_count++;
+    }
+    if(active_board -> LastAction_QuietNight){
+        QuietNight_count++;
+    }
+    if(active_board -> LastAction_ForcedDiscard){
+        ForcedDiscard_count++;
+    }
+};
+
+// Reset all the tracking variables and reassign board reference
+void Measurements::ActionCount::reset(Board::Board& game_board){
+    Move_count = 0;
+    DirectFlight_count = 0;
+    CharterFlight_count = 0;
+    ShuttleFlight_count = 0;
+    OperationsExpertFlight_count = 0;
+    Build_count = 0;
+    Treat_count = 0;
+    Cure_count = 0;
+    Give_count = 0;
+    Take_count = 0;
+    DoNothing_count = 0;
+    Airlift_count = 0;
+    GovernmentGrant_count = 0;
+    QuietNight_count = 0;
+    ForcedDiscard_count = 0;
+
+    active_board = &game_board;
+};
+
 // ===== CureDisease measurements ===== 
 Measurements::CuredDiseaseConstructor::CuredDiseaseConstructor(){
     name="Cure Status";

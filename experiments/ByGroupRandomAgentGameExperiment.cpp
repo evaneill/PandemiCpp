@@ -29,6 +29,7 @@ Experiments::ByGroupRandomAgentGameExperiment::ByGroupRandomAgentGameExperiment(
         new Measurements::EventCardUseConstructor(),
         new Measurements::EpidemicsDrawnConstructor(),
         new Measurements::CuredDiseaseConstructor(),
+        new Measurements::ActionCountConstructor(),
         new Measurements::EradicatedDiseaseConstructor(),
         new Measurements::ResearchStationsConstructor(),
         new Measurements::GameTreeSizeConstructor(),
