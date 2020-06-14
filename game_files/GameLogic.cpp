@@ -334,6 +334,7 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(Board::Board& game_b
 
 void GameLogic::Game::applyAction(Actions::Action* action){
     // TODO: Guard this! Break the board with illegal actions! Force errors! Prevent catastrophe!
+    active_board -> reset_last_action();
     action -> execute(*active_board);
 }
 

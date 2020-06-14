@@ -72,6 +72,7 @@ namespace Board
         // flag that can be referenced with broken() to force failure on known badness in logic functions
         bool BROKEN = false;
         std::vector<std::string> why_it_broke; // can be used to update reasons BROKEN=true was set
+
     public:
         // Should only be called once instantiate the board.
         // Can input the player roles, hardcoded in Players.cpp switch() correspondence
@@ -124,7 +125,7 @@ namespace Board
         }
 
         std::string repr(); // A string representation for logging (unimplemented rn)
-
+        
         // Setup the board for play
         void setup(bool verbose=false);
         // Clear the board to reset to just-constructed status
@@ -136,12 +137,29 @@ namespace Board
         // difficulty. Only used for sanity checks after initialization
         int difficulty = 0;
 
-        // Logic to add cubes to city
-        // incorporates outbreak etc.
+        // last action boolean flags just for measurement tracking
+        bool LastAction_Move = false;
+        bool LastAction_DirectFlight = false;
+        bool LastAction_CharterFlight = false;
+        bool LastAction_ShuttleFlight = false;
+        bool LastAction_OperationsExpertFlight = false;
+        bool LastAction_Build = false;
+        bool LastAction_Treat = false;
+        bool LastAction_Cure = false;
+        bool LastAction_Give = false;
+        bool LastAction_Take = false;
+        bool LastAction_DoNothing = false;
+        bool LastAction_Airlift = false;
+        bool LastAction_GovernmentGrant = false;
+        bool LastAction_QuietNight = false;
+        bool LastAction_ForcedDiscard = false;
+        void reset_last_action();
+
+
+        // Logic to add cubes to city (incorporates outbreak etc.)
         // returns vector of <# cities outbroken, # prevented> for logging
         // obviously isn't useful for tracking how many cubes the specialist blocked, only prevented outbreaks
-        
-        // This is the function to call to actually infect cities. Requires resetting memory o
+        // This is the function to call to actually infect cities. Requires resetting memory of outbreak_memory
         std::array<int,2> infect(int city_idx,int color, int add);
 
         // This does the actual infecting of each city

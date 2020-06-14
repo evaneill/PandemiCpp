@@ -47,6 +47,8 @@ void Actions::Move::execute(Board::Board& new_board){
     active_player.set_position(to);
 
     new_board.get_turn_action()++;
+
+    new_board.LastAction_Move=true;
 }
 
 std::string Actions::Move::repr(){
@@ -125,6 +127,8 @@ void Actions::DirectFlight::execute(Board::Board& new_board){
     active_player.removeCard(citycard_index);
 
     new_board.get_turn_action()++;
+
+    new_board.LastAction_DirectFlight=true;
 }
 
 std::string Actions::DirectFlight::repr(){
@@ -214,6 +218,8 @@ void Actions::CharterFlight::execute(Board::Board& new_board){
     active_player.set_position(target_city);
 
     new_board.get_turn_action()++;
+
+    new_board.LastAction_CharterFlight=true;
 }
 
 std::string Actions::CharterFlight::repr(){
@@ -292,6 +298,8 @@ void Actions::ShuttleFlight::execute(Board::Board& new_board){
     active_player.set_position(target_station_city_idx);
 
     new_board.get_turn_action()++;
+
+    new_board.LastAction_ShuttleFlight=true;
 }
 
 std::string Actions::ShuttleFlight::repr(){
@@ -385,6 +393,8 @@ void Actions::OperationsExpertFlight::execute(Board::Board& new_board){
     active_player.set_position(target_city);
 
     new_board.get_turn_action()++;
+
+    new_board.LastAction_OperationsExpertFlight=true;
 }
 
 std::string Actions::OperationsExpertFlight::repr(){
@@ -497,6 +507,8 @@ void Actions::Build::execute(Board::Board& new_board){
     }
 
     new_board.get_turn_action()++;
+
+    new_board.LastAction_Build=true;
 }
 
 std::string Actions::Build::repr(){
@@ -623,6 +635,8 @@ void Actions::Treat::execute(Board::Board& new_board){
     if(new_board.is_cured(color) && new_board.disease_sum(color)==0){
         new_board.Eradicate(color);
     }
+
+    new_board.LastAction_Treat=true;
 }
 
 std::string Actions::Treat::repr(){
@@ -749,6 +763,7 @@ void Actions::Cure::execute(Board::Board& new_board){
                 if(new_board.disease_sum(Map::BLUE)==0){
                     new_board.Eradicate(Map::BLUE);
                 }
+                new_board.LastAction_Cure=true;
                 return;
             }
             if(color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !new_board.is_cured(Map::YELLOW)){
@@ -760,6 +775,7 @@ void Actions::Cure::execute(Board::Board& new_board){
                 if(new_board.disease_sum(Map::YELLOW)==0){
                     new_board.Eradicate(Map::YELLOW);
                 }
+                new_board.LastAction_Cure=true;
                 return;
             }
             if(color_count[Map::BLACK]>=active_player.role.required_cure_cards && !new_board.is_cured(Map::BLACK)){
@@ -771,6 +787,7 @@ void Actions::Cure::execute(Board::Board& new_board){
                 if(new_board.disease_sum(Map::BLACK)==0){
                     new_board.Eradicate(Map::BLACK);
                 }
+                new_board.LastAction_Cure=true;
                 return;
             }
             if(color_count[Map::RED]>=active_player.role.required_cure_cards && !new_board.is_cured(Map::RED)){
@@ -782,6 +799,7 @@ void Actions::Cure::execute(Board::Board& new_board){
                 if(new_board.disease_sum(Map::RED)==0){
                     new_board.Eradicate(Map::RED);
                 }
+                new_board.LastAction_Cure=true;
                 return;
             }
         }
@@ -865,6 +883,8 @@ void Actions::Give::execute(Board::Board& new_board){
         }
     }
     new_board.get_turn_action()++;
+
+    new_board.LastAction_Give=true;
 }
 
 std::string Actions::Give::repr(){
@@ -1012,6 +1032,8 @@ void Actions::Take::execute(Board::Board& new_board){
 
     active_player.UpdateHand(card_to_take_city_idx);
     new_board.get_turn_action()++;
+
+    new_board.LastAction_Take=true;
 }
 
 std::string Actions::Take::repr(){
@@ -1132,6 +1154,8 @@ void Actions::Airlift::execute(Board::Board& new_board){
             p.removeCard(50);
         }
     }
+
+    new_board.LastAction_Airlift=true;
 }
 
 std::string Actions::Airlift::repr(){
@@ -1244,6 +1268,7 @@ void Actions::GovernmentGrant::execute(Board::Board& new_board){
         new_board.RemoveStation(remove_station);
     }
 
+    new_board.LastAction_GovernmentGrant=true;
 }
 
 std::string Actions::GovernmentGrant::repr(){
@@ -1375,6 +1400,8 @@ void Actions::QuietNight::execute(Board::Board& new_board){
         }
     }
     new_board.quiet_night_status() = true;
+
+    new_board.LastAction_QuietNight=true;
 }
 
 std::string Actions::QuietNight::repr(){
@@ -1451,6 +1478,7 @@ void Actions::DoNothing::execute(Board::Board& game_board){
         game_board.get_turn_action()++;
     }
     // Otherwise this is being called when perhaps using an Event card outside of the turn, and shouldn't change the game state at all.
+    game_board.LastAction_DoNothing=true;
 }
 
 std::string Actions::DoNothing::repr(){
@@ -1506,6 +1534,7 @@ void Actions::ForcedDiscardAction::execute(Board::Board& new_board){
             p.removeCard(discard_card_index);
         }
     }
+    new_board.LastAction_ForcedDiscard=true;
 }
 
 Actions::ForcedDiscardConstructor::ForcedDiscardConstructor(){};

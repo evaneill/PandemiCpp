@@ -184,6 +184,25 @@ void Board::Board::is_setup(){
     IS_SETUP=true;
 }
 
+void Board::Board::reset_last_action(){
+    // Set all possible last player actions to false
+    LastAction_Move = false;
+    LastAction_DirectFlight = false;
+    LastAction_CharterFlight = false;
+    LastAction_ShuttleFlight = false;
+    LastAction_OperationsExpertFlight = false;
+    LastAction_Build = false;
+    LastAction_Treat = false;
+    LastAction_Cure = false;
+    LastAction_Give = false;
+    LastAction_Take = false;
+    LastAction_DoNothing = false;
+    LastAction_Airlift = false;
+    LastAction_GovernmentGrant = false;
+    LastAction_QuietNight = false;
+    LastAction_ForcedDiscard = false;
+}
+
 void Board::Board::reset_disease_count(){
     // Set all of the disease counts to 0 (I didn't think I had to do this but...)
     for(int col=0;col<4;col++){
