@@ -30,6 +30,15 @@ double Search::UCB1Score(Search::Node* node){
 Search::Node::Node(Node* _parent,Actions::Action* _action){
     parent = _parent;
     action = _action;
+
+    // increment stochasticities traversed if you came from a stochastic parent
+    if(parent){
+        if(parent -> stochastic){
+            stochasticities_traversed = parent -> stochasticities_traversed+1;
+        } else {
+            stochasticities_traversed = parent -> stochasticities_traversed;
+        }
+    }
 }
 
 Search::DeterministicNode::DeterministicNode(Search::Node* _parent,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic):
@@ -52,22 +61,23 @@ Search::DeterministicNode::DeterministicNode(Search::Node* _parent,Actions::Acti
 void Search::DeterministicNode::set_score(double score_fn(Search::Node*)){
     if(!terminal){
         score = score_fn(this);
+    } else {
+        // If it's terminal, average reward = only possible reward = reward *with certainty*
+        score = TotalReward/N_visits;
     }
     // if terminal, score should have been instantiated on creation and never change.
 }
 
-void Search::DeterministicNode::update(double reward,double score_fn(Search::Node*)){
-    TotalReward+=reward;
-    N_visits+=1;
-
+double Search::DeterministicNode::update(double score_fn(Search::Node*)){
     set_score(score_fn);
+    return score;
 }
 
-void Search::DeterministicNode::backprop(double reward,double score_fn(Search::Node*)){
-    update(reward,score_fn);
+void Search::DeterministicNode::backprop(double reward){
+    TotalReward+=reward;
+    N_visits+=1;
     if(parent){
-        // If parent isn't nullptr, tell the parent to backprop
-        parent -> backprop(reward,score_fn);
+        parent -> backprop(reward);
     }
 }
 
@@ -91,21 +101,30 @@ Search::Node* Search::DeterministicNode::get_parent(){
     return parent;
 }
 
-Search::Node* Search::DeterministicNode::best_child(Board::Board& state,GameLogic::Game& game_logic){
+Search::Node* Search::DeterministicNode::best_child(Board::Board& state,GameLogic::Game& game_logic,double score_fn(Search::Node*)){
     if(!terminal){
         if(action_queue.empty()){
             // If there are no untried actions, always return the best child as per score that's been being updated
             
-            // Necessary to force the queue to update tho
-            Search::Node* was_best_before = children.top();
-            children.pop();
-            children.push(was_best_before);
-            
-            // Use the top of the queue to advance the state in place
-            children.top() -> get_action() -> execute(state);
+            // Necessary to check scores by force though
+            // I do a by-force max check rather than sorting the vector because it's costly
+            // sort is O(N log N) and so potentially worse than this, which in addition to the fact that my compiler ignores std::sort means I don't use that
+            double best_score=-1;
+            Search::Node* best_child = nullptr;
 
-            // Return the best child after having updating the queue
-            return children.top();
+            for(Search::Node* child: children){
+                double this_score = child -> update(score_fn);
+                if(this_score > best_score){
+                    best_score = this_score;
+                    best_child = child;
+                }
+            }
+
+            // advance the state in-place
+            best_child -> get_action() -> execute(state);
+
+            // Return the best child after having updating the queue and advanced the state
+            return best_child;
         } else {
             // Otherwise pull an action out of the stack
             Actions::Action* new_action = action_queue.back();
@@ -126,7 +145,7 @@ Search::Node* Search::DeterministicNode::best_child(Board::Board& state,GameLogi
                 new_node = new Search::DeterministicNode(this,new_action,&state,game_logic); 
             }
             // And insert it into children for later
-            children.push(new_node);
+            children.push_back(new_node);
 
             // And return it as the "best child"
             return new_node;
@@ -138,7 +157,11 @@ Search::Node* Search::DeterministicNode::best_child(Board::Board& state,GameLogi
 
 void Search::DeterministicNode::addChild(Board::Board& game_board, Actions::Action* action,GameLogic::Game& game_logic){};
 
+void Search::DeterministicNode::addNullChild(){};
+
 Search::Node* Search::DeterministicNode::getChild(int child){return nullptr;};
+
+void Search::DeterministicNode::setChild(int child,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic){};
 
 int Search::StochasticNode::n_children(){
     return children.size();
@@ -147,16 +170,17 @@ int Search::StochasticNode::n_children(){
 Search::StochasticNode::StochasticNode(Search::Node* _parent,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic):
     Node(_parent,_action){
         stochastic = true;
-        
+
         if(game_logic.is_terminal(*_board_state)){
             terminal = true;
         }
 
-        // I'm choosing to implement stochastic nodes with no children on the constructor. It's up to the tree that's using such nodes to decide what to do with them.
+        // I'm choosing to implement stochastic nodes with no children on the constructor. 
+        // It's up to the tree that's using such nodes to decide what to do with them.
         children = {};
     }
 
-Search::Node* Search::StochasticNode::best_child(Board::Board& state,GameLogic::Game& game_logic){
+Search::Node* Search::StochasticNode::best_child(Board::Board& state,GameLogic::Game& game_logic,double score_fn(Search::Node*)){
     // Goal is to get to the next deterministic node
     // Requires the tree to have made a choice about the child structure of stochastic nodes returned during tree policy search
     if(!terminal){
@@ -172,7 +196,7 @@ Search::Node* Search::StochasticNode::best_child(Board::Board& state,GameLogic::
             if(best_child -> stochastic && !best_child -> terminal){
                 // recursive call to best_child is *maybe* questionable, but I think in general forcing randomness (randomness over children) should be inherent to stochastic nodes
                 // Only the structure of the tree seems like should be able to control stochastic behavior
-                best_child = best_child -> best_child(state,game_logic);
+                best_child = best_child -> best_child(state,game_logic,score_fn);
             }
             // return a terminal or deterministic node
             return best_child;
@@ -201,22 +225,23 @@ Search::Node* Search::StochasticNode::get_parent(){
 void Search::StochasticNode::set_score(double score_fn(Search::Node*)){
     if(!terminal){
         score = score_fn(this);
+    } else {
+        // If it's terminal, average reward is always the only reward = reward *with certainty*
+        score = TotalReward/N_visits;
     }
-    // if terminal, score should have been instantiated on creation and never change.
 }
 
-void Search::StochasticNode::update(double reward,double score_fn(Search::Node*)){
+double Search::StochasticNode::update(double score_fn(Search::Node*)){
+    set_score(score_fn);
+    return score;
+}
+
+void Search::StochasticNode::backprop(double reward){
     TotalReward+=reward;
     N_visits+=1;
-
-    set_score(score_fn);
-}
-
-void Search::StochasticNode::backprop(double reward,double score_fn(Search::Node*)){
-    update(reward,score_fn);
     if(parent){
         // If parent isn't nullptr, tell the parent to backprop
-        parent -> backprop(reward,score_fn);
+        parent -> backprop(reward);
     }
 }
 
@@ -229,8 +254,21 @@ void Search::StochasticNode::addChild(Board::Board& game_board, Actions::Action*
     }
 }
 
+void Search::StochasticNode::addNullChild(){
+    children.push_back(nullptr);
+}
+
 Search::Node* Search::StochasticNode::getChild(int child){
     return children[child];
+}
+
+void Search::StochasticNode::setChild(int child,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic){
+    _action -> execute(*_board_state);
+    if(game_logic.is_stochastic(*_board_state)){
+        children[child] = new Search::StochasticNode(this,_action,_board_state,game_logic);
+    } else {
+        children[child] = new Search::DeterministicNode(this,_action,_board_state,game_logic);
+    }
 }
 
 Search::GameTree::GameTree(GameLogic::Game& _game_logic): game_logic(_game_logic){
@@ -241,74 +279,117 @@ Search::GameTree::GameTree(GameLogic::Game& _game_logic): game_logic(_game_logic
     root = new Search::DeterministicNode(nullptr,nullptr,&state,game_logic);
 }
 
-Search::KSampleGameTree::KSampleGameTree(GameLogic::Game& _game_logic,int _samples_per_stochasticity):GameTree(_game_logic){
+Search::KDeterminizedGameTree::KDeterminizedGameTree(GameLogic::Game& _game_logic,int _samples_per_stochasticity):GameTree(_game_logic){
     samples_per_stochasticity = _samples_per_stochasticity;
+    for(int det=0;det<samples_per_stochasticity;det++){
+        // Initialize the determinization queue with empty determinizations
+        determinization_queue.push_back({});
+    }
 }
 
-Search::Node* Search::KSampleGameTree::getBestLeaf(Board::Board& game_board){
+Search::Node* Search::KDeterminizedGameTree::getBestLeaf(Board::Board& game_board,double score_fn(Search::Node*)){
     /*
-    Idea is that this kind of tree will traverse through deterministic choices by evolving a copy of the current state with node `action`s, until it is returned a new node by some `best_child` method.
 
-    If this results in a node (and state) that requires player input, then we just return the new deterministic node
-
-    If this results in a stochastic node (ie state that requires game logic to advance), then:
-        * use game logic to generate samples_per_stochasticity stochastic actions (with replacement) and create immediate children with each action
-        * For each of samples_per_stochasticity children, copy the current state and make StochasticNode children in a chain succeeding that child until another decision node is reached, storing the stochasticity drawn in each node
-    
+    ---> Tree traversed this way --->
+            _____ * ______ * ________ x
+          /    
+         /
+    x-- * ------ * ------- * ------- x    <- This is an artistic interpretation (with license) of what I'm trying to achieve. Here "*" are stochastic nodes, and "x" are deterministic nodes
+         \                                      This shows a stochastic node in a "3-determinized" tree. The first stochastic node encountered branches 3 times, one for each determinization
+          \______ * _______ x                   Subsequent stochastic nodes each have one child until they hit a deterministic node
+       
+    This tree traverses the tree evolving `game_board` in place with actions on traversed nodes.
     */
 
     // Always start by asking the root for a best child
     // We're assuming this is only ever a deterministic node
-    // (advances the game_board in place)
-    Search::Node* best_choice = root -> best_child(game_board,game_logic);
+    // (this request advances the game_board in place)
+    Search::Node* best_choice = root -> best_child(game_board,game_logic,score_fn);
+
+    // Choose which determinization we'll use for all the stochasticities in this traversal
+    int determinization = rand() % samples_per_stochasticity;
 
     // Then traverse the tree until it's forced to instantiate a new node
-    // Goal is to end up at the next decision node
+    // Goal is to end up at the next node thats an unvisited decision node or terminal node
     while(!best_choice -> terminal && (best_choice -> N_visits > 0)){
-        //  best_child() methods always advance given board state in-place
-        // eventually, though, it should have to make a new node (N_visits=0) or get to the end of a game (terminal=true)
-        best_choice = best_choice -> best_child(game_board,game_logic);
-    }
-
-    // If this is stochastic (and not the end of the game), then by construction it means a DeterministicNode made it
-    // It's up to this tree, right now, to choose how to instantiate children for the stochasticity.
-    // In this tree I:
-    //  (1) instantiate samples_per_stochasticity children of this node
-    //  (2) make a chain of nodes one at a time under each child until the game reaches another decision node
-    //  (3) advance the game_board through one of the children chains before returning the new decision node to the agent
-    if(best_choice -> stochastic && !best_choice -> terminal){
-        for(int child=0;child<samples_per_stochasticity;child++){
-            // Copy the board
-            Board::Board board_copy = game_board;
-
-            // generate an action for this copy of the board without advancing it
-            Actions::Action* new_action = game_logic.get_stochastic_action(board_copy);
-            best_choice -> addChild(board_copy,new_action,game_logic);
-
-            // get the newly made child at the top of a chain of stochasticities
-            Search::Node* child_link = best_choice -> getChild(child);
-            while(game_logic.is_stochastic(board_copy)){
-                // get a new action in this board state without advancing it
-                Actions::Action* new_action = game_logic.get_stochastic_action(board_copy);
-                // add a link to this child
-                child_link -> addChild(board_copy,new_action,game_logic);
-                // repeat
-                child_link = child_link -> getChild(0);
-            }
+        // If this is a deterministic node
+        if(!best_choice -> stochastic){
+            // then select the best performing child node
+            best_choice = best_choice -> best_child(game_board,game_logic,score_fn);
+        } else {
+            // otherwise follow (perhaps create-and-follow) the `determinization`th child of the stochastic node down to it's deterministic successor
+            best_choice = GetDeterministicChild(best_choice,game_board,determinization);
         }
-
-        // finish by traversing one of the stochastic chains and altering the board in-place
-        best_choice = best_choice -> best_child(game_board,game_logic);
     }
-    return best_choice;
+
+    // Return either the deterministic node, or the `determinization`th deterministic successor of a deterministic successor
+    return GetDeterministicChild(best_choice,game_board,determinization);
 }
 
-Actions::Action* Search::KSampleGameTree::bestAction(){
-
+Actions::Action* Search::KDeterminizedGameTree::bestAction(double score_fn(Search::Node*)){
     // Copy initial state from the game logic
     Board::Board state = game_logic.board_copy();
 
-    Search::Node* best_choice = root -> best_child(state,game_logic);
+    Search::Node* best_choice = root -> best_child(state,game_logic,score_fn);
 
     return best_choice -> get_action();
+}
+
+Actions::Action* Search::KDeterminizedGameTree::GetOrCreateAction(Search::Node* node_for_expansion, Board::Board& board_copy, int determinization){
+    Actions::Action* new_action = nullptr;
+    if(determinization_queue[determinization].size()>node_for_expansion -> stochasticities_traversed){
+        // If there are at least as many determinizations as we need to get the first action, then use that;
+        new_action =  determinization_queue[determinization][node_for_expansion -> stochasticities_traversed];
+        // (k stochasticities have been traversed -> We need to use the (k+1)th to advance to the next node)
+    } else {
+        // If there aren't as many as we need, then by construction (since this is a single new node on the tree) we *should* only require one new action
+        new_action = game_logic.get_stochastic_action(board_copy);
+        // We put this new action on the `determinization`th determinization queue
+        determinization_queue[determinization].push_back(new_action);
+    }
+    return new_action;
+}
+
+Search::Node* Search::KDeterminizedGameTree::GetDeterministicChild(Search::Node* node, Board::Board& game_board, int determinization,bool on_chain){
+    if(!node -> stochastic){
+        // always return a deterministic node immediately, 
+        return node;
+    } else {
+        // If it's not, check to see whether any children have been instantiated before
+        if(node -> n_children()==0){
+            if(on_chain){
+                // If within the child-after-child chain under an already-branched stochasticity, add a single successor
+                node -> addNullChild();
+            } else {
+                // Otherwise samples_per_stochasticity children, one for each determinization
+                for(int _=0;_<samples_per_stochasticity;_++){
+                    node -> addNullChild();
+                }
+            }
+        }
+    }
+
+    // If the appropriate child is already defined...
+    if(node -> getChild(on_chain ? 0 : determinization)){
+        // Then get it, advance the state using it's action, and return the recursive call
+        Search::Node* child = node -> getChild(on_chain ? 0 : determinization);
+        Actions::Action* action = child -> get_action();
+        action -> execute(game_board);
+
+        return GetDeterministicChild(child,game_board,determinization,true);
+    } else {
+        // Otherwise, if the child isn't defined yet,...
+
+        // Get-or-create an action with which to define a successor. `node` is used to determine how far into the determinization to look
+        Actions::Action* new_action = GetOrCreateAction(node,game_board,determinization);
+
+        // set a child and advance the board in-place
+        node -> setChild(on_chain ? 0 : determinization,new_action,&game_board,game_logic);
+
+        // Get that child
+        Search::Node* child = node -> getChild(on_chain ? 0 : determinization);
+
+        // recursively call the function
+        return GetDeterministicChild(child,game_board,determinization,true);
+    }
 }

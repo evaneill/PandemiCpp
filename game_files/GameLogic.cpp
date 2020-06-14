@@ -403,6 +403,7 @@ double GameLogic::Game::rollout(Board::Board& game_board,Heuristics::Heuristic h
         if(!is_terminal(game_board)){
             Actions::Action* random_action = get_random_action_bygroup(game_board);
             random_action -> execute(game_board);
+            delete random_action;
         }
     }
     // once the game has ended, use the heuristic to evaluate it

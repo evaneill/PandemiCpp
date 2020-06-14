@@ -9,17 +9,17 @@
 #include "../experimental_tools/Scenarios.h"
 #include "../experimental_tools/Measurements.h"
 
-Experiments::SingleSampleNaiveUCTAgentExperiment::SingleSampleNaiveUCTAgentExperiment(){
+Experiments::ThreeSampleNaiveUCTAgentExperiment::ThreeSampleNaiveUCTAgentExperiment(){
     // Hard-code a description for this experiment
-    experiment_name = "SingleSampleNaiveUCTAgentExperiment";
-    description = "Test a single-determinization UCT agent that uses only win/loss (0/1) reward from rollouts to update node scores, and 10000 simulations/step";
+    experiment_name = "ThreeSampleNaiveUCTAgentExperiment";
+    description = "Test a three-determinization UCT agent that uses only win/loss (0/1) reward from rollouts to update node scores, and 10000 simulations/step";
 
-    fileheader = "SingleSampleNaiveUCTAgentExperiment";// .header ,.csv
+    fileheader = "ThreeSampleNaiveUCTAgentExperiment";// .header ,.csv
     
     // Use the scenario to setup some variables
     scenario = new Scenarios::VanillaGameScenario();
 
-    agent_name = "Single-Sample Naive UCT Agent";
+    agent_name = "Three-Sample Naive UCT Agent";
 
     // Define measurements on the active board
     // As I write this, these are all the possible measurements
@@ -48,7 +48,7 @@ Experiments::SingleSampleNaiveUCTAgentExperiment::SingleSampleNaiveUCTAgentExper
     n_games=1;
 }
 
-void Experiments::SingleSampleNaiveUCTAgentExperiment::write_header(){
+void Experiments::ThreeSampleNaiveUCTAgentExperiment::write_header(){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::trunc);
 
     header << "Experiment Name: " << experiment_name << std::endl;
@@ -84,43 +84,43 @@ void Experiments::SingleSampleNaiveUCTAgentExperiment::write_header(){
     header.close();
 }
 
-void Experiments::SingleSampleNaiveUCTAgentExperiment::reset_board(Board::Board* game_board){
+void Experiments::ThreeSampleNaiveUCTAgentExperiment::reset_board(Board::Board* game_board){
     scenario -> reset_board(game_board);
 }
 
-void Experiments::SingleSampleNaiveUCTAgentExperiment::append_header(std::string extras){
+void Experiments::ThreeSampleNaiveUCTAgentExperiment::append_header(std::string extras){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::app);
     header << extras;
     header.close();
 }
 
-void Experiments::SingleSampleNaiveUCTAgentExperiment::write_experiment(std::string data){
+void Experiments::ThreeSampleNaiveUCTAgentExperiment::write_experiment(std::string data){
     std::ofstream logfile(Experiments::OUTPUT_DIR + fileheader + ".csv",std::ios::out | std::ios::trunc);
     logfile << data;
     logfile.close();
 }
 
-Board::Board* Experiments::SingleSampleNaiveUCTAgentExperiment::get_board(){
+Board::Board* Experiments::ThreeSampleNaiveUCTAgentExperiment::get_board(){
     return scenario -> make_board({1,2,3},4);
 }
 
-Agents::BaseAgent* Experiments::SingleSampleNaiveUCTAgentExperiment::get_agent(GameLogic::Game* game){
+Agents::BaseAgent* Experiments::ThreeSampleNaiveUCTAgentExperiment::get_agent(GameLogic::Game* game){
     // 10000 simulations per step
     // 1 determinization per stochasticity
-    return new Agents::KSampleNaiveUCTAgent(*game,10000,1);
+    return new Agents::KSampleNaiveUCTAgent(*game,10000,3);
 }
 
-std::vector<Measurements::GameMeasurement*> Experiments::SingleSampleNaiveUCTAgentExperiment::get_game_measures(Board::Board* game){
+std::vector<Measurements::GameMeasurement*> Experiments::ThreeSampleNaiveUCTAgentExperiment::get_game_measures(Board::Board* game){
     std::vector<Measurements::GameMeasurement*> game_measures = {};
 
     for(Measurements::MeasurementConstructor* con: measureCons){
-    game_measures.push_back(con -> construct_measure(*game));
+        game_measures.push_back(con -> construct_measure(*game));
     }
     return game_measures;
 }
 
 int main(){
-    Experiments::Experiment* experiment = new Experiments::SingleSampleNaiveUCTAgentExperiment();
+    Experiments::Experiment* experiment = new Experiments::ThreeSampleNaiveUCTAgentExperiment();
     
     // ===== Seed rand() =====
     // ===== Thank you stackoverflow =====

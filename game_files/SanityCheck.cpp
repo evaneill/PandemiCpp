@@ -33,6 +33,21 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
         DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
     }
 
+    // make sure turn action is >=0 and <=5
+    if(verbose){
+        DEBUG_MSG(std::endl << "[SANITYCHECK] Checking that turn_action on board is well defined..." << std::endl);
+    }
+    if(active_board.get_turn_action()<0 || active_board.get_turn_action()>5){
+        if(verbose){
+            DEBUG_MSG(std::endl << "[SANITYCHECK] turn_action is ill defined: it's currently " << active_board.get_turn_action() << std::endl);
+        }
+        active_board.broken()=true;
+        active_board.broken_reasons().push_back("[SANITYCHECK] turn_action is ill defined: it's currently " + std::to_string(active_board.get_turn_action()));
+    }
+    if(verbose){
+        DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
+    }
+
     // make sure infect card drawn counters are 0 when it's not infect stage of the game
     if(verbose){
         DEBUG_MSG(std::endl << "[SANITYCHECK] Checking infection card drawn counter is 0 when not infect step..." << std::endl);
