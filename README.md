@@ -2,13 +2,13 @@
 C++ implementation of pandemic board game for testing MCTS agents
 
 ## Status
-As of June 15, 2020 this is still a work in progress and has been through a modest amount, but not deeply thorough, testing for game logic and agents. Also this is my first time with C++, so you'll have to overlook all of the breaches of best-practice. Further, I'm certain that there are probably inefficiencies or impracticalities that would be obvious to a real practitioner, but I don't know about. 
+As of June 15, 2020 this is still a work in progress and has been through a modest amount of, but not deeply thorough, testing for game logic and agents. Also this is my first time with C++, so you'll have to overlook all of the breaches of best-practice. Further, I'm certain that there are probably inefficiencies or impracticalities that would be obvious to a real practitioner, but I don't know about. 
 
 ## Requirements
 I believe that you only need a C++ compiler that's capable of compiling the C++17 standard. This standard is required because I've used some `inline` statements to define global variables. The commands in `makefile` require `g++`, specifically, and have been developed on an OSX system. It takes my compiler ~20-40 ish sec to build a full experiment.
 
 ## Hello World Playtest
-Right now `Playtest.cpp` holds the logic to call the random agent in a playthrough of the game. It draws actions uniformly over _types_ of legal actions, and then uniformly over legal actions of the chosen type. You can compile a binary and run it with `make playtest`, which makes a `playtest.out` binary you can call over and over.
+Right now `Playtest.cpp` holds the logic to call the random agent in a playthrough of the game. It draws actions uniformly over _types_ of legal actions, and then uniformly over legal actions of the chosen type. You can compile a binary and run it with `make playtest`, which makes a `./playtest.out` binary you can call over and over.
 
 Right now there are several compile warnings regarding the possibility of not returning anything in some `ActionConstructor` functions and others. That's fine to me right now, I would very much want the game to fail if any of those points are reached.
 
