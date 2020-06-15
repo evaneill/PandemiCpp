@@ -140,6 +140,8 @@ void Board::Board::clear(){
         p.reset();
     };
 
+    reset_last_action();
+    
     research_stations.clear();
 
     player_deck = Decks::PlayerDeck(difficulty);
