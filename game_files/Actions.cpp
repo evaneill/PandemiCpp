@@ -1077,13 +1077,22 @@ int Actions::TakeConstructor::n_actions(Board::Board& game_board){
 }
 
 Actions::Action* Actions::TakeConstructor::random_action(Board::Board& game_board){
-    Players::Player& active_player = game_board.active_player();
 
     // I tried thinking of a way to do this without calling all actions
     // But that seemed at least as hard as just doing this
     // This gives uniformity over all cards to take
     std::vector<Actions::Action*> action_list = all_actions(game_board);
-    return action_list[rand() % action_list.size()];
+
+    int chosen_action_index = rand() % action_list.size();
+
+    // Have to address that this is a potential memory leak though
+    for(int ind=0;ind<action_list.size();ind++){
+        // delete all actions that aren't the one to return
+        if(ind!=chosen_action_index){
+            delete action_list[ind];
+        }
+    }
+    return action_list[chosen_action_index];
 }
 
 std::vector<Actions::Action*> Actions::TakeConstructor::all_actions(Board::Board& game_board){
