@@ -562,11 +562,12 @@ std::vector<std::string> Measurements::TimeTakenConstructor::get_value_keys(){
 Measurements::TimeTaken::TimeTaken(Board::Board& _active_board){
     active_board = &_active_board;
 
-    start_time = std::chrono::high_resolution_clock::now();
+    start_time = std::chrono::steady_clock::now();
 }
 
 std::vector<double> Measurements::TimeTaken::get_values(){
-    std::chrono::duration<double, std::milli> duration = std::chrono::high_resolution_clock::now()- start_time;
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start_time;
     return {
         std::chrono::duration<double>(duration).count()
     };
@@ -577,7 +578,7 @@ void Measurements::TimeTaken::update(){}
 
 void Measurements::TimeTaken::reset(Board::Board& game_board){
     // reset the start time
-    start_time = std::chrono::high_resolution_clock::now();
+    start_time = std::chrono::steady_clock::now();
 
     active_board = &game_board;   
 }
