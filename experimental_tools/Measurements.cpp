@@ -7,6 +7,7 @@
 #include "../game_files/Board.h"
 
 #include <chrono>
+#include <algorithm>
 
 Measurements::GameMeasurement::GameMeasurement(){}
 
