@@ -183,6 +183,7 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(Board::Board& game_b
     }
     game_board.broken()=true;
     game_board.broken_reasons().push_back("[Game::get_random_action_uniform()] get_random_action_uniform got to end of execution without choosing an action");
+    return nullptr;
 }
 
 Actions::Action* GameLogic::Game::get_random_action_bygroup(bool verbose){

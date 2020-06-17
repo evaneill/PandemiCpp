@@ -956,6 +956,7 @@ Actions::Action* Actions::GiveConstructor::random_action(Board::Board& game_boar
     }
     game_board.broken()=true;
     game_board.broken_reasons().push_back("[GiveConstructor::random_action()] GIVE failed to return a random action!");
+    return nullptr;
 }
 
 std::vector<Actions::Action*> Actions::GiveConstructor::all_actions(Board::Board& game_board){
@@ -1213,6 +1214,7 @@ Actions::Action* Actions::AirliftConstructor::random_action(Board::Board& game_b
     }
     game_board.broken()=true;
     game_board.broken_reasons().push_back("[AirliftConstructor::random_action()] AIRLIFT random_action() called and didn't return an action");
+    return nullptr;
 }
 
 std::vector<Actions::Action*> Actions::AirliftConstructor::all_actions(Board::Board& game_board){
@@ -1337,6 +1339,7 @@ Actions::Action* Actions::GovernmentGrantConstructor::random_action(Board::Board
     }
     game_board.broken()=true;
     game_board.broken_reasons().push_back("[GovernmentGrantConstructor::random_action()] GOVERNMENTGRANT random_action() called but didn't return an action");
+    return nullptr;
 }
 
 std::vector<Actions::Action*> Actions::GovernmentGrantConstructor::all_actions(Board::Board& game_board){
@@ -1441,6 +1444,7 @@ Actions::Action* Actions::QuietNightConstructor::random_action(Board::Board& gam
     }
     game_board.broken()=true;
     game_board.broken_reasons().push_back("[QuietNightConstructor::random_action()] QUIETNIGHT random_action() called and didn't return an action");
+    return nullptr;
 }
 
 std::vector<Actions::Action*> Actions::QuietNightConstructor::all_actions(Board::Board& game_board){
@@ -1458,6 +1462,7 @@ std::vector<Actions::Action*> Actions::QuietNightConstructor::all_actions(Board:
     }
     game_board.broken()=true;
     game_board.broken_reasons().push_back("[QuietNightConstructor::all_actions()] QUIETNIGHT all_actions() called and didn't return any actions");
+    return {nullptr};
 }
 
 bool Actions::QuietNightConstructor::legal(Board::Board& game_board){
@@ -1581,6 +1586,7 @@ int Actions::ForcedDiscardConstructor::n_actions(Board::Board& game_board){
     }
     game_board.broken()=true;
     game_board.broken_reasons().push_back("[ForcedDiscardConstructor::n_actions()] FORCEDDISCARD n_actions() called but didn't return anything");
+    return -1;
 }
 
 Actions::Action* Actions::ForcedDiscardConstructor::random_action(Board::Board& game_board){
@@ -1610,6 +1616,7 @@ Actions::Action* Actions::ForcedDiscardConstructor::random_action(Board::Board& 
     }
     game_board.broken()=true; // should never get here
     game_board.broken_reasons().push_back("[ForcedDiscardConstructor::random_action()] Forced Discard Constructor has failed to return any action");
+    return nullptr;
 }
 
 std::vector<Actions::Action*> Actions::ForcedDiscardConstructor::all_actions(Board::Board& game_board){
@@ -1639,6 +1646,7 @@ std::vector<Actions::Action*> Actions::ForcedDiscardConstructor::all_actions(Boa
     }
     game_board.broken()=true;
     game_board.broken_reasons().push_back("[ForcedDiscardConstructor::all_actions()] FORCEDDISCARD all_actions() called but didn't return anything");
+    return {nullptr};
 }
 
 bool Actions::ForcedDiscardConstructor::legal(Board::Board& game_board){

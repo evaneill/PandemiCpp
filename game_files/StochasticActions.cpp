@@ -339,6 +339,7 @@ Actions::Action* StochasticActions::StochasticActionConstructor::get_action(Boar
     } else {
         game_board.broken()=true;
         game_board.broken_reasons().push_back("[StochasticActions::StochasticActionConstructor()] Stochastic constructor was asked for actions when InfectDraw and PlayerDeckDraw were both illegal!");
+        return nullptr;
     }
 }
 
