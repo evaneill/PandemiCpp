@@ -3,6 +3,8 @@
 
 #include "../game_files/Board.h"
 
+#include <chrono>
+
 namespace Measurements
 {
     // A class to be instantiated for one game and then have it's values collected, then die.

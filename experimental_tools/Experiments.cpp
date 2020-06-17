@@ -4,8 +4,6 @@
 
 #include "Experiments.h"
 
-#include <chrono>
-
 void Experiments::RunExperiment(Experiments::Experiment* exp,bool log_output){
     // Write the header file including start timestamp (REMOVE any file that existed before)
     // Will need to append the finish time later
