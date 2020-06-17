@@ -45,8 +45,8 @@ Experiments::ThreeSampleNaiveUCTAgentExperiment::ThreeSampleNaiveUCTAgentExperim
     }
     log_headers.push_back("BrokeReasons"); // Always track any reasons the board broke
 
-    // Play 1 game
-    n_games=1;
+    // Play 100 games
+    n_games=100;
 }
 
 void Experiments::ThreeSampleNaiveUCTAgentExperiment::write_header(){
@@ -133,5 +133,5 @@ int main(){
     srand((time_t)ts.tv_nsec);
     // ===== End of stack overflow copypasta ===== 
 
-    Experiments::RunExperiment(experiment);
+    Experiments::RunExperiment(experiment,true);
 }

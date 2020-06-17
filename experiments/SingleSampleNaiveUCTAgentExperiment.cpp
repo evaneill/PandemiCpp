@@ -45,8 +45,8 @@ Experiments::SingleSampleNaiveUCTAgentExperiment::SingleSampleNaiveUCTAgentExper
     }
     log_headers.push_back("BrokeReasons"); // Always track any reasons the board broke
 
-    // Play 1 game
-    n_games=1;
+    // Play 10 games
+    n_games=10;
 }
 
 void Experiments::SingleSampleNaiveUCTAgentExperiment::write_header(){
@@ -115,7 +115,7 @@ std::vector<Measurements::GameMeasurement*> Experiments::SingleSampleNaiveUCTAge
     std::vector<Measurements::GameMeasurement*> game_measures = {};
 
     for(Measurements::MeasurementConstructor* con: measureCons){
-    game_measures.push_back(con -> construct_measure(*game));
+        game_measures.push_back(con -> construct_measure(*game));
     }
     return game_measures;
 }
@@ -133,5 +133,5 @@ int main(){
     srand((time_t)ts.tv_nsec);
     // ===== End of stack overflow copypasta ===== 
 
-    Experiments::RunExperiment(experiment);
+    Experiments::RunExperiment(experiment,true);
 }

@@ -59,7 +59,7 @@ namespace Experiments
 
     // A function to take an experiment and run it.
     // This is it's own standalone just because the internal functionality is practically always the same
-    void RunExperiment(Experiment* exp);
+    void RunExperiment(Experiment* exp,bool log_output=false);
 
     class UniformRandomAgentGameExperiment: public Experiment{
     public:

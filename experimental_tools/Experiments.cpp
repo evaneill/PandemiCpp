@@ -4,7 +4,7 @@
 
 #include "Experiments.h"
 
-void Experiments::RunExperiment(Experiments::Experiment* exp){
+void Experiments::RunExperiment(Experiments::Experiment* exp,bool log_output){
     // Write the header file including start timestamp (REMOVE any file that existed before)
     // Will need to append the finish time later
     exp -> write_header();
@@ -38,9 +38,15 @@ void Experiments::RunExperiment(Experiments::Experiment* exp){
 
     int games_played=0;
 
+    // By int coercion, log_interval should be floor of this division I think?
+    // This is every 5% of games completed (unless <20 n_games, then 1)
+    int log_interval = ((int) (*exp).n_games/20) > 0 ? ((int) (*exp).n_games/20) : 1;
+
     while(games_played<(*exp).n_games){
-        if(games_played % 5000 ==0){
-            DEBUG_MSG("[Experiments::RunExperiment()] has ran " << games_played << " games " << std::endl);
+        if(log_output){
+            if(games_played % log_interval==0){
+                DEBUG_MSG("[Experiments::RunExperiment()] has ran " << games_played << " games (~"<< ((int) (100*games_played)/(*exp).n_games) << "% completed)" << std::endl);
+            }
         }
 
         // Write the game number in the first column of the experiment output

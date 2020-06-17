@@ -101,10 +101,12 @@ namespace Search
         // State should be the state being "rolled down" from the root and accumulating an action.execute() change at each node
         DeterministicNode(Node* _parent,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic);
         ~DeterministicNode(){
-            // delete the action pinned to this node, if it exists and isn't a stochastic action 
+            // delete the action pinned to this node, if this isn't root, it exists, and isn't a stochastic action 
             if(action){
-                if(!parent -> stochastic){
-                    delete action;
+                if(parent){
+                    if(!parent -> stochastic){
+                        delete action;
+                    }
                 }
             }
             // Delete any actions remaining in the queueç
