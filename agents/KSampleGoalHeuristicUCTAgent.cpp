@@ -4,11 +4,11 @@
 
 #include "Agents.h"
 #include "Heuristics.h"
-#include "KSampleNaiveUCTAgent.h"
+#include "KSampleGoalHeuristicUCTAgent.h"
 
 #include "search_tools/Search.h"
 
-Agents::KSampleNaiveUCTAgent::KSampleNaiveUCTAgent(GameLogic::Game& _active_game, int _n_simulations, int _K):
+Agents::KSampleGoalHeuristicUCTAgent::KSampleGoalHeuristicUCTAgent(GameLogic::Game& _active_game, int _n_simulations, int _K):
     BaseAgent(_active_game)
     {   
         n_simulations = _n_simulations;
@@ -19,7 +19,7 @@ Agents::KSampleNaiveUCTAgent::KSampleNaiveUCTAgent(GameLogic::Game& _active_game
         name = std::to_string(K) + " " + name;
 }
 
-Actions::Action* Agents::KSampleNaiveUCTAgent::generate_action(bool verbose){
+Actions::Action* Agents::KSampleGoalHeuristicUCTAgent::generate_action(bool verbose){
     // Make a new search tree, which will instantiate a root
     // This tree takes 1 sample of a stochastic sequence at each stochastic node
     // Stochasticity is "saved" and revisited again upon every subsequent traversal
@@ -38,8 +38,8 @@ Actions::Action* Agents::KSampleNaiveUCTAgent::generate_action(bool verbose){
         Search::Node* best_node = search_tree -> getBestLeaf(board_copy,Search::UCB1Score);
 
         // Roll out the copy of the state
-        // By default rollout will only return W/L
-        double reward = active_game.rollout(board_copy);
+        // Use the "CureGoalHeuristic": What fraction of 4 diseases are cured at rollout end
+        double reward = active_game.rollout(board_copy,Heuristics::CureGoalHeuristic);
 
         // Back up the observed reward
         // Deterministic nodes along the way have board_state set to nullptr
@@ -55,7 +55,7 @@ Actions::Action* Agents::KSampleNaiveUCTAgent::generate_action(bool verbose){
     return chosen_action;
 }
 
-void Agents::KSampleNaiveUCTAgent::take_step(bool verbose){
+void Agents::KSampleGoalHeuristicUCTAgent::take_step(bool verbose){
     Actions::Action* chosen_action = generate_action(verbose);
     active_game.applyAction(chosen_action);
     if(verbose){

@@ -7,7 +7,7 @@
 
 namespace Agents
 {
-    class KSampleNaiveUCTAgent: public BaseAgent{
+    class KSampleGoalHeuristicUCTAgent: public BaseAgent{
         // simulation-per-step budget
         int n_simulations;
 
@@ -17,10 +17,10 @@ namespace Agents
         // Search tree to use on each step.
         Search::GameTree* search_tree = nullptr;
     public:
-        std::string name = "-Determinization UCT Agent with 0/1 value rollouts.";
+        std::string name = "-Determinization UCT Agent with (# cured diseases/4) value rollouts.";
         
-        KSampleNaiveUCTAgent(GameLogic::Game& _active_game,int n_simulations,int K);
-        ~KSampleNaiveUCTAgent(){
+        KSampleGoalHeuristicUCTAgent(GameLogic::Game& _active_game,int n_simulations,int K);
+        ~KSampleGoalHeuristicUCTAgent(){
             if(search_tree){
                 delete search_tree;
             }

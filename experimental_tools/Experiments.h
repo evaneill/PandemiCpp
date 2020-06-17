@@ -14,13 +14,7 @@ namespace Experiments
     class Experiment{
     public:
         Experiment(){};
-        ~Experiment(){
-            delete scenario;
-            for(Measurements::MeasurementConstructor* cons: measureCons){
-                delete cons;
-            }
-            measureCons.clear();
-        }
+        virtual ~Experiment(){}
         std::string agent_name;
 
         // The measurements tracked over the course of the experiment, given as constructors
@@ -64,6 +58,13 @@ namespace Experiments
     class UniformRandomAgentGameExperiment: public Experiment{
     public:
         UniformRandomAgentGameExperiment();
+        ~UniformRandomAgentGameExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
 
         void write_header();
         void append_header(std::string extras);
@@ -78,6 +79,13 @@ namespace Experiments
     class UniformRandomAgentCanWinExperiment: public Experiment{
     public:
         UniformRandomAgentCanWinExperiment();
+        ~UniformRandomAgentCanWinExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
 
         void write_header();
         void append_header(std::string extras);
@@ -92,6 +100,13 @@ namespace Experiments
     class ByGroupRandomAgentGameExperiment: public Experiment{
     public:
         ByGroupRandomAgentGameExperiment();
+        ~ByGroupRandomAgentGameExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };  
 
         void write_header();
         void append_header(std::string extras);
@@ -106,6 +121,13 @@ namespace Experiments
     class SingleSampleNaiveUCTAgentExperiment: public Experiment {
     public:
         SingleSampleNaiveUCTAgentExperiment();
+        ~SingleSampleNaiveUCTAgentExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
 
         void write_header();
         void append_header(std::string extras);
@@ -120,6 +142,55 @@ namespace Experiments
     class ThreeSampleNaiveUCTAgentExperiment: public Experiment {
     public:
         ThreeSampleNaiveUCTAgentExperiment();
+        ~ThreeSampleNaiveUCTAgentExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
+
+        void write_header();
+        void append_header(std::string extras);
+        void write_experiment(std::string data);
+
+        Board::Board* get_board();
+        Agents::BaseAgent* get_agent(GameLogic::Game* game);
+        std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
+    };
+
+    class SingleSampleGoalHeuristicUCTAgentExperiment: public Experiment {
+    public:
+        SingleSampleGoalHeuristicUCTAgentExperiment();
+        ~SingleSampleGoalHeuristicUCTAgentExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
+
+        void write_header();
+        void append_header(std::string extras);
+        void write_experiment(std::string data);
+
+        Board::Board* get_board();
+        Agents::BaseAgent* get_agent(GameLogic::Game* game);
+        std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
+    };
+
+    class ThreeSampleGoalHeuristicUCTAgentExperiment: public Experiment {
+    public:
+        ThreeSampleGoalHeuristicUCTAgentExperiment();
+        ~ThreeSampleGoalHeuristicUCTAgentExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
 
         void write_header();
         void append_header(std::string extras);
