@@ -22,7 +22,7 @@ double Heuristics::CureGoalHeuristic(Board::Board& game_board){
 
 double Heuristics::CureGoalConditions(Board::Board& game_board){
     // Each cured disease gets 1/4 (like above)
-    // Each uncured disease gets MAX .2 * ( - (# cards of this color)/(# needed to cure)) 
+    // Each uncured disease gets MAX .2 * ((# cards of this color)/(# needed to cure)) 
     //      (MAX is over players)
     // Idea is that at most, value given to a set of players for an uncured disease is .2 (less than the .25 they could have by curing too)
 
