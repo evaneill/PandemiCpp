@@ -47,6 +47,9 @@ Search::DeterministicNode::DeterministicNode(Search::Node* _parent,Actions::Acti
     if(game_logic.is_terminal(*_board_state)){
         terminal = true;
         action_queue = {};
+
+        // set the score here to 0/1. Tree evaluation should *always* see the true reward of a terminal state added into the tree
+        score= (double) game_logic.reward(*_board_state);
     } else {
         terminal=false;
         action_queue = game_logic.list_actions(*_board_state);
@@ -61,9 +64,6 @@ Search::DeterministicNode::DeterministicNode(Search::Node* _parent,Actions::Acti
 void Search::DeterministicNode::set_score(double score_fn(Search::Node*)){
     if(!terminal){
         score = score_fn(this);
-    } else {
-        // If it's terminal, average reward = only possible reward = reward *with certainty*
-        score = TotalReward/N_visits;
     }
     // if terminal, score should have been instantiated on creation and never change.
 }
@@ -74,10 +74,13 @@ double Search::DeterministicNode::update(double score_fn(Search::Node*)){
 }
 
 void Search::DeterministicNode::backprop(double reward){
-    TotalReward+=reward;
+    if(!terminal){
+        TotalReward+=reward;
+    }
     N_visits+=1;
     if(parent){
-        parent -> backprop(reward);
+        // backpropogate either fixed score if terminal, or reward if not
+        parent -> backprop(terminal ? score : reward);
     }
 }
 
@@ -173,6 +176,9 @@ Search::StochasticNode::StochasticNode(Search::Node* _parent,Actions::Action* _a
 
         if(game_logic.is_terminal(*_board_state)){
             terminal = true;
+
+            // set the score here to 0/1. Tree evaluation should *always* see the true reward of a terminal state added into the tree
+            score = (double) game_logic.reward(*_board_state);
         }
 
         // I'm choosing to implement stochastic nodes with no children on the constructor. 
@@ -225,10 +231,8 @@ Search::Node* Search::StochasticNode::get_parent(){
 void Search::StochasticNode::set_score(double score_fn(Search::Node*)){
     if(!terminal){
         score = score_fn(this);
-    } else {
-        // If it's terminal, average reward is always the only reward = reward *with certainty*
-        score = TotalReward/N_visits;
-    }
+    } 
+    // If the node is terminal, keep the original game logic assignment of score as 0/1
 }
 
 double Search::StochasticNode::update(double score_fn(Search::Node*)){
@@ -237,11 +241,13 @@ double Search::StochasticNode::update(double score_fn(Search::Node*)){
 }
 
 void Search::StochasticNode::backprop(double reward){
-    TotalReward+=reward;
+    if(!terminal){
+        TotalReward+=reward;
+    }
     N_visits+=1;
     if(parent){
-        // If parent isn't nullptr, tell the parent to backprop
-        parent -> backprop(reward);
+        // If parent isn't nullptr, tell the parent to backprop with either set score on this terminal node, or observed rollout reward for nonterminal
+        parent -> backprop(terminal ? score : reward);
     }
 }
 
