@@ -45,8 +45,8 @@ Experiments::SingleSampleNaiveUCTAgentExperiment::SingleSampleNaiveUCTAgentExper
     }
     log_headers.push_back("BrokeReasons"); // Always track any reasons the board broke
 
-    // Play 10 games
-    n_games=10;
+    // Play 100 games
+    n_games=100;
 }
 
 void Experiments::SingleSampleNaiveUCTAgentExperiment::write_header(){
