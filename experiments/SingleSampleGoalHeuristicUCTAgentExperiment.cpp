@@ -28,6 +28,7 @@ Experiments::SingleSampleGoalHeuristicUCTAgentExperiment::SingleSampleGoalHeuris
         new Measurements::LoseStatusConstructor(),
         new Measurements::EventCardUseConstructor(),
         new Measurements::ActionCountConstructor(),
+        new Measurements::EradicatedDiseaseConstructor(),
         new Measurements::EpidemicsDrawnConstructor(),
         new Measurements::CuredDiseaseConstructor(),
         new Measurements::ResearchStationsConstructor(),
