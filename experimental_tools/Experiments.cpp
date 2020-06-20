@@ -15,14 +15,15 @@ void Experiments::RunExperiment(Experiments::Experiment* exp,bool log_output){
     
     // Write the header line with log_headers, starting with "Game" in the leftmost column
     std::string output_str;
-    // Reserve ~2x the amount of space it needs (a double will be represented by 10 chars w/ comma after, including period)
-    output_str.reserve((*exp).n_games*(*exp).measureCons.size()*20);
+    // Reserve ~4x the amount of space it needs (a double will be represented by 10 chars w/ comma after, including period)
+    //  (Padding is added since it doesn't account for potential agent measurements)
+    output_str.reserve((*exp).n_games*(*exp).measureCons.size()*40);
 
     output_str+= "Game";
+    // Log headers inclue "broken reasons" at the end
     for(std::string key: (*exp).log_headers){
         output_str+= ","+key;
     }
-    output_str+="\r\n";
 
     // run all the experiments
     DEBUG_MSG("[Experiments::RunExperiment()] Beginning Game loop of " << (*exp).n_games << " games on " << (*exp).experiment_name << "..."<< std::endl);
@@ -36,12 +37,21 @@ void Experiments::RunExperiment(Experiments::Experiment* exp,bool log_output){
     Agents::BaseAgent* the_agent = exp -> get_agent(the_game);
     Board::Board* game_board = nullptr;
 
+    // Append any agent measures after everything else
+    if(the_agent -> measurable){
+        for(std::string key: the_agent -> get_keys()){
+            output_str+=","+key;
+        }
+    }
+    output_str+="\r\n";
+
     int games_played=0;
 
     // By int coercion, log_interval should be floor of this division I think?
     // This is every 5% of games completed (unless <20 n_games, then 1)
     int log_interval = ((int) (*exp).n_games/20) > 0 ? ((int) (*exp).n_games/20) : 1;
 
+    // Enter the experimental loop!
     while(games_played<(*exp).n_games){
         if(log_output){
             if(games_played % log_interval==0){
@@ -75,6 +85,9 @@ void Experiments::RunExperiment(Experiments::Experiment* exp,bool log_output){
             }
         }
         
+        // Reset any game-level info held in the agent for play
+        the_agent -> reset();
+
         while(!the_game -> is_terminal(true,false)){
             // First resolve any necessary non-player transisitions (card draws)
             the_game -> nonplayer_actions();
@@ -86,6 +99,7 @@ void Experiments::RunExperiment(Experiments::Experiment* exp,bool log_output){
                     meas -> update();
                 }
                 // Have the agent take a step
+                //      (Agents with measurements will update them during this step)
                 the_agent -> take_step();
             }
         } 
@@ -103,6 +117,13 @@ void Experiments::RunExperiment(Experiments::Experiment* exp,bool log_output){
             std::vector<std::string> broke_reasons = the_game -> terminal_reasons();
             for(std::string& reason: broke_reasons){
                 output_str+=reason+";";
+            }
+        }
+        // If the agent has measurements to contribute, then add them one at a time
+        if(the_agent -> measurable){
+            std::vector<double> values = the_agent -> get_values();
+            for(double& val: values){
+                output_str+=","+std::to_string(val);
             }
         }
         output_str+="\r\n";

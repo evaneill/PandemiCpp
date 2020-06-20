@@ -15,6 +15,8 @@ namespace Experiments
     public:
         Experiment(){};
         virtual ~Experiment(){}
+        
+        // Simple agent name
         std::string agent_name;
 
         // The measurements tracked over the course of the experiment, given as constructors
@@ -46,7 +48,11 @@ namespace Experiments
         // For giving objects to the RunExperiment() method and resetting them
         virtual Board::Board* get_board()=0;
         virtual Agents::BaseAgent* get_agent(GameLogic::Game* game)=0;
+
+        // Retrieve measurements on the game board
         virtual std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board)=0;
+
+        // Use the existing scenario to reset a board in-place
         virtual void reset_board(Board::Board* game_board)=0;
 
     };
