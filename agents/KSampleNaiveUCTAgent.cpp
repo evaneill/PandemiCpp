@@ -20,6 +20,8 @@ Agents::KSampleNaiveUCTAgent::KSampleNaiveUCTAgent(GameLogic::Game& _active_game
 
         name += "(" + std::to_string(n_simulations) + " simulations per step)";
         name = std::to_string(K) + " " + name;
+
+        measurable=true;
 }
 
 Actions::Action* Agents::KSampleNaiveUCTAgent::generate_action(bool verbose){
@@ -62,7 +64,7 @@ Actions::Action* Agents::KSampleNaiveUCTAgent::generate_action(bool verbose){
 
     tree_depths.push_back(search_depth); // Maximum search depth at this step
     chosen_rewards.push_back((double) chosen_child -> TotalReward / (double) chosen_child -> N_visits); // "Expected Reward"
-    chosen_confidences.push_back(chosen_child ->score - ((double) chosen_child -> TotalReward / (double) chosen_child -> N_visits)); // "Exploration term" = upper confidence interval size
+    chosen_confidences.push_back(Search::UCB1Score(chosen_child)-((double) chosen_child -> TotalReward / (double) chosen_child -> N_visits))); // "Exploration term" = upper confidence interval size
     chosen_visits_minus_avg.push_back((
         (
             (double) chosen_child -> N_visits) - ((double) n_simulations/(double)chosen_child -> parent -> n_children()) 
