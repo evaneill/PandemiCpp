@@ -1,4 +1,5 @@
 #include <cmath>
+#include <algorithm>
 
 #include "../game_files/Board.h"
 #include "../game_files/Debug.h"
