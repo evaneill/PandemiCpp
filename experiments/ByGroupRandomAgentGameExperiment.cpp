@@ -132,5 +132,5 @@ int main(){
     srand((time_t)ts.tv_nsec);
     // ===== End of stack overflow copypasta ===== 
 
-    Experiments::RunExperiment(experiment);
+    Experiments::RunExperiment(experiment,true);
 }
