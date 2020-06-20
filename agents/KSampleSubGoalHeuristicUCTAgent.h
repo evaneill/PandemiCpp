@@ -16,6 +16,19 @@ namespace Agents
 
         // Search tree to use on each step.
         Search::GameTree* search_tree = nullptr;
+
+        // Maximum depth the search tree reached
+        std::vector<int> tree_depths ={};
+
+        // TotalReward/N_visits of chosen child
+        std::vector<double> chosen_rewards = {};
+
+        // score - (TotalReward/N_Visits) of chosen child
+        std::vector<double> chosen_confidences = {};
+
+        // Difference between number of times child was visited and (n_simulations/# of children)
+        //      (idea is can measure "how different" the chosen action was - very small when there isn't good justification)
+        std::vector<double> chosen_visits_minus_avg = {};
     public:
         std::string name = "-Determinization UCT Agent with (# cured diseases/4) value rollouts.";
         
@@ -27,6 +40,11 @@ namespace Agents
         };
         Actions::Action* generate_action(bool verbose = false);
         void take_step(bool verbose = false);
+
+        std::vector<std::string>  get_keys();
+        std::vector<double>  get_values();
+
+        void reset();
     };
 }
 

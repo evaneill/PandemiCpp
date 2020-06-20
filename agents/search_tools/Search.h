@@ -42,6 +42,10 @@ namespace Search
         // parent
         Node* parent = nullptr;
 
+        // tree depth (increments only when it's deterministic, or parent is deterministic)
+        // (this choice is supposed to induce correspondence to the *theoretical* idea of each choice and chance node individually increasing depth by 1, rather than chance nodes that are part of one resolution of stochasticity each incrementing depth)
+        int depth=0;
+
         virtual Node* get_parent()=0;
 
         // any node should be able to retrieve a best child
@@ -237,8 +241,8 @@ namespace Search
         // (Equivalent of "TreePolicy" to return a leaf for exploration)
         virtual Node* getBestLeaf(Board::Board& game_board,double score_fn(Node*))=0;
 
-        // Return the best root-child (action to take by the agent)
-        virtual Actions::Action* bestAction(double score_fn(Node*))=0; 
+        // Return the best root-child (which has action to take by agent)
+        virtual Node* bestRootChild(double score_fn(Node*))=0; 
     };
 
     // A tree that will sample and track K determinizations lazily upon tree traversal and use one of K at random upon each subsequent traversal
@@ -262,7 +266,7 @@ namespace Search
         }
         Node* getBestLeaf(Board::Board& game_board,double score_fn(Node*));
 
-        Actions::Action* bestAction(double score_fn(Node*));
+        Node* bestRootChild(double score_fn(Node*));
 
         // Retrieve the action required at this step either from the `determinization`th determinization, or by creating a new action if there aren't enough actions there
         // This action will be used to advance the stochastic `node_for_expansion` to a single successor according to the determinization

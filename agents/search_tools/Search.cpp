@@ -55,6 +55,12 @@ Search::DeterministicNode::DeterministicNode(Search::Node* _parent,Actions::Acti
         action_queue = game_logic.list_actions(*_board_state);
     }
 
+    if(parent){
+        depth = parent->depth+1;
+    } else{
+        // If the root node, then depth=0
+        depth=0;
+    }
     stochastic=false;
 
     // Always initialize empty children on a deterministic new node
@@ -179,6 +185,14 @@ Search::StochasticNode::StochasticNode(Search::Node* _parent,Actions::Action* _a
 
             // set the score here to 0/1. Tree evaluation should *always* see the true reward of a terminal state added into the tree
             score = (double) game_logic.reward(*_board_state);
+        }
+
+        if(!parent -> stochastic){
+            // If parent is deterministic, then increase depth by 1 (a choice was made to put the game at a chance node)
+            depth = parent->depth+1;
+        } else{
+            // If parent is stochastic, then keep same depth (this node is part of the resolution of stochasticity, and incrementing depth is meaningless)
+            depth = parent -> depth;
         }
 
         // I'm choosing to implement stochastic nodes with no children on the constructor. 
@@ -332,13 +346,13 @@ Search::Node* Search::KDeterminizedGameTree::getBestLeaf(Board::Board& game_boar
     return GetDeterministicChild(best_choice,game_board,determinization);
 }
 
-Actions::Action* Search::KDeterminizedGameTree::bestAction(double score_fn(Search::Node*)){
+Search::Node* Search::KDeterminizedGameTree::bestRootChild(double score_fn(Search::Node*)){
     // Copy initial state from the game logic
     Board::Board state = game_logic.board_copy();
 
     Search::Node* best_choice = root -> best_child(state,game_logic,score_fn);
 
-    return best_choice -> get_action();
+    return best_choice;
 }
 
 Actions::Action* Search::KDeterminizedGameTree::GetOrCreateAction(Search::Node* node_for_expansion, Board::Board& board_copy, int determinization){
@@ -347,6 +361,7 @@ Actions::Action* Search::KDeterminizedGameTree::GetOrCreateAction(Search::Node* 
         // If there are at least as many determinizations as we need to get the first action, then use that;
         new_action =  determinization_queue[determinization][node_for_expansion -> stochasticities_traversed];
         // (k stochasticities have been traversed -> We need to use the (k+1)th to advance to the next node)
+        // (and (k+1)th entry = index k)
     } else {
         // If there aren't as many as we need, then by construction (since this is a single new node on the tree) we *should* only require one new action
         new_action = game_logic.get_stochastic_action(board_copy);
