@@ -8,7 +8,9 @@
 #include "Agents.h"
 
 Agents::UniformRandomAgent::UniformRandomAgent(GameLogic::Game& _active_game): 
-    BaseAgent(_active_game){};
+    BaseAgent(_active_game){
+        measurable=false;
+};
 
 Actions::Action* Agents::UniformRandomAgent::generate_action(bool verbose){
     Actions::Action* chosen_action = active_game.get_random_action_uniform(verbose);
@@ -23,3 +25,9 @@ void Agents::UniformRandomAgent::take_step(bool verbose){
     }
     delete chosen_action;
 }
+
+// These logically shouldn't be called, but these returns should be safe anyway
+std::vector<std::string> Agents::UniformRandomAgent::get_keys(){return {};};
+std::vector<double> Agents::UniformRandomAgent::get_values(){return {};};
+
+void Agents::UniformRandomAgent::reset(){};

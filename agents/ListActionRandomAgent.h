@@ -16,6 +16,11 @@ namespace Agents
         ListActionRandomAgent(GameLogic::Game& _active_game);
         Actions::Action* generate_action(bool verbose = false);
         void take_step(bool verbose = false);
+
+        std::vector<std::string>  get_keys();
+        std::vector<double>  get_values();
+
+        void reset();
     };
 }
 

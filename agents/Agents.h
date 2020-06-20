@@ -16,6 +16,9 @@ namespace Agents
         // Name that can be used for logging
         std::string name;
         
+        // Whether or not the agent has any measurements to report to the experimental infrastructure
+        bool measurable=false;
+
         // BaseAgent methods below should NEVER be called, they're always pure virtual.
 
         // An agent just has to be able to generate an action
@@ -24,6 +27,15 @@ namespace Agents
 
         // Choose an action and move forward a step
         virtual void take_step(bool verbose=false)=0;
+
+        // For if the agent stores any game-level information for decision making or measurement
+        virtual void reset()=0;
+
+        // For measurement: get measurement headers
+        virtual std::vector<std::string> get_keys()=0;
+
+        // For measurement: get measurement values, comma separated (beginning with comma)
+        virtual std::vector<double> get_values()=0;
     };     
 }
 
