@@ -333,4 +333,46 @@ namespace Experiments
         std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
         void reset_board(Board::Board* game_board);
     };
+
+    class ThreeSampleNaive50kUCTAgentExperiment: public Experiment {
+    public:
+        ThreeSampleNaive50kUCTAgentExperiment();
+        ~ThreeSampleNaive50kUCTAgentExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
+
+        void write_header();
+        void append_header(std::string extras);
+        void write_experiment(std::string data);
+
+        Board::Board* get_board();
+        Agents::BaseAgent* get_agent(GameLogic::Game* game);
+        std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
+    };
+
+    class SingleSampleSubGoalHeuristic50kUCTAgentExperiment: public Experiment {
+    public:
+        SingleSampleSubGoalHeuristic50kUCTAgentExperiment();
+        ~SingleSampleSubGoalHeuristic50kUCTAgentExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
+
+        void write_header();
+        void append_header(std::string extras);
+        void write_experiment(std::string data);
+
+        Board::Board* get_board();
+        Agents::BaseAgent* get_agent(GameLogic::Game* game);
+        std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
+    };
 }
