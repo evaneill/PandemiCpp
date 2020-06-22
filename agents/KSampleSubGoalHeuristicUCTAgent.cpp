@@ -107,8 +107,8 @@ std::vector<std::string> Agents::KSampleSubGoalHeuristicUCTAgent::get_keys(){
         "MinSelectedReward",
         "AvgSelectedConfidence",
         "StdSelectedConfidence",
-        "MinSelectedConfidence",
         "MaxSelectedConfidence",
+        "MinSelectedConfidence",
         "AvgChosenMinusAvgVisits",
         "MaxChosenMinusAvgVisits"
     };

@@ -106,8 +106,8 @@ std::vector<std::string> Agents::KSampleNaiveUCTAgent::get_keys(){
         "MinSelectedReward",
         "AvgSelectedConfidence",
         "StdSelectedConfidence",
-        "MinSelectedConfidence",
         "MaxSelectedConfidence",
+        "MinSelectedConfidence",
         "AvgChosenMinusAvgVisits",
         "MaxChosenMinusAvgVisits"
     };

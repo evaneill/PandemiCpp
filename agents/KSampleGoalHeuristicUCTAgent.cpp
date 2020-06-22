@@ -68,7 +68,7 @@ Actions::Action* Agents::KSampleGoalHeuristicUCTAgent::generate_action(bool verb
     chosen_confidences.push_back(Search::UCB1Score(chosen_child)-((double) chosen_child -> TotalReward / (double) chosen_child -> N_visits)); // "Exploration term" = upper confidence interval size; avoiding calculating it for ourselves.
     chosen_visits_minus_avg.push_back((
         (
-            (double) chosen_child -> N_visits) - ((double) n_simulations/(double)chosen_child -> parent -> n_children()) 
+            (double) chosen_child -> N_visits) - ((double) n_simulations/(double)chosen_child -> parent -> n_children())
         )/ (double) n_simulations); // Fraction of all simulations spent on this choice compared to a child explored an "average" amount. Neg -> This was chosen after other heavily explored options ruled out. Pos -> This was chosen after thorough exploration. ~0 -> Most likely no good reason to choose this vs. other children.
 
     // After the simulation budget is used up, return the action attached to the most promising child of the root
@@ -107,8 +107,8 @@ std::vector<std::string> Agents::KSampleGoalHeuristicUCTAgent::get_keys(){
         "MinSelectedReward",
         "AvgSelectedConfidence",
         "StdSelectedConfidence",
-        "MinSelectedConfidence",
         "MaxSelectedConfidence",
+        "MinSelectedConfidence",
         "AvgChosenMinusAvgVisits",
         "MaxChosenMinusAvgVisits"
     };
