@@ -4,6 +4,7 @@ import numpy as np
 import re 
 
 from matplotlib import pyplot as plt
+import matplotlib
 
 def generate_hist_comparison(colname,exp1_fpath,exp2_fpath,nbin=20,cumulative=False):
 	'''
@@ -56,3 +57,57 @@ def generate_hist_comparison(colname,exp1_fpath,exp2_fpath,nbin=20,cumulative=Fa
 	ax.set_xlabel(colname)
 
 	return ax
+
+def generate_gametree_figure(exp_fpath):
+	'''
+	Produce a figure with 3 subfigures showing the game depth, average branching factor, and the relationship between the two in different cases of Airlift and Government Grant being present
+
+	E.g
+		(axdepth, axbranch, axcompare) = generate_gametree_figure('results/ByGroupRandomAgentGameExperiment')
+		plt.show(axdepth)
+	'''
+
+	# Get the data for each agent
+	exp_df = pd.read_csv(exp_fpath if exp_fpath.endswith('.csv') else exp_fpath+'.csv')
+
+	# Define histogram quantities
+	depth_count,depth_bins = np.histogram(exp_df.loc[:,'Depth'],bins=(exp_df.Depth.max().astype(int) - exp_df.Depth.min().astype(int)+1))
+
+	avgbranch_count,avgbranch_bins = np.histogram(exp_df.loc[:,'AvgBranch'],bins=max(round(exp_df.shape[0]/1000),10))
+
+	## Make a figure with 3 plots side-by-side
+	depthfig, branchfig, comparefig = plt.figure(), plt.figure(), plt.figure()
+	axdepth, axbranch, axcompare = depthfig.add_subplot(1,1,1), branchfig.add_subplot(1,1,1), comparefig.add_subplot(1,1,1)
+
+	# Do the histogram for each of game depth and branching factor
+	axdepth.hist(depth_bins[:-1],depth_bins,weights=depth_count)
+	axdepth.set_xlabel('Game Depth')
+	axdepth.set_ylabel('Number of Games')
+
+	axbranch.hist(avgbranch_bins[:-1],avgbranch_bins,weights=avgbranch_count)
+	axbranch.set_xlabel('Average Branching Factor')
+	axbranch.set_ylabel('Number of Games')
+
+	# Define filters that will qualify groupby() of mean Average branching factor:
+	#	(Both of these are true when the Airlift/GovernmentGrant Event card was present at *some point* in the game)
+	hadAirlift = exp_df.firstAirliftPresence>=0
+	hadGovernmentGrant = exp_df.firstGovernmentGrantPresence>=0
+
+	# pd.Series indexed by two boolean and one numerical indices
+	branchmean_bydepth_and_events = exp_df.groupby([hadAirlift,hadGovernmentGrant,exp_df.Depth]).AvgBranch.mean() 
+
+	# Plot each of the four cases: with or without each of Airlift, Government Grant
+	axcompare.plot(branchmean_bydepth_and_events[True,True],label = 'Both Airlift And G. G. present')
+	axcompare.plot(branchmean_bydepth_and_events[True,False],label = 'Only Airlift Present') 
+	axcompare.plot(branchmean_bydepth_and_events[False,True],label = 'Only G. G. Present')
+	axcompare.plot(branchmean_bydepth_and_events[False,False],label = 'Neither Airlift nor G.G. present')
+
+	axcompare.legend()
+
+	axcompare.set_xlabel('Depth')
+	axcompare.set_ylabel('Average Branching Factor')
+
+	matplotlib.rc('font',size=26)
+
+	## Return the total figure
+	return (axdepth, axbranch, axcompare)
