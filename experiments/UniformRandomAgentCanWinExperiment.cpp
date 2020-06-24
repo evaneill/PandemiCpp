@@ -29,6 +29,7 @@ Experiments::UniformRandomAgentCanWinExperiment::UniformRandomAgentCanWinExperim
         new Measurements::EventCardUseConstructor(),
         new Measurements::EpidemicsDrawnConstructor(),
         new Measurements::CuredDiseaseConstructor(),
+        new Measurements::EradicatedDiseaseConstructor(),
         new Measurements::ResearchStationsConstructor(),
         new Measurements::GameTreeSizeConstructor(),
         new Measurements::TimeTakenConstructor()
