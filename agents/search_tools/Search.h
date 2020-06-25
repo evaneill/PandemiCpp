@@ -46,9 +46,6 @@ namespace Search
         // (this choice is supposed to induce correspondence to the *theoretical* idea of each choice and chance node individually increasing depth by 1, rather than chance nodes that are part of one resolution of stochasticity each incrementing depth)
         int depth=0;
 
-        // Whether or not node is "fully converged" given that convergence criteria is N_visits>num_visits (can incorporate other logic too)
-        virtual bool converged(int num_visits)=0;
-
         virtual Node* get_parent()=0;
 
         // any node should be able to retrieve a best child
@@ -159,8 +156,6 @@ namespace Search
         void addNullChild();
         Node* getChild(int child);
         void setChild(int child,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic);
-
-        bool converged(int num_visits);
     };
 
     class StochasticNode: public Node{
@@ -229,8 +224,6 @@ namespace Search
         void addNullChild();
         Node* getChild(int child);
         void setChild(int child,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic);
-
-        bool converged(int num_visits);
     };
 
     // Virtual GameTree class

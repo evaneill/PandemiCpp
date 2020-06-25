@@ -168,11 +168,7 @@ void Search::DeterministicNode::addChild(Board::Board& game_board, Actions::Acti
 
 void Search::DeterministicNode::addNullChild(){};
 
-Search::Node* Search::DeterministicNode::getChild(int child){return children[child];};
-
-bool Search::DeterministicNode::converged(int num_visits){
-    return N_visits>=num_visits && action_queue.empty();
-}
+Search::Node* Search::DeterministicNode::getChild(int child){return nullptr;};
 
 void Search::DeterministicNode::setChild(int child,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic){};
 
@@ -244,11 +240,6 @@ bool Search::StochasticNode::is_stochastic(){
 
 Search::Node* Search::StochasticNode::get_parent(){
     return parent;
-}
-
-bool Search::StochasticNode::converged(int num_visits){
-    // Idea: Only say it's converged if N_visits>=num_visits AND all children exist (all determinizations used)
-    return N_visits>=num_visits;
 }
 
 void Search::StochasticNode::set_score(double score_fn(Search::Node*)){
