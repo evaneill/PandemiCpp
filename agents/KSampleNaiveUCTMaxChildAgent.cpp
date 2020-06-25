@@ -76,7 +76,7 @@ Actions::Action* Agents::KSampleNaiveUCTMaxChildAgent::generate_action(bool verb
     return chosen_child -> get_action();
 }
 
-Search::Node* Agents::KSampleNaiveUCTMaxChildAgent::get_max_child(Search::Node* root){
+Search::Node* Agents::KSampleGoalHeuristicUCTMaxChildAgent::get_max_child(Search::Node* root){
     // This is to be called on root, which is a deterministic node
     Search::Node* best_child = nullptr;
     double best_child_reward = -1;
@@ -85,9 +85,11 @@ Search::Node* Agents::KSampleNaiveUCTMaxChildAgent::get_max_child(Search::Node* 
     for(int child_num=0;child_num<root -> n_children();child_num++){
         Search::Node* child = root -> getChild(child_num);
         double child_score = get_max_avgreward(child);
-        if(child_score>best_child_reward){
+        // If (max avg reward) + (confidence bound) > best existing score
+        // [confidence bound = UCB1 - (existing avg reward)]
+        if((Search::UCB1Score(child) - (child -> TotalReward)/((double) child -> N_visits) + child_score)>best_child_reward){
             best_child = child;
-            best_child_reward = child_score;
+            best_child_reward = Search::UCB1Score(child) - (child -> TotalReward)/((double) child -> N_visits) + child_score;
         }
     }
     return best_child;

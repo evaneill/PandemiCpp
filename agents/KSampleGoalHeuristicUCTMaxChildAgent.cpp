@@ -7,11 +7,11 @@
 
 #include "Agents.h"
 #include "Heuristics.h"
-#include "KSampleSubGoalHeuristicUCTMaxChildAgent.h"
+#include "KSampleGoalHeuristicUCTMaxChildAgent.h"
 
 #include "search_tools/Search.h"
 
-Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::KSampleSubGoalHeuristicUCTMaxChildAgent(GameLogic::Game& _active_game, int _n_simulations, int _K,int _VisitConvergenceCriteria):
+Agents::KSampleGoalHeuristicUCTMaxChildAgent::KSampleGoalHeuristicUCTMaxChildAgent(GameLogic::Game& _active_game, int _n_simulations, int _K,int _VisitConvergenceCriteria):
     BaseAgent(_active_game)
     {   
         n_simulations = _n_simulations;
@@ -25,7 +25,7 @@ Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::KSampleSubGoalHeuristicUCTMaxCh
         measurable=true;
 }
 
-Actions::Action* Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::generate_action(bool verbose){
+Actions::Action* Agents::KSampleGoalHeuristicUCTMaxChildAgent::generate_action(bool verbose){
     // Make a new search tree, which will instantiate a root
     // This tree takes 1 sample of a stochastic sequence at each stochastic node
     // Stochasticity is "saved" and revisited again upon every subsequent traversal
@@ -52,7 +52,7 @@ Actions::Action* Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::generate_actio
 
         // Roll out the copy of the state
         // Use the "CureGoalConditions": What fraction of 4 diseases are cured at rollout end, PLUS maximum fraction of satisfied preconditions to cure actions among players
-        double reward = active_game.rollout(board_copy,Heuristics::CureGoalConditions);
+        double reward = active_game.rollout(board_copy,Heuristics::CureGoalHeuristic);
 
         // Back up the observed reward
         // Deterministic nodes along the way have board_state set to nullptr
@@ -76,7 +76,7 @@ Actions::Action* Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::generate_actio
     return chosen_child -> get_action();
 }
 
-Search::Node* Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::get_max_child(Search::Node* root){
+Search::Node* Agents::KSampleGoalHeuristicUCTMaxChildAgent::get_max_child(Search::Node* root){
     // This is to be called on root, which is a deterministic node
     Search::Node* best_child = nullptr;
     double best_child_reward = -1;
@@ -95,7 +95,7 @@ Search::Node* Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::get_max_child(Sea
     return best_child;
 }
 
-double Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::get_max_avgreward(Search::Node* node){
+double Agents::KSampleGoalHeuristicUCTMaxChildAgent::get_max_avgreward(Search::Node* node){
     if(node -> terminal){
         // If the node is terminal it's average reward is it's only reward is a for-sure reward is the score that was set on instantiation
         return node -> score;
@@ -146,7 +146,7 @@ double Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::get_max_avgreward(Search
     }
 }
 
-void Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::take_step(bool verbose){
+void Agents::KSampleGoalHeuristicUCTMaxChildAgent::take_step(bool verbose){
     Actions::Action* chosen_action = generate_action(verbose);
     active_game.applyAction(chosen_action);
     if(verbose){
@@ -159,14 +159,14 @@ void Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::take_step(bool verbose){
     }
 }
 
-void Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::reset(){
+void Agents::KSampleGoalHeuristicUCTMaxChildAgent::reset(){
     tree_depths.clear();
     chosen_rewards.clear();
     chosen_confidences.clear();
     chosen_visits_minus_avg.clear();
 }
 
-std::vector<std::string> Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::get_keys(){
+std::vector<std::string> Agents::KSampleGoalHeuristicUCTMaxChildAgent::get_keys(){
     return {
         "AvgTreeDepth",
         "StdTreeDepth",
@@ -185,7 +185,7 @@ std::vector<std::string> Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::get_ke
     };
 }
 
-std::vector<double> Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::get_values(){
+std::vector<double> Agents::KSampleGoalHeuristicUCTMaxChildAgent::get_values(){
     // Avg tree depth
     double depth_mean=0;
     for(int& d : tree_depths){
