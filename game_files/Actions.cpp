@@ -184,7 +184,7 @@ std::vector<Actions::Action*> Actions::DirectFlightConstructor::all_actions(Boar
 
 bool Actions::DirectFlightConstructor::legal(Board::Board& game_board){
     // If it's during the player turn phase and they have city cards to discard, AND last_position==-1 (it's beginning of turn or they've "done something"), it's legal
-    if(game_board.get_turn_action()<4 && game_board.active_player().get_last_position()==){
+    if(game_board.get_turn_action()<4 && game_board.active_player().get_last_position()==-1){
         Players::Player& active_player = game_board.active_player();
 
         for(int& card: active_player.hand){
