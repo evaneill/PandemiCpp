@@ -76,7 +76,7 @@ Actions::Action* Agents::KSampleNaiveUCTMaxChildAgent::generate_action(bool verb
     return chosen_child -> get_action();
 }
 
-Search::Node* Agents::KSampleGoalHeuristicUCTMaxChildAgent::get_max_child(Search::Node* root){
+Search::Node* Agents::KSampleNaiveUCTMaxChildAgent::get_max_child(Search::Node* root){
     // This is to be called on root, which is a deterministic node
     Search::Node* best_child = nullptr;
     double best_child_reward = -1;
