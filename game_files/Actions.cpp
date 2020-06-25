@@ -183,22 +183,8 @@ std::vector<Actions::Action*> Actions::DirectFlightConstructor::all_actions(Boar
 }
 
 bool Actions::DirectFlightConstructor::legal(Board::Board& game_board){
-    // // If it's during the player turn phase and they have city cards to discard, then it's legal
-    // if(game_board.get_turn_action()<4){
-    //     Players::Player& active_player = game_board.active_player();
-
-    //     for(int& card: active_player.hand){
-    //         if(!isneighbor(card,active_player.get_position().index) 
-    //             && card!=active_player.get_position().index 
-    //             && card!=active_player.get_last_position()){
-    //             return true;
-    //         }
-    //     }
-    // } 
-    // return false;
-
-    // test: add condition that active player's last_position==-1 (either its beginning of turn or they've "done something")
-    if(game_board.get_turn_action()<4 && game_board.active_player().get_last_position()==-1){
+    // If it's during the player turn phase and they have city cards to discard, AND last_position==-1 (it's beginning of turn or they've "done something"), it's legal
+    if(game_board.get_turn_action()<4 && game_board.active_player().get_last_position()==){
         Players::Player& active_player = game_board.active_player();
 
         for(int& card: active_player.hand){
@@ -1256,17 +1242,7 @@ std::vector<Actions::Action*> Actions::AirliftConstructor::all_actions(Board::Bo
 }
 
 bool Actions::AirliftConstructor::legal(Board::Board& game_board){
-    // // The legality guard is always true when the card is held by a player. 
-    // for(Players::Player& pl : game_board.get_players()){
-    //     for(int& e : pl.event_cards){
-    //         if(Decks::CARD_NAME(e)=="Airlift" && e==50){
-    //             return true;
-    //         }
-    //     }
-    // }
-    // return false;
-
-    // test: only legal when last_position==-1 for active player
+    // The legality guard is always true when the card is held by a player, and last_position==-1 (player has "done something" or its beginning of turn)
     if(game_board.active_player().get_last_position()==-1){
         for(Players::Player& pl : game_board.get_players()){
             for(int& e : pl.event_cards){
@@ -1505,19 +1481,7 @@ std::vector<Actions::Action*> Actions::QuietNightConstructor::all_actions(Board:
 }
 
 bool Actions::QuietNightConstructor::legal(Board::Board& game_board){
-    // // Only bar using this ON the infect step
-    // if(game_board.get_turn_action()!=5){
-    //     for(Players::Player& pl : game_board.get_players()){
-    //         for(int& e : pl.event_cards){
-    //             if(Decks::CARD_NAME(e)=="Quiet Night" && e==48){
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    // }
-    // return false;
-
-    // test: ONLY available at the beginning of player turn
+    // Only allow this at the beginning of player turn: really doesn't make a difference when, if ever, it's used during player turn so only have to consider once
     if(game_board.get_turn_action()==0){
         for(Players::Player& pl : game_board.get_players()){
             for(int& e : pl.event_cards){
@@ -1573,14 +1537,8 @@ std::vector<Actions::Action*> Actions::DoNothingConstructor::all_actions(Board::
 }
 
 bool Actions::DoNothingConstructor::legal(Board::Board& game_board){
-    // if(game_board.get_turn_action()<4 || Actions::QuietNightConstructor().legal(game_board)){
-    //     // if it's any players turn, OR quiet_night is under consideration (should always be able to not use)
-    //     return true;
-    // }
-    // return false;
-
-    // test: only make it legal if it's the players turn and last_position==-1 for active_player
-    if(game_board.get_turn_action()==0 && game_board.active_player().get_last_position()==-1){
+    // Can only do nothing if it's beginning of player turn or player has "done something"
+    if(game_board.active_player().get_last_position()==-1 || game_board.get_turn_action()==0){
         return true;
     }
     return false;
