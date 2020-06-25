@@ -81,12 +81,12 @@ def generate_gametree_figure(exp_fpath):
 
 	# Do the histogram for each of game depth and branching factor
 	axdepth.hist(depth_bins[:-1],depth_bins,weights=depth_count)
-	axdepth.set_xlabel('Game Depth')
-	axdepth.set_ylabel('Number of Games')
+	axdepth.set_xlabel('Game Depth',fontsize=18)
+	axdepth.set_ylabel('Number of Games',fontsize=18)
 
 	axbranch.hist(avgbranch_bins[:-1],avgbranch_bins,weights=avgbranch_count)
-	axbranch.set_xlabel('Average Branching Factor')
-	axbranch.set_ylabel('Number of Games')
+	axbranch.set_xlabel('Average Branching Factor',fontsize=18)
+	axbranch.set_ylabel('Number of Games',fontsize=18)
 
 	# Define filters that will qualify groupby() of mean Average branching factor:
 	#	(Both of these are true when the Airlift/GovernmentGrant Event card was present at *some point* in the game)
@@ -104,10 +104,8 @@ def generate_gametree_figure(exp_fpath):
 
 	axcompare.legend()
 
-	axcompare.set_xlabel('Depth')
-	axcompare.set_ylabel('Average Branching Factor')
-
-	matplotlib.rc('font',size=26)
+	axcompare.set_xlabel('Depth',fontsize=18)
+	axcompare.set_ylabel('Average Branching Factor',fontsize=18)
 
 	## Return the total figure
 	return (axdepth, axbranch, axcompare)
