@@ -244,7 +244,7 @@ std::array<int,2> Board::Board::infect_city(int city_idx, int col,int add){
         for(Players::Player& p: players){
             if(p.role.quarantinespecialist){
                 // If they're in the same city
-                if(p.get_position().index==city_idx){
+                if(p.get_position()==city_idx){
                     if(disease_count[col][city_idx]+add>3){
                         return {0,1};
                     } else {
@@ -252,7 +252,7 @@ std::array<int,2> Board::Board::infect_city(int city_idx, int col,int add){
                     }
                 }
                 // Or if they're in an adjacent city
-                for(int n: p.get_position().neighbors){
+                for(int n: Map::CITY_NEIGHBORS(p.get_position())){
                     if(city_idx==n){
                         if(disease_count[col][city_idx]+add>3){
                             return {0,1};
@@ -357,23 +357,23 @@ void Board::Board::update_medic_position(){
         if(p.role.medic){
             if(cured[Map::BLUE]){
                 // disease count of this color on their position should be 0
-                color_count[Map::BLUE]-=disease_count[Map::BLUE][p.get_position().index];
-                disease_count[Map::BLUE][p.get_position().index]=0;
+                color_count[Map::BLUE]-=disease_count[Map::BLUE][p.get_position()];
+                disease_count[Map::BLUE][p.get_position()]=0;
             }
             if(cured[Map::YELLOW]){
                 // disease count of this color on their position should be 0
-                color_count[Map::YELLOW]-=disease_count[Map::YELLOW][p.get_position().index];
-                disease_count[Map::YELLOW][p.get_position().index]=0;
+                color_count[Map::YELLOW]-=disease_count[Map::YELLOW][p.get_position()];
+                disease_count[Map::YELLOW][p.get_position()]=0;
             }
             if(cured[Map::BLACK]){
                 // disease count of this color on their position should be 0
-                color_count[Map::BLACK]-=disease_count[Map::BLACK][p.get_position().index];
-                disease_count[Map::BLACK][p.get_position().index]=0;
+                color_count[Map::BLACK]-=disease_count[Map::BLACK][p.get_position()];
+                disease_count[Map::BLACK][p.get_position()]=0;
             }
             if(cured[Map::RED]){
                 // disease count of this color on their position should be 0
-                color_count[Map::RED]-=disease_count[Map::RED][p.get_position().index];
-                disease_count[Map::RED][p.get_position().index]=0;
+                color_count[Map::RED]-=disease_count[Map::RED][p.get_position()];
+                disease_count[Map::RED][p.get_position()]=0;
             }
         }
     }

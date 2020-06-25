@@ -10,7 +10,7 @@
 
 std::string Decks::CARD_NAME(int card_index){
     if(card_index<Map::CITIES.size()){
-        return Map::CITIES[card_index].name;
+        return Map::CITY_NAME(card_index);
     } else if(card_index<Map::CITIES.size()+3){
         switch(card_index){
             case 48:
@@ -33,7 +33,7 @@ std::string Decks::CARD_NAME(int card_index){
 
 int Decks::CARD_COLOR(int card_index){
     if(card_index<Map::CITIES.size()){
-        return Map::CITIES[card_index].color;
+        return Map::CITY_COLOR(card_index);
     } else {
         return -1;
     }
@@ -49,7 +49,7 @@ bool Decks::IS_EVENT(int card_index){
 
 int Decks::POPULATION(int card_index){
     if(card_index<Map::CITIES.size()){
-        return Map::CITIES[card_index].population;
+        return Map::CITY_POP(card_index);
     } else {
         return -1;
     }

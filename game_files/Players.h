@@ -49,15 +49,17 @@ namespace Players
     protected:
         int hand_limit = 7;
 
-        // Map::City position of player (by reference)
-        Map::City* position; 
+        // player position by city index
+        int position; 
 
         int last_position=-1; // Track last position to reduce search
     public:
         Player(int role_id);
         Player();
 
-        ~Player(){};
+        ~Player(){
+            // Do NOT delete the city
+        };
         
         // reset for a new game (keep role but empty hand and put in atlanta, just like in constructor)
         void reset(); 
@@ -104,7 +106,7 @@ namespace Players
         std::array<int,4> get_color_count();
 
         // Return the city representing current position
-        Map::City get_position();
+        int get_position();
         int get_last_position();
 
         // To track whether or not they've jumped from a research station to somewhere else
