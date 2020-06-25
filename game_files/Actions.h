@@ -64,9 +64,9 @@ namespace Actions
     // ===== Move ===== 
     class Move: public Action{
         // to incorporate dispatcher would either need a new action, or include player, from, and to here.
-        Map::City& to;
+        int to;
     public:
-        Move(Map::City& _to);
+        Move(int _to);
         ~Move(){};
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging

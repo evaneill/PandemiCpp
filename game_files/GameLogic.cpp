@@ -119,7 +119,7 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(Board::Board& game_b
 
     if(verbose){
         Players::Player& active_player = game_board.active_player();
-        DEBUG_MSG("[Game::get_random_action_uniform()] "<< active_player.role.name << " is in " << active_player.get_position().name <<  " and has hand: ");
+        DEBUG_MSG("[Game::get_random_action_uniform()] "<< active_player.role.name << " is in " << Map::CITY_NAME(active_player.get_position()) <<  " and has hand: ");
         for(int& card: active_player.hand){
             DEBUG_MSG(Decks::CARD_NAME(card) << "; ");
         }
@@ -216,7 +216,7 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(Board::Board& game_b
     }
     
     if(verbose){
-        DEBUG_MSG("[Game::get_random_action_bygroup()] " << game_board.active_player().role.name << " is in " << game_board.active_player().get_position().name <<  " and has hand: ");
+        DEBUG_MSG("[Game::get_random_action_bygroup()] " << game_board.active_player().role.name << " is in " << Map::CITY_NAME(game_board.active_player().get_position()) <<  " and has hand: ");
         for(int& card: game_board.active_player().hand){
             DEBUG_MSG(Decks::CARD_NAME(card) << "; ");
         }
@@ -230,7 +230,9 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(Board::Board& game_b
     int max_n_actions =PlayerConstructorList.size();
     if(!TreatCon.legal(game_board) && !CureCon.legal(game_board)){
         // If neither treat nor cure is an option then it's possible that game logic will consider do nothing as an action
-        max_n_actions++;
+        if(DoNothingCon.legal(game_board)){
+            max_n_actions++;
+        }
     }
 
     // Generate a random action constructor index
@@ -266,17 +268,18 @@ int GameLogic::Game::n_available_actions(bool verbose){
 }
 
 int GameLogic::Game::n_available_actions(Board::Board& game_board, bool verbose){
+    if(ForcedDiscardCon.legal(game_board)){
+        return ForcedDiscardCon.n_actions(game_board);
+    }
     int total_actions=0;
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
         total_actions+=(con_ptr -> n_actions(game_board));
     }
     if(!TreatCon.legal(game_board) && !CureCon.legal(game_board)){
-        total_actions+=DoNothingCon.n_actions(game_board);
+        if(DoNothingCon.legal(game_board)){
+            total_actions+=DoNothingCon.n_actions(game_board);
+        }
     }
-    if(total_actions==0 && ForcedDiscardCon.legal(game_board)){
-        return ForcedDiscardCon.n_actions(game_board);
-    }
-
     return  total_actions;
 }
 
@@ -296,7 +299,7 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(Board::Board& game_b
 
     if(verbose){
         Players::Player& active_player = game_board.active_player();
-        DEBUG_MSG("[Game::list_actions()] "<< active_player.role.name << " is in " << active_player.get_position().name <<  " and has hand: ");
+        DEBUG_MSG("[Game::list_actions()] "<< active_player.role.name << " is in " << Map::CITY_NAME(active_player.get_position()) <<  " and has hand: ");
         for(int& card: active_player.hand){
             DEBUG_MSG(Decks::CARD_NAME(card) << "; ");
         }
@@ -314,7 +317,9 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(Board::Board& game_b
         if(verbose){
             DEBUG_MSG("it's legal! There are " << DoNothingCon.n_actions(game_board) << " possible actions.");
         }
-        full_out.push_back(DoNothingCon.random_action(game_board));
+        if(DoNothingCon.legal(game_board)){
+            full_out.push_back(DoNothingCon.random_action(game_board));
+        }
     }
 
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){

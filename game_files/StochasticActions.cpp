@@ -83,10 +83,10 @@ void StochasticActions::EpidemicDrawAction::execute(Board::Board& game_board){
     // Check for existence & adjacency of quarantine specialist
     for(Players::Player& p: game_board.get_players()){
         if(p.role.quarantinespecialist){
-            if(p.get_position().index==infect_card_drawn){
+            if(p.get_position()==infect_card_drawn){
                 quarantine_adjacent=true;
             }
-            for(int n: p.get_position().neighbors){
+            for(int n: Map::CITY_NEIGHBORS(p.get_position())){
                 if(infect_card_drawn==n){
                     quarantine_adjacent=true;
                 }
@@ -196,11 +196,11 @@ void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
             // Check for existence & adjacency of quarantine specialist
             for(Players::Player& p: game_board.get_players()){
                 if(p.role.quarantinespecialist){
-                    if(p.get_position().index==card_drawn){
+                    if(p.get_position()==card_drawn){
                         QuarantineSpecialistBlocked=true;
                         break;
                     }
-                    for(int n: p.get_position().neighbors){
+                    for(int n: Map::CITY_NEIGHBORS(p.get_position())){
                         if(card_drawn==n){
                             QuarantineSpecialistBlocked=true;
                         }

@@ -18,3 +18,19 @@ Map::City::City(){
 	name = "";
 	neighbors = {};
 }
+
+std::string Map::CITY_NAME(int city_idx){
+	return Map::CITIES[city_idx].name;
+}
+
+int Map::CITY_POP(int city_idx){
+	return Map::CITIES[city_idx].population;
+}
+
+std::vector<int> Map::CITY_NEIGHBORS(int city_idx){
+	return Map::CITIES[city_idx].neighbors;
+}
+
+int Map::CITY_COLOR(int city_idx){
+	return Map::CITIES[city_idx].color;
+}

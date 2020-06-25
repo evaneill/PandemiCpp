@@ -9,7 +9,7 @@
 #include "Debug.h"
 
 Players::Player::Player(int role_id): 
-    position(&Map::CITIES[3]),
+    position(3),
     hand({}),
     used_OperationsExpertFlight(false)
     {
@@ -37,7 +37,7 @@ Players::Player::Player(int role_id):
 }
 
 Players::Player::Player(){
-    position=nullptr;
+    position=-1;
     hand = {};
     used_OperationsExpertFlight=false;
     role = Role(NULL,0);
@@ -45,7 +45,7 @@ Players::Player::Player(){
 
 void Players::Player::reset(){
     // put them back in hotlanta
-    position = &Map::CITIES[3];
+    position = 3;
     last_position = -1;
     hand.clear();
     event_cards.clear();
@@ -96,11 +96,11 @@ std::array<int,4> Players::Player::get_color_count(){
 }
 
 void Players::Player::set_position(Map::City& new_city){
-    position = &new_city;
+    position = new_city.index;
 };
 
 void Players::Player::set_position(int new_city){
-    position = &Map::CITIES[new_city];
+    position = new_city;
 };
 
 void Players::Player::reset_last_position(int old_position){
@@ -141,8 +141,8 @@ void Players::Player::removeCureCardColor(int col){
     }
 }
 
-Map::City Players::Player::get_position(){
-    return *position;
+int Players::Player::get_position(){
+    return position;
 }
 
 int Players::Player::get_last_position(){

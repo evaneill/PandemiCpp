@@ -157,12 +157,12 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
         DEBUG_MSG(std::endl <<  "[SANITYCHECK] Checking that no player position is their last_position" << std::endl);
     }
     for(Players::Player& p: active_board.get_players()){
-        if(p.get_position().index==p.get_last_position()){
+        if(p.get_position()==p.get_last_position()){
             if(verbose){
-                DEBUG_MSG("[SANITYCHECK] ... but " << p.role.name << " is at  " << p.get_position().name << " even though their last position is recorded as " << Map::CITIES[p.get_last_position()].name << std::endl);
+                DEBUG_MSG("[SANITYCHECK] ... but " << p.role.name << " is at  " << Map::CITY_NAME(p.get_position()) << " even though their last position is recorded as " << Map::CITIES[p.get_last_position()].name << std::endl);
             }
             active_board.broken()=true;
-            active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " is at  " + p.get_position().name + " even though their last position is recorded as " + Map::CITIES[p.get_last_position()].name);
+            active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " is at  " + Map::CITY_NAME(p.get_position()) + " even though their last position is recorded as " + Map::CITIES[p.get_last_position()].name);
         }
     }
     if(verbose){
@@ -201,6 +201,21 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
         }
         active_board.broken()=true;
         active_board.broken_reasons().push_back("[SANITYCHECK] " +Map::COLORS[Map::RED] + " disease_count sum isn't the same as its tracker!");
+    }
+    if(verbose){
+        DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
+    }
+
+    // Make sure disease_sum is returning same value as the actual disease tracking array disease_count
+    // (this is a very suboptimal sanity check, but my experiments show that even with it, keeping a separate integer tracker reaps small rewards)
+    if(verbose){
+        DEBUG_MSG(std::endl <<  "[SANITYCHECK] Checking that every player position is 0<= position <= 48" << std::endl);
+    }
+    for(Players::Player& p: active_board.get_players()){
+        if(p.get_position()<0 || p.get_position()>48){
+            active_board.broken()=true;
+            active_board.broken_reasons().push_back("[SANITYCHECK] "+ p.role.name + " has position listed as " + std::to_string(p.get_position()) + "!");
+        }
     }
     if(verbose){
         DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
