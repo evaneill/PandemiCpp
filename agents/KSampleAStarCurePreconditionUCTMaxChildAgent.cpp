@@ -7,11 +7,11 @@
 
 #include "Agents.h"
 #include "Heuristics.h"
-#include "KSampleAStarUCTMaxChildAgent.h"
+#include "KSampleAStarCurePreconditionUCTMaxChildAgent.h"
 
 #include "search_tools/Search.h"
 
-Agents::KSampleAStarUCTMaxChildAgent::KSampleAStarUCTMaxChildAgent(GameLogic::Game& _active_game, int _n_simulations, int _K,int _VisitConvergenceCriteria):
+Agents::KSampleAStarCurePreconditionUCTMaxChildAgent::KSampleAStarCurePreconditionUCTMaxChildAgent(GameLogic::Game& _active_game, int _n_simulations, int _K,int _VisitConvergenceCriteria):
     BaseAgent(_active_game)
     {   
         n_simulations = _n_simulations;
@@ -25,7 +25,7 @@ Agents::KSampleAStarUCTMaxChildAgent::KSampleAStarUCTMaxChildAgent(GameLogic::Ga
         measurable=true;
 }
 
-Actions::Action* Agents::KSampleAStarUCTMaxChildAgent::generate_action(bool verbose){
+Actions::Action* Agents::KSampleAStarCurePreconditionUCTMaxChildAgent::generate_action(bool verbose){
     // Make a new search tree, which will instantiate a root
     // This tree takes 1 sample of a stochastic sequence at each stochastic node
     // Stochasticity is "saved" and revisited again upon every subsequent traversal
@@ -52,7 +52,7 @@ Actions::Action* Agents::KSampleAStarUCTMaxChildAgent::generate_action(bool verb
 
         // Straight up evaluate the heuristic of the state
         // Use the "CureGoalConditions": What fraction of 4 diseases are cured at rollout end, PLUS maximum fraction of satisfied preconditions to cure actions among players
-        double reward = Heuristics::CureGoalConditions(board_copy);
+        double reward = Heuristics::CureGoalConditionswStation(board_copy);
 
         // Back up the observed reward
         // (terminal nodes never get value changed on backprop)
@@ -76,7 +76,7 @@ Actions::Action* Agents::KSampleAStarUCTMaxChildAgent::generate_action(bool verb
     return chosen_child -> get_action();
 }
 
-Search::Node* Agents::KSampleAStarUCTMaxChildAgent::get_max_child(Search::Node* root){
+Search::Node* Agents::KSampleAStarCurePreconditionUCTMaxChildAgent::get_max_child(Search::Node* root){
     // This is to be called on root, which is a deterministic node
     // This represents GREEDY SELECTION of maximum reward
     Search::Node* best_child = nullptr;
@@ -103,7 +103,7 @@ Search::Node* Agents::KSampleAStarUCTMaxChildAgent::get_max_child(Search::Node* 
     return best_child;
 }
 
-double Agents::KSampleAStarUCTMaxChildAgent::get_max_avgreward(Search::Node* node){
+double Agents::KSampleAStarCurePreconditionUCTMaxChildAgent::get_max_avgreward(Search::Node* node){
     if(node -> terminal){
         // If the node is terminal it's average reward is it's only reward is a for-sure reward is the score that was set on instantiation
         return node -> score;
@@ -154,7 +154,7 @@ double Agents::KSampleAStarUCTMaxChildAgent::get_max_avgreward(Search::Node* nod
     }
 }
 
-void Agents::KSampleAStarUCTMaxChildAgent::take_step(bool verbose){
+void Agents::KSampleAStarCurePreconditionUCTMaxChildAgent::take_step(bool verbose){
     Actions::Action* chosen_action = generate_action(verbose);
     active_game.applyAction(chosen_action);
     if(verbose){
@@ -167,14 +167,14 @@ void Agents::KSampleAStarUCTMaxChildAgent::take_step(bool verbose){
     }
 }
 
-void Agents::KSampleAStarUCTMaxChildAgent::reset(){
+void Agents::KSampleAStarCurePreconditionUCTMaxChildAgent::reset(){
     tree_depths.clear();
     chosen_rewards.clear();
     chosen_confidences.clear();
     chosen_visits_minus_avg.clear();
 }
 
-std::vector<std::string> Agents::KSampleAStarUCTMaxChildAgent::get_keys(){
+std::vector<std::string> Agents::KSampleAStarCurePreconditionUCTMaxChildAgent::get_keys(){
     return {
         "AvgTreeDepth",
         "StdTreeDepth",
@@ -193,7 +193,7 @@ std::vector<std::string> Agents::KSampleAStarUCTMaxChildAgent::get_keys(){
     };
 }
 
-std::vector<double> Agents::KSampleAStarUCTMaxChildAgent::get_values(){
+std::vector<double> Agents::KSampleAStarCurePreconditionUCTMaxChildAgent::get_values(){
     // Avg tree depth
     double depth_mean=0;
     for(int& d : tree_depths){
