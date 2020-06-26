@@ -78,6 +78,7 @@ Actions::Action* Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::generate_actio
 
 Search::Node* Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::get_max_child(Search::Node* root){
     // This is to be called on root, which is a deterministic node
+    // This represents GREEDY SELECTION of maximum reward
     Search::Node* best_child = nullptr;
     double best_child_reward = -1;
 
@@ -85,11 +86,18 @@ Search::Node* Agents::KSampleSubGoalHeuristicUCTMaxChildAgent::get_max_child(Sea
     for(int child_num=0;child_num<root -> n_children();child_num++){
         Search::Node* child = root -> getChild(child_num);
         double child_score = get_max_avgreward(child);
-        // If (max avg reward) + (confidence bound) > best existing score
-        // [confidence bound = UCB1 - (existing avg reward)]
-        if((Search::UCB1Score(child) - (child -> TotalReward)/((double) child -> N_visits) + child_score)>best_child_reward){
+
+        // Set totalReward based on max "acheivable" reward expectation
+        child -> TotalReward = child_score * (child -> N_visits);
+
+        // Replicate logic of set_score(). If not terminal, use UCB1, otherwise leave it unchanged
+        if(!child -> terminal){
+            child -> score = Search::UCB1Score(child);
+        }
+        // If (max avg reward) > best existing reward
+        if(child_score >best_child_reward){
             best_child = child;
-            best_child_reward = Search::UCB1Score(child) - (child -> TotalReward)/((double) child -> N_visits) + child_score;
+            best_child_reward = child_score;
         }
     }
     return best_child;
