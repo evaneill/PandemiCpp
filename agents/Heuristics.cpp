@@ -284,14 +284,32 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
 }
 
 double Heuristics::LossProximity(Board::Board& game_board){
-    double outbreak_badness = std::exp(.5 * ((double) game_board.get_outbreak_count() - 8.0));
+    double outbreak_badness = 0;
+    int outbreak_count = game_board.get_outbreak_count();
+    if(outbreak_count==2){
+        // .01 = avoid it if you can, but less effect than any change in positive heuristic
+        outbreak_badness=.01;
+    } else if(outbreak_count==3 || outbreak_count==4){
+        // this is ~ the same impact as moving a player w/ all cure cards next to a research station
+        outbreak_badness=.025; 
+    } else if(outbreak_count==5){
+        // 5 = ~worse than getting a card closer to curing
+        outbreak_badness=.04;
+    } else if(outbreak_count==6){
+        // 6 = now ~ worse than curing when you have all the cards
+        outbreak_badness=.06;
+    } else{
+        // 7 = worse than virtually everything but winning in a turn
+        outbreak_badness=.10;
+    }
     
     std::array<int,4> color_count= game_board.get_color_count();
 
-    double BLUE_badness = std::exp(4. * ((double) (color_count[Map::BLUE] - 25)/25.0));
-    double YELLOW_badness = std::exp(4. * ((double) (color_count[Map::YELLOW] - 25)/25.0));
-    double BLACK_badness = std::exp(4. * ((double) (color_count[Map::BLACK] - 25)/25.0));
-    double RED_badness = std::exp(4. * ((double) (color_count[Map::RED] - 25)/25.0));
+    // value starts at 0 and moves up in the direction of 1 gradually. Starts to increment ~.05 by around 20
+    double BLUE_badness = std::exp(2. * (double) (color_count[Map::BLUE] - 25)/25.0) - std::exp(-2.);
+    double YELLOW_badness =std::exp(2. * (double) (color_count[Map::YELLOW] - 25)/25.0) - std::exp(-2.);
+    double BLACK_badness = std::exp(2. * (double) (color_count[Map::BLACK] - 25)/25.0) - std::exp(-2.);
+    double RED_badness = std::exp(2. * (double) (color_count[Map::RED] - 25)/25.0) - std::exp(-2.);
 
     double max_value=0;
     if(outbreak_badness>max_value){

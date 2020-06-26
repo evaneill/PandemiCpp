@@ -7,7 +7,7 @@
 
 namespace Agents
 {
-    class KSampleAStarCurePreconditionUCTMaxChildAgent: public BaseAgent{
+    class KSampleAStarCompoundHeuristicUCTMaxChildAgent: public BaseAgent{
         // simulation-per-step budget
         int n_simulations;
 
@@ -35,8 +35,8 @@ namespace Agents
     public:
         std::string name = "-Determinization A-star UCT Agent with (# cured diseases/4)+.15* (max fraction of cards held toward curing uncured disease)  + reward for station tangency value rollouts.";
         
-        KSampleAStarCurePreconditionUCTMaxChildAgent(GameLogic::Game& _active_game,int n_simulations,int K,int VisitConvergenceCriteria=100);
-        ~KSampleAStarCurePreconditionUCTMaxChildAgent(){
+        KSampleAStarCompoundHeuristicUCTMaxChildAgent(GameLogic::Game& _active_game,int n_simulations,int K,int VisitConvergenceCriteria=100);
+        ~KSampleAStarCompoundHeuristicUCTMaxChildAgent(){
             if(search_tree){
                 delete search_tree;
             }
