@@ -306,10 +306,21 @@ double Heuristics::LossProximity(Board::Board& game_board){
     std::array<int,4> color_count= game_board.get_color_count();
 
     // value starts at 0 and moves up in the direction of 1 gradually. Starts to increment ~.05 by around 20
-    double BLUE_badness = std::exp(2. * (double) (color_count[Map::BLUE] - 25)/25.0) - std::exp(-2.);
-    double YELLOW_badness =std::exp(2. * (double) (color_count[Map::YELLOW] - 25)/25.0) - std::exp(-2.);
-    double BLACK_badness = std::exp(2. * (double) (color_count[Map::BLACK] - 25)/25.0) - std::exp(-2.);
-    double RED_badness = std::exp(2. * (double) (color_count[Map::RED] - 25)/25.0) - std::exp(-2.);
+    // double BLUE_badness = std::exp(2. * (double) (color_count[Map::BLUE] - 25)/25.0) - std::exp(-2.);
+    // double YELLOW_badness =std::exp(2. * (double) (color_count[Map::YELLOW] - 25)/25.0) - std::exp(-2.);
+    // double BLACK_badness = std::exp(2. * (double) (color_count[Map::BLACK] - 25)/25.0) - std::exp(-2.);
+    // double RED_badness = std::exp(2. * (double) (color_count[Map::RED] - 25)/25.0) - std::exp(-2.);
+
+    // Piecewise linear fxn mostly 0 (<=16) then sloping up
+    double BLUE_badness = std::max(0.,((double) color_count[Map::BLUE] - 16.)/64.);
+    double YELLOW_badness = std::max(0.,((double) color_count[Map::YELLOW] - 16.)/64.);
+    double BLACK_badness = std::max(0.,((double) color_count[Map::BLACK] - 16.)/64.);
+    double RED_badness = std::max(0.,((double) color_count[Map::RED] - 16.)/64.);
+
+    BLUE_badness = std::max(BLUE_badness,3.*((double) color_count[Map::BLUE] - 21.)/64. + 5./64.);
+    YELLOW_badness = std::max(YELLOW_badness,3.*((double) color_count[Map::YELLOW] - 21.)/64. + 5./64.);
+    BLACK_badness = std::max(BLACK_badness,3.*((double) color_count[Map::BLACK] - 21.)/64. + 5./64.);
+    RED_badness = std::max(RED_badness,3.*((double) color_count[Map::RED] - 21.)/64. + 5./64.);
 
     double max_value=0;
     if(outbreak_badness>max_value){
