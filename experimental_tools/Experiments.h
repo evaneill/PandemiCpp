@@ -124,10 +124,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class SingleSampleNaiveUCTAgentExperiment: public Experiment {
+    class K1_10k_Naive_UCTExperiment: public Experiment {
     public:
-        SingleSampleNaiveUCTAgentExperiment();
-        ~SingleSampleNaiveUCTAgentExperiment(){
+        K1_10k_Naive_UCTExperiment();
+        ~K1_10k_Naive_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -145,10 +145,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class ThreeSampleNaiveUCTAgentExperiment: public Experiment {
+    class K3_10k_Naive_UCTExperiment: public Experiment {
     public:
-        ThreeSampleNaiveUCTAgentExperiment();
-        ~ThreeSampleNaiveUCTAgentExperiment(){
+        K3_10k_Naive_UCTExperiment();
+        ~K3_10k_Naive_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -166,10 +166,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class SingleSampleGoalHeuristicUCTAgentExperiment: public Experiment {
+    class K1_10k_SubGoal_UCTExperiment: public Experiment {
     public:
-        SingleSampleGoalHeuristicUCTAgentExperiment();
-        ~SingleSampleGoalHeuristicUCTAgentExperiment(){
+        K1_10k_SubGoal_UCTExperiment();
+        ~K1_10k_SubGoal_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -187,10 +187,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class ThreeSampleGoalHeuristicUCTAgentExperiment: public Experiment {
+    class K3_10k_SubGoal_UCTExperiment: public Experiment {
     public:
-        ThreeSampleGoalHeuristicUCTAgentExperiment();
-        ~ThreeSampleGoalHeuristicUCTAgentExperiment(){
+        K3_10k_SubGoal_UCTExperiment();
+        ~K3_10k_SubGoal_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -208,10 +208,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class SingleSampleSubGoalHeuristicUCTAgentExperiment: public Experiment {
+    class K1_10k_Precondition_UCTExperiment: public Experiment {
     public:
-        SingleSampleSubGoalHeuristicUCTAgentExperiment();
-        ~SingleSampleSubGoalHeuristicUCTAgentExperiment(){
+        K1_10k_Precondition_UCTExperiment();
+        ~K1_10k_Precondition_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -229,10 +229,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class ThreeSampleSubGoalHeuristicUCTAgentExperiment: public Experiment {
+    class K3_10k_Precondition_UCTExperiment: public Experiment {
     public:
-        ThreeSampleSubGoalHeuristicUCTAgentExperiment();
-        ~ThreeSampleSubGoalHeuristicUCTAgentExperiment(){
+        K3_10k_Precondition_UCTExperiment();
+        ~K3_10k_Precondition_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -250,10 +250,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class ThreeSampleSubGoalHeuristic50kUCTAgentExperiment: public Experiment {
+    class K3_50k_Precondition_UCTExperiment: public Experiment {
     public:
-        ThreeSampleSubGoalHeuristic50kUCTAgentExperiment();
-        ~ThreeSampleSubGoalHeuristic50kUCTAgentExperiment(){
+        K3_50k_Precondition_UCTExperiment();
+        ~K3_50k_Precondition_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -271,10 +271,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class SingleSampleNaive50kUCTAgentExperiment: public Experiment {
+    class K1_50k_Naive_UCTExperiment: public Experiment {
     public:
-        SingleSampleNaive50kUCTAgentExperiment();
-        ~SingleSampleNaive50kUCTAgentExperiment(){
+        K1_50k_Naive_UCTExperiment();
+        ~K1_50k_Naive_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -292,10 +292,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class ThreeSampleGoalHeuristic50kUCTAgentExperiment: public Experiment {
+    class K3_50k_SubGoal_UCTExperiment: public Experiment {
     public:
-        ThreeSampleGoalHeuristic50kUCTAgentExperiment();
-        ~ThreeSampleGoalHeuristic50kUCTAgentExperiment(){
+        K3_50k_SubGoal_UCTExperiment();
+        ~K3_50k_SubGoal_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -313,10 +313,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class SingleSampleGoalHeuristic50kUCTAgentExperiment: public Experiment {
+    class K1_50k_SubGoal_UCTExperiment: public Experiment {
     public:
-        SingleSampleGoalHeuristic50kUCTAgentExperiment();
-        ~SingleSampleGoalHeuristic50kUCTAgentExperiment(){
+        K1_50k_SubGoal_UCTExperiment();
+        ~K1_50k_SubGoal_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -334,10 +334,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class ThreeSampleNaive50kUCTAgentExperiment: public Experiment {
+    class K3_50k_Naive_UCTExperiment: public Experiment {
     public:
-        ThreeSampleNaive50kUCTAgentExperiment();
-        ~ThreeSampleNaive50kUCTAgentExperiment(){
+        K3_50k_Naive_UCTExperiment();
+        ~K3_50k_Naive_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -355,10 +355,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class SingleSampleSubGoalHeuristic50kUCTAgentExperiment: public Experiment {
+    class K1_50k_Precondition_UCTExperiment: public Experiment {
     public:
-        SingleSampleSubGoalHeuristic50kUCTAgentExperiment();
-        ~SingleSampleSubGoalHeuristic50kUCTAgentExperiment(){
+        K1_50k_Precondition_UCTExperiment();
+        ~K1_50k_Precondition_UCTExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -376,10 +376,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_10k_SubGoal_UCTMaxChildExperiment: public Experiment {
+    class K3_10k_Precondition_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_10k_SubGoal_UCTMaxChildExperiment();
-        ~K3_10k_SubGoal_UCTMaxChildExperiment(){
+        K3_10k_Precondition_UCTMaxChildExperiment();
+        ~K3_10k_Precondition_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -418,10 +418,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_10k_Goal_UCTMaxChildExperiment: public Experiment {
+    class K3_10k_SubGoal_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_10k_Goal_UCTMaxChildExperiment();
-        ~K3_10k_Goal_UCTMaxChildExperiment(){
+        K3_10k_SubGoal_UCTMaxChildExperiment();
+        ~K3_10k_SubGoal_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
