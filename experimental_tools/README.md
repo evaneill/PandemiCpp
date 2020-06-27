@@ -17,7 +17,7 @@ Experiments will write results to files that describe the experiment context (wh
 
 I'm using _measurement_ to mean a number that represents some property of a single game played by an agent. Examples of measurements are: the final reward achieved by an agent, the minimum/maximum/average branching factor, the game depth, etc. 
 
-Here I implement measurements somewhat like `Actions`, in that they are a class that keeps a pointer to the board being played by the agent. At each game step, measurements are told to update by the `Experiment` to which they belong. At the end of each game played, the experiment will query each measurement for all of the values it tracked, and insert those into a file location.
+Here I implement measurements as a class that keeps a pointer to the board being played by the agent. At each game step, measurements are told to update by the `Experiment` to which they belong. At the end of each game played, the experiment will query each measurement for all of the values it tracked, and insert those into a file location.
 
 ## Scenarios ##
 
