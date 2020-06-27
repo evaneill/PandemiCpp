@@ -50,7 +50,7 @@ Experiments::K3_50k_AStar_CompoundHeuristic_UCTMaxChildExperiment::K3_50k_AStar_
     n_games=100;
 }
 
-void Experiments::K3_10k_AStar_CompoundHeuristic_UCTMaxChildExperiment::write_header(){
+void Experiments::K3_50k_AStar_LossProximity_UCTMaxChildExperiment::write_header(){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::trunc);
 
     header << "Experiment Name: " << experiment_name << std::endl;
