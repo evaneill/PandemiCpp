@@ -3,7 +3,7 @@
 #include <chrono>
 #include <ctime>
 
-#include "../../agents/HeuristicEval_Based_UCT_MCTS/KSampleAStarCurePreconditionUCTMaxChildAgent.h"
+#include "../../agents/HeuristicEval_Based_UCT_MCTS/KSample_AStar_Precondition_UCTMaxChildAgent.h"
 
 #include "../../experimental_tools/Experiments.h"
 #include "../../experimental_tools/Scenarios.h"
@@ -109,7 +109,7 @@ Agents::BaseAgent* Experiments::K3_50k_AStar_CurePrecondition_UCTMaxChildExperim
     // 10000 simulations per step
     // 3 determinization per stochasticity
     // Will take max-avg-reward children if >=100 visits 
-    return new Agents::KSampleAStarCurePreconditionUCTMaxChildAgent(*game,50000,3,1);
+    return new Agents::KSample_AStar_Precondition_UCTMaxChildAgent(*game,50000,3,1);
 }
 
 std::vector<Measurements::GameMeasurement*> Experiments::K3_50k_AStar_CurePrecondition_UCTMaxChildExperiment::get_game_measures(Board::Board* game){

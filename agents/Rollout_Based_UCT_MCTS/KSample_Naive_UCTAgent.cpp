@@ -9,7 +9,7 @@
 #include "../Heuristics.h"
 #include "KSample_Naive_UCTAgent.h"
 
-#include "search_tools/Search.h"
+#include "../search_tools/Search.h"
 
 Agents::KSample_Naive_UCTAgent::KSample_Naive_UCTAgent(GameLogic::Game& _active_game, int _n_simulations, int _K):
     BaseAgent(_active_game)

@@ -9,7 +9,7 @@
 #include "../Heuristics.h"
 #include "KSample_Precondition_UCTAgent.h"
 
-#include "search_tools/Search.h"
+#include "../search_tools/Search.h"
 
 Agents::KSample_Precondition_UCTAgent::KSample_Precondition_UCTAgent(GameLogic::Game& _active_game, int _n_simulations, int _K):
     BaseAgent(_active_game)

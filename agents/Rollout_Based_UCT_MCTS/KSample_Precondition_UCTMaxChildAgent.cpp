@@ -9,7 +9,7 @@
 #include "../Heuristics.h"
 #include "KSample_Precondition_UCTMaxChildAgent.h"
 
-#include "search_tools/Search.h"
+#include "../search_tools/Search.h"
 
 Agents::KSample_Precondition_UCTMaxChildAgent::KSample_Precondition_UCTMaxChildAgent(GameLogic::Game& _active_game, int _n_simulations, int _K,int _VisitConvergenceCriteria):
     BaseAgent(_active_game)
