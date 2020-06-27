@@ -16,6 +16,10 @@ Actions are drawn uniformly over all legal actions.
 ### ByGroup Random
 The _type_ of action is chosen from among _types_ of legal actions uniformly (e.g. `Move`, `Treat`, `DirectFlight`,...), and then a legal action of that _type_ is chosen.
 
+### ListAction Random (unimplemented/tested)
+
+This requests the full list of legal actions then chooses on at random. This is therefore the same as Uniform but with a lot more effort. This was used for testing `GameLogic`, but should *not* be used, since it represents a huge memory leak (it never deletes the actions that the game logic creates).
+
 ## Search Agents
 
 ### Rollout-Based UCT MCTS
