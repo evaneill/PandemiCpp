@@ -160,8 +160,8 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
     // Add .05 for any disease for which all the cards are there based on whether the player is at/next to a research station
     if(BLUE_closeness==1){
         bool reward_claimed=false;
-        for(Map::City* st: game_board.get_stations()){
-            if(BLUE_closest_position==st -> index && !reward_claimed){
+        for(int  st: game_board.get_stations()){
+            if(BLUE_closest_position==st && !reward_claimed){
                 value+=.05;
                 reward_claimed=true;
                 break;
@@ -170,8 +170,8 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
         if(!reward_claimed){
             std::vector<int> neighbors = Map::CITY_NEIGHBORS(BLUE_closest_position);
             for(int& neighbor: neighbors){
-                for(Map::City* st : game_board.get_stations()){
-                    if(st -> index== neighbor && !reward_claimed){
+                for(int  st : game_board.get_stations()){
+                    if(st== neighbor && !reward_claimed){
                         value+=.025;
                         reward_claimed=true;
                         break;
@@ -185,8 +185,8 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
     }
     if(YELLOW_closeness==1){
         bool reward_claimed=false;
-        for(Map::City* st: game_board.get_stations()){
-            if(YELLOW_closest_position==st -> index && !reward_claimed){
+        for(int  st: game_board.get_stations()){
+            if(YELLOW_closest_position==st && !reward_claimed){
                 value+=.05;
                 reward_claimed=true;
                 break;
@@ -195,8 +195,8 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
         if(!reward_claimed){
             std::vector<int> neighbors = Map::CITY_NEIGHBORS(YELLOW_closest_position);
             for(int& neighbor: neighbors){
-                for(Map::City* st : game_board.get_stations()){
-                    if(st -> index== neighbor && !reward_claimed){
+                for(int  st : game_board.get_stations()){
+                    if(st== neighbor && !reward_claimed){
                         value+=.025;
                         reward_claimed=true;
                         break;
@@ -210,8 +210,8 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
     }
     if(BLACK_closeness==1){
         bool reward_claimed=false;
-        for(Map::City* st: game_board.get_stations()){
-            if(BLACK_closest_position==st -> index && !reward_claimed){
+        for(int  st: game_board.get_stations()){
+            if(BLACK_closest_position==st && !reward_claimed){
                 value+=.05;
                 reward_claimed=true;
                 break;
@@ -220,8 +220,8 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
         if(!reward_claimed){
             std::vector<int> neighbors = Map::CITY_NEIGHBORS(BLACK_closest_position);
             for(int& neighbor: neighbors){
-                for(Map::City* st : game_board.get_stations()){
-                    if(st -> index== neighbor && !reward_claimed){
+                for(int  st : game_board.get_stations()){
+                    if(st== neighbor && !reward_claimed){
                         value+=.025;
                         reward_claimed=true;
                         break;
@@ -235,8 +235,8 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
     }
     if(RED_closeness==1){
         bool reward_claimed=false;
-        for(Map::City* st: game_board.get_stations()){
-            if(RED_closest_position==st -> index && !reward_claimed){
+        for(int  st: game_board.get_stations()){
+            if(RED_closest_position==st && !reward_claimed){
                 value+=.05;
                 reward_claimed=true;
                 break;
@@ -245,8 +245,8 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
         if(!reward_claimed){
             std::vector<int> neighbors = Map::CITY_NEIGHBORS(RED_closest_position);
             for(int& neighbor: neighbors){
-                for(Map::City* st : game_board.get_stations()){
-                    if(st -> index== neighbor && !reward_claimed){
+                for(int  st : game_board.get_stations()){
+                    if(st== neighbor && !reward_claimed){
                         value+=.025;
                         reward_claimed=true;
                         break;

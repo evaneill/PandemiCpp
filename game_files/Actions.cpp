@@ -315,8 +315,8 @@ std::string Actions::ShuttleFlightConstructor::get_movetype(){
 int Actions::ShuttleFlightConstructor::n_actions(Board::Board& game_board){
     if(legal(game_board)){
         int n_actions=0;
-        for(Map::City* st: game_board.get_stations()){
-            if((*st).index!=game_board.active_player().get_position() && (*st).index!=game_board.active_player().get_last_position()){
+        for(int st: game_board.get_stations()){
+            if(st!=game_board.active_player().get_position() && st!=game_board.active_player().get_last_position()){
                 n_actions++;
             }
         }
@@ -329,20 +329,20 @@ int Actions::ShuttleFlightConstructor::n_actions(Board::Board& game_board){
 Actions::Action* Actions::ShuttleFlightConstructor::random_action(Board::Board& game_board){
     int position  = game_board.active_player().get_position();
     int random_position = rand() % game_board.get_stations().size();
-    while(game_board.get_stations()[random_position] -> index==position || game_board.get_stations()[random_position] -> index==game_board.active_player().get_last_position()){
+    while(game_board.get_stations()[random_position]==position || game_board.get_stations()[random_position]==game_board.active_player().get_last_position()){
         // Keep randomizing until you find a station that isn't your present or last location
         random_position = rand() % game_board.get_stations().size(); 
     }
-    return new Actions::ShuttleFlight(game_board.get_stations()[random_position] -> index);
+    return new Actions::ShuttleFlight(game_board.get_stations()[random_position]);
 }
 
 std::vector<Actions::Action*> Actions::ShuttleFlightConstructor::all_actions(Board::Board& game_board){
     std::vector<Actions::Action*> full_list;
-    std::vector<Map::City*>& stations = game_board.get_stations();
+    std::vector<int>& stations = game_board.get_stations();
 
-    for(Map::City* st: stations){
-        if((*st).index!=game_board.active_player().get_position() && (*st).index!=game_board.active_player().get_last_position()){
-            full_list.push_back(new Actions::ShuttleFlight(st -> index));
+    for(int& st: stations){
+        if(st!=game_board.active_player().get_position() && st!=game_board.active_player().get_last_position()){
+            full_list.push_back(new Actions::ShuttleFlight(st));
         } 
     }
     return full_list;
@@ -354,12 +354,12 @@ bool Actions::ShuttleFlightConstructor::legal(Board::Board& game_board){
     if(game_board.get_turn_action()<4){
         // and there's at least 2 stations
         if(game_board.get_stations().size()>1){
-            for(Map::City* st: game_board.get_stations()){
+            for(int& st: game_board.get_stations()){
                 // and the player is at a station
-                if((*st).index==active_player.get_position()){
-                    for(Map::City* other_st : game_board.get_stations()){
+                if(st==active_player.get_position()){
+                    for(int& other_st : game_board.get_stations()){
                         // and at least one of the other stations isn't their previous position...
-                        if((*other_st).index!=active_player.get_last_position() && (*other_st).index!=(*st).index){
+                        if(other_st!=active_player.get_last_position() && other_st!=st){
                             return true;
                         }
                     }
@@ -461,9 +461,9 @@ bool Actions::OperationsExpertFlightConstructor::legal(Board::Board& game_board)
     if(active_player.role.operationsexpert){
         // and it's still players turn to do stuff
         if(game_board.get_turn_action()<4){
-            for(Map::City* st: game_board.get_stations()){
+            for(int& st: game_board.get_stations()){
                 // And they're at the position of a station
-                if((*st).index==active_player.get_position()){
+                if(st==active_player.get_position()){
                     // And they have at least one card to discard
                     if(active_player.hand.size()>0){
                         return true;
@@ -499,7 +499,7 @@ void Actions::Build::execute(Board::Board& new_board){
     }
 
     // Add it to the vector of research station Map::City elements
-    new_board.AddStation(Map::CITIES[place_station]);
+    new_board.AddStation(place_station);
 
     //Check whether active player is Operations Expert. If not, discard necessary card.
     if(!active_player.role.operationsexpert){
@@ -512,9 +512,9 @@ void Actions::Build::execute(Board::Board& new_board){
 }
 
 std::string Actions::Build::repr(){
-    std::string str_out = movetype+" at "+Map::CITIES[place_station].name;
+    std::string str_out = movetype+" at "+Map::CITY_NAME(place_station);
     if(remove_station>=0){
-        return str_out + " (remove the one at " + Map::CITIES[remove_station].name + ")";
+        return str_out + " (remove the one at " + Map::CITY_NAME(remove_station) + ")";
     } else {
         return str_out;
     }
@@ -551,16 +551,16 @@ Actions::Action* Actions::BuildConstructor::random_action(Board::Board& game_boa
 
 std::vector<Actions::Action*> Actions::BuildConstructor::all_actions(Board::Board& game_board){
     std::vector<Actions::Action*> full_list;
-    std::vector<Map::City*>& stations = game_board.get_stations();
+    std::vector<int>& stations = game_board.get_stations();
 
     Players::Player& active_player = game_board.active_player();
 
     if(stations.size()>=6){
         // Should never be >6 but just in case...
-        for(Map::City* st : game_board.get_stations()){
+        for(int st : game_board.get_stations()){
             // If this station isn't at your current location (shouldn't be possible when guarded by legal())
-            if((st -> index)!=active_player.get_position()){
-                full_list.push_back(new Actions::Build(active_player.get_position(),st -> index));
+            if(st!=active_player.get_position()){
+                full_list.push_back(new Actions::Build(active_player.get_position(),st));
             } 
         }
     } else {
@@ -574,8 +574,8 @@ bool Actions::BuildConstructor::legal(Board::Board& game_board){
     if(game_board.get_turn_action()<4){
         if(active_player.role.operationsexpert){
             bool already_station = false;
-            for(Map::City* st: game_board.get_stations()){
-                if((*st).index==active_player.get_position()){
+            for(int st: game_board.get_stations()){
+                if(st==active_player.get_position()){
                     already_station=true;
                     break;
                 }
@@ -589,8 +589,8 @@ bool Actions::BuildConstructor::legal(Board::Board& game_board){
                 if(c==active_player.get_position()){
                     bool already_station = false;
                     // If no station is already on this city..
-                    for(Map::City* st: game_board.get_stations()){
-                        if((*st).index==active_player.get_position()){
+                    for(int st: game_board.get_stations()){
+                        if(st==active_player.get_position()){
                             already_station=true;
                             break;
                         }
@@ -750,8 +750,8 @@ void Actions::Cure::execute(Board::Board& new_board){
     // Player has "done something" -> now it doesn't matter what the last position was
     active_player.reset_last_position();
 
-    for(Map::City* st: new_board.get_stations()){
-        if((*st).index==active_player.get_position()){
+    for(int st: new_board.get_stations()){
+        if(st==active_player.get_position()){
             std::array<int,4> color_count = active_player.get_color_count();
 
             if(color_count[Map::BLUE]>=active_player.role.required_cure_cards && !new_board.is_cured(Map::BLUE)){
@@ -848,9 +848,9 @@ bool Actions::CureConstructor::legal(Board::Board& game_board){
             (color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !game_board.is_cured(Map::YELLOW)) ||
             (color_count[Map::BLACK]>=active_player.role.required_cure_cards && !game_board.is_cured(Map::BLACK)) ||
             (color_count[Map::RED]>=active_player.role.required_cure_cards && !game_board.is_cured(Map::RED))){
-            for(Map::City* st: game_board.get_stations()){
+            for(int st: game_board.get_stations()){
                 // And they're at a research station...
-                if((*st).index==active_player.get_position()){
+                if(st==active_player.get_position()){
                     // Then they can cure
                     return true;
                 }
@@ -1273,7 +1273,7 @@ void Actions::GovernmentGrant::execute(Board::Board& new_board){
     }
     
     // Add it to the vector of research station Map::City elements
-    new_board.AddStation(Map::CITIES[target_city]);
+    new_board.AddStation(target_city);
 
     if(remove_station>=0){
         // Should break catastrophically when remove_station isn't defined properly
@@ -1316,8 +1316,8 @@ Actions::Action* Actions::GovernmentGrantConstructor::random_action(Board::Board
     // Loop until 4 sure target_city isn't already occupied by a research station
     while(already_station){
         already_station = false; 
-        for(Map::City* st: game_board.get_stations()){
-            if((*st).index==target_city){
+        for(int st: game_board.get_stations()){
+            if(st==target_city){
                 target_city = Map::CITIES[rand() % Map::CITIES.size()].index;
                 already_station=true;
                 break;
@@ -1332,7 +1332,7 @@ Actions::Action* Actions::GovernmentGrantConstructor::random_action(Board::Board
             if(e==49 && Decks::CARD_NAME(e)=="Government Grant"){
                 if(game_board.get_stations().size()>=6){
                     // remove a station at random using its city index
-                    return new Actions::GovernmentGrant(this_player,target_city,game_board.get_stations()[rand() % game_board.get_stations().size()] -> index);
+                    return new Actions::GovernmentGrant(this_player,target_city,game_board.get_stations()[rand() % game_board.get_stations().size()]);
                 }else{
                     return new Actions::GovernmentGrant(this_player,target_city);
                 }  
@@ -1356,23 +1356,23 @@ std::vector<Actions::Action*> Actions::GovernmentGrantConstructor::all_actions(B
                 if(game_board.get_stations().size()>=6){
                     for(int city=0;city<Map::CITIES.size();city++){
                         bool already_exists = false;
-                        for(Map::City* st: game_board.get_stations()){
-                            if(city==(*st).index){
+                        for(int st: game_board.get_stations()){
+                            if(city==st){
                                 already_exists=true;
                                 break;
                             }   
                         }
                         if(!already_exists){
                             for(int st=0;st<game_board.get_stations().size();st++){
-                                full_list.push_back(new Actions::GovernmentGrant(_using_player,city,game_board.get_stations()[st] -> index));
+                                full_list.push_back(new Actions::GovernmentGrant(_using_player,city,game_board.get_stations()[st]));
                             }  
                         }
                     }
                 } else {
                     for(int c=0;c<Map::CITIES.size();c++){
                         bool already_exists=false;
-                        for(Map::City* st: game_board.get_stations()){
-                            if(c==(*st).index){
+                        for(int st: game_board.get_stations()){
+                            if(c==st){
                                 already_exists=true;
                                 break;
                             } 

@@ -106,7 +106,7 @@ void Board::Board::setup(bool verbose){
         }
 
          // Add Atlanta to list of research stations
-        AddStation(Map::CITIES[3]); 
+        AddStation(3); 
         
         // Set a bunch of counters to 0 and statuses to false
         outbreak_count=0;
@@ -447,18 +447,18 @@ Players::Player& Board::Board::active_player(){
     return players[turn];
 }
 
-std::vector<Map::City*>& Board::Board::get_stations(){
+std::vector<int>& Board::Board::get_stations(){
     return research_stations;
 }
 
-void Board::Board::AddStation(Map::City& new_station){
-    research_stations.push_back(&new_station);
+void Board::Board::AddStation(int new_station){
+    research_stations.push_back(new_station);
 }
 
 void Board::Board::RemoveStation(int station_city_idx){
     // Takes the city index of the station to be erased
     for(int st=0; st<research_stations.size();st++){
-        if(research_stations[st] -> index==station_city_idx){
+        if(research_stations[st]==station_city_idx){
             research_stations.erase(research_stations.begin() + st);
             return;
         }

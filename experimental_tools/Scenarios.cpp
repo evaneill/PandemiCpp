@@ -74,20 +74,20 @@ void Scenarios::BusyBoardScenario::reset_board(Board::Board* game_board,bool ver
     int random_city = rand() % Map::CITIES.size();
 
     // This doesn't make sense, but somehow arranging it this way actually forces the compiler to stop ignoring these commands
-    game_board -> AddStation(Map::CITIES[random_city]);
-    game_board -> AddStation(Map::CITIES[(random_city+1) % Map::CITIES.size()]);
-    game_board -> AddStation(Map::CITIES[(random_city+2) % Map::CITIES.size()]);
-    game_board -> AddStation(Map::CITIES[(random_city+3) % Map::CITIES.size()]);
-    game_board -> AddStation(Map::CITIES[(random_city+4) % Map::CITIES.size()]);
-    game_board -> AddStation(Map::CITIES[(random_city+5) % Map::CITIES.size()]);
+    game_board -> AddStation(random_city);
+    game_board -> AddStation((random_city+1) % Map::CITIES.size());
+    game_board -> AddStation((random_city+2) % Map::CITIES.size());
+    game_board -> AddStation((random_city+3) % Map::CITIES.size());
+    game_board -> AddStation((random_city+4) % Map::CITIES.size());
+    game_board -> AddStation((random_city+5) % Map::CITIES.size());
 
     game_board -> reset_disease_count();
     game_board -> setup_player_deck();
 
     if(verbose){
         DEBUG_MSG(std::endl << "[Scenarios::BusyBoardTest()] This board has research stations at: ");
-        for(Map::City* st: game_board -> get_stations()){
-            DEBUG_MSG((*st).name << ", ");
+        for(int st: game_board -> get_stations()){
+            DEBUG_MSG(Map::CITY_NAME(st) << ", ");
         }
         DEBUG_MSG(std::endl);
     }
@@ -135,69 +135,69 @@ void Scenarios::CanWinScenario::reset_board(Board::Board* game_board,bool verbos
 
     // Do same ridiculous thing as BusyBoardTest to instantiate a lot of research stations
     // Infect atlanta and neighbors of atlanta with >1 cubes to test TREAT effect updating with cure
-    game_board -> AddStation(Map::CITIES[0]);
-    game_board -> AddStation(Map::CITIES[1]);
+    game_board -> AddStation(0);
+    game_board -> AddStation(1);
     std::array<int,2> junk = game_board -> infect(1,0,2);
     junk = game_board ->infect(1,1,2);
     junk = game_board ->infect(1,2,2);
     junk = game_board ->infect(1,3,2);
-    game_board -> AddStation(Map::CITIES[2]);
-    game_board -> AddStation(Map::CITIES[3]);
+    game_board -> AddStation(2);
+    game_board -> AddStation(3);
     junk = game_board -> infect(3,0,2);
     junk = game_board -> infect(3,1,2);
     junk = game_board -> infect(3,2,2);
     junk = game_board -> infect(3,3,2);
-    game_board -> AddStation(Map::CITIES[4]);
+    game_board -> AddStation(4);
     junk = game_board -> infect(4,0,2);
     junk = game_board -> infect(4,1,2);
     junk = game_board -> infect(4,2,2);
     junk = game_board -> infect(4,3,2);
-    game_board -> AddStation(Map::CITIES[5]);
-    game_board -> AddStation(Map::CITIES[6]);
-    game_board -> AddStation(Map::CITIES[7]);
-    game_board -> AddStation(Map::CITIES[8]);
-    game_board -> AddStation(Map::CITIES[9]);
-    game_board -> AddStation(Map::CITIES[10]);
-    game_board -> AddStation(Map::CITIES[11]);
-    game_board -> AddStation(Map::CITIES[12]);
-    game_board -> AddStation(Map::CITIES[13]);
-    game_board -> AddStation(Map::CITIES[14]);
+    game_board -> AddStation(5);
+    game_board -> AddStation(6);
+    game_board -> AddStation(7);
+    game_board -> AddStation(8);
+    game_board -> AddStation(9);
+    game_board -> AddStation(10);
+    game_board -> AddStation(11);
+    game_board -> AddStation(12);
+    game_board -> AddStation(13);
+    game_board -> AddStation(14);
     junk = game_board -> infect(14,0,2);
     junk = game_board -> infect(14,1,2);
     junk = game_board -> infect(14,2,2);
     junk = game_board -> infect(14,3,2);
-    game_board -> AddStation(Map::CITIES[15]);
-    game_board -> AddStation(Map::CITIES[16]);
-    game_board -> AddStation(Map::CITIES[17]);
-    game_board -> AddStation(Map::CITIES[18]);
-    game_board -> AddStation(Map::CITIES[19]);
-    game_board -> AddStation(Map::CITIES[20]);
-    game_board -> AddStation(Map::CITIES[21]);
-    game_board -> AddStation(Map::CITIES[22]);
-    game_board -> AddStation(Map::CITIES[23]);
-    game_board -> AddStation(Map::CITIES[24]);
-    game_board -> AddStation(Map::CITIES[25]);
-    game_board -> AddStation(Map::CITIES[26]);
-    game_board -> AddStation(Map::CITIES[27]);
-    game_board -> AddStation(Map::CITIES[28]);
-    game_board -> AddStation(Map::CITIES[29]);
-    game_board -> AddStation(Map::CITIES[30]);
-    game_board -> AddStation(Map::CITIES[31]);
-    game_board -> AddStation(Map::CITIES[32]);
-    game_board -> AddStation(Map::CITIES[33]);
-    game_board -> AddStation(Map::CITIES[34]);
-    game_board -> AddStation(Map::CITIES[35]);
-    game_board -> AddStation(Map::CITIES[36]);
-    game_board -> AddStation(Map::CITIES[37]);
-    game_board -> AddStation(Map::CITIES[38]);
-    game_board -> AddStation(Map::CITIES[39]);
-    game_board -> AddStation(Map::CITIES[40]);
-    game_board -> AddStation(Map::CITIES[41]);
-    game_board -> AddStation(Map::CITIES[42]);
-    game_board -> AddStation(Map::CITIES[43]);
-    game_board -> AddStation(Map::CITIES[44]);
-    game_board -> AddStation(Map::CITIES[45]);
-    game_board -> AddStation(Map::CITIES[46]);
+    game_board -> AddStation(15);
+    game_board -> AddStation(16);
+    game_board -> AddStation(17);
+    game_board -> AddStation(18);
+    game_board -> AddStation(19);
+    game_board -> AddStation(20);
+    game_board -> AddStation(21);
+    game_board -> AddStation(22);
+    game_board -> AddStation(23);
+    game_board -> AddStation(24);
+    game_board -> AddStation(25);
+    game_board -> AddStation(26);
+    game_board -> AddStation(27);
+    game_board -> AddStation(28);
+    game_board -> AddStation(29);
+    game_board -> AddStation(30);
+    game_board -> AddStation(31);
+    game_board -> AddStation(32);
+    game_board -> AddStation(33);
+    game_board -> AddStation(34);
+    game_board -> AddStation(35);
+    game_board -> AddStation(36);
+    game_board -> AddStation(37);
+    game_board -> AddStation(38);
+    game_board -> AddStation(39);
+    game_board -> AddStation(40);
+    game_board -> AddStation(41);
+    game_board -> AddStation(42);
+    game_board -> AddStation(43);
+    game_board -> AddStation(44);
+    game_board -> AddStation(45);
+    game_board -> AddStation(46);
     // new_board.AddStation(Map::CITIES[47]); // Don't put one at at least one city, or else the algorithm for GovernmentGrantConstructor.random_action() never terminates!
 
     // Give each player 7 cards of a distinct color

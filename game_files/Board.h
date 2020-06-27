@@ -23,7 +23,7 @@ namespace Board
         std::vector<Players::Player> players = {};
 
         // where the research stations are
-        std::vector<Map::City*> research_stations = {};
+        std::vector<int> research_stations = {};
 
         // player deck
         Decks::PlayerDeck player_deck;
@@ -109,7 +109,7 @@ namespace Board
             }
             
             research_stations.clear();
-            for(Map::City* rst : other.research_stations){
+            for(int rst : other.research_stations){
                 research_stations.push_back(rst);
             }
 
@@ -186,8 +186,8 @@ namespace Board
         void reset_disease_count();
         void reset_outbreak_memory();
 
-        std::vector<Map::City*>& get_stations(); // reference to research stations
-        void AddStation(Map::City& new_station);
+        std::vector<int>& get_stations(); // reference to research stations
+        void AddStation(int new_station);
         void RemoveStation(int station_list_idx);
                 
         bool is_eradicated(int col); // get eradicated status of a disease
