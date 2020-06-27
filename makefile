@@ -30,4 +30,4 @@ playtest:
 test:
 	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ -I experimental_tools/ -I agents/search_tools/ game_files/*.cpp agents/*.cpp experimental_tools/*.cpp agents/search_tools/*.cpp $(TESTFILE).cpp -o $(TESTFILE).out
 experiment:
-	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ -I experimental_tools/ -I agents/search_tools/ game_files/*.cpp agents/*.cpp experimental_tools/*.cpp agents/search_tools/*.cpp $(EXPERIMENT).cpp -o $(EXPERIMENT).out
+	g++ -g -O3 -march=native -std=c++17 -I game_files/ -I agents/ -I experimental_tools/ -I agents/search_tools/ game_files/*.cpp experimental_tools/*.cpp agents/*.cpp agents/HeuristicEval_Based_UCT_MCTS/*.cpp agents/Rollout_Based_UCT_MCTS/*.cpp agents/search_tools/*.cpp $(EXPERIMENT).cpp -o $(EXPERIMENT).out
