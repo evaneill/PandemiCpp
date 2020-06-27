@@ -22,6 +22,8 @@ This requests the full list of legal actions then chooses on at random. This is 
 
 ## Search Agents
 
+These agents select highest-UCB1 score children in order to select an action once the simulation budget is used. Some use Max Child (max of (max child reward) + confidence bound, defined iteratively), which incorporates a rough "convergence criteria" for nodes that forces them to either return their score if not meeting the convergence criteria, or max of average children rewards if they do.
+
 ### Rollout-Based UCT MCTS
 
 Heuristics are used to evaluate the terminal state reached after rollouts from tree-leaf states. The returned heuristic value is used for backup.
@@ -30,4 +32,4 @@ Right now all of these agents use the `ByGroup` randomness in their default poli
 
 ### Heuristic Evaluation-based UCT MCTS
 
-Heuristics are used to evaluate the leaf states of a tree as it grows. Because the heuristics are human-coded estimates of state value, they are uncertain and so upper confidence bounds are kept just like in plain MCTS.
+Heuristics are used to evaluate the leaf states of a tree as it grows. Because the heuristics are human-coded estimates of state value, they are uncertain and so upper confidence bounds are kept just like in plain MCTS. All of these use Max Child selection policy.
