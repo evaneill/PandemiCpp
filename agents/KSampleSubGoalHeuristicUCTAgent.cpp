@@ -51,7 +51,7 @@ Actions::Action* Agents::KSampleSubGoalHeuristicUCTAgent::generate_action(bool v
 
         // Roll out the copy of the state
         // Use the "CureGoalConditions": What fraction of 4 diseases are cured at rollout end, PLUS maximum fraction of satisfied preconditions to cure actions among players
-        double reward = active_game.rollout(board_copy,Heuristics::CureGoalConditions);
+        double reward = active_game.rollout(board_copy,Heuristics::CureGoalConditionswStation);
 
         // Back up the observed reward
         // Deterministic nodes along the way have board_state set to nullptr
