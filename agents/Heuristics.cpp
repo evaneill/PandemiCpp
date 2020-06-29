@@ -284,63 +284,52 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
 }
 
 double Heuristics::LossProximity(Board::Board& game_board){
+    // Made in anticipation of having a compound-heuristic agent, where it'd be weighted equally with a Cure Precondition heuristic
+    //      Wanted .5 * (changes in this heuristic) to be comparable and maybe a bit less than changes in Cure Precondition heuristic.
+    
     double outbreak_badness = 0;
     int outbreak_count = game_board.get_outbreak_count();
-    if(outbreak_count==2){
-        // .01 = avoid it if you can, but less effect than any change in positive heuristic
-        outbreak_badness=.01;
-    } else if(outbreak_count==3 || outbreak_count==4){
-        // this is ~ the same impact as moving a player w/ all cure cards next to a research station
-        outbreak_badness=.025; 
+    //  outbreaks: 0,   1,      2,    3,    4,      5,     6,     7
+    //        h(): 0,   0,    .04,  .08,  .12,    .21,   .30,   .39
+    if(outbreak_count>=2 && outbreak_count<=4){
+        outbreak_badness=.04 * ((double) outbreak_count - 1.);
     } else if(outbreak_count==5){
-        // 5 = ~worse than getting a card closer to curing
-        outbreak_badness=.04;
+        outbreak_badness=.21;
     } else if(outbreak_count==6){
-        // 6 = now ~ worse than curing when you have all the cards
-        outbreak_badness=.06;
-    } else{
-        // 7 = worse than virtually everything but winning in a turn
-        outbreak_badness=.10;
+        outbreak_badness=.30;
+    } else if(outbreak_count==7){
+        outbreak_badness=.39;
     }
     
     std::array<int,4> color_count= game_board.get_color_count();
 
-    // value starts at 0 and moves up in the direction of 1 gradually. Starts to increment ~.05 by around 20
-    // double BLUE_badness = std::exp(2. * (double) (color_count[Map::BLUE] - 25)/25.0) - std::exp(-2.);
-    // double YELLOW_badness =std::exp(2. * (double) (color_count[Map::YELLOW] - 25)/25.0) - std::exp(-2.);
-    // double BLACK_badness = std::exp(2. * (double) (color_count[Map::BLACK] - 25)/25.0) - std::exp(-2.);
-    // double RED_badness = std::exp(2. * (double) (color_count[Map::RED] - 25)/25.0) - std::exp(-2.);
+    // Piecewise linear fxn mostly 0 (<=18) then sloping up
+    double BLUE_badness = std::max(0.,((double) color_count[Map::BLUE] - 18.)/32.);
+    double YELLOW_badness = std::max(0.,((double) color_count[Map::YELLOW] - 18.)/32.);
+    double BLACK_badness = std::max(0.,((double) color_count[Map::BLACK] - 18.)/32.);
+    double RED_badness = std::max(0.,((double) color_count[Map::RED] - 18.)/32.);
 
-    // Piecewise linear fxn mostly 0 (<=16) then sloping up
-    double BLUE_badness = std::max(0.,((double) color_count[Map::BLUE] - 16.)/64.);
-    double YELLOW_badness = std::max(0.,((double) color_count[Map::YELLOW] - 16.)/64.);
-    double BLACK_badness = std::max(0.,((double) color_count[Map::BLACK] - 16.)/64.);
-    double RED_badness = std::max(0.,((double) color_count[Map::RED] - 16.)/64.);
+    // Higher slope when count >21
+    BLUE_badness = std::max(BLUE_badness,3.*((double) color_count[Map::BLUE] - 21.)/32. + 3./32.);
+    YELLOW_badness = std::max(YELLOW_badness,3.*((double) color_count[Map::YELLOW] - 21.)/32. + 3./32.);
+    BLACK_badness = std::max(BLACK_badness,3.*((double) color_count[Map::BLACK] - 21.)/32. + 3./32.);
+    RED_badness = std::max(RED_badness,3.*((double) color_count[Map::RED] - 21.)/32. + 3./32.);
 
-    BLUE_badness = std::max(BLUE_badness,3.*((double) color_count[Map::BLUE] - 21.)/64. + 5./64.);
-    YELLOW_badness = std::max(YELLOW_badness,3.*((double) color_count[Map::YELLOW] - 21.)/64. + 5./64.);
-    BLACK_badness = std::max(BLACK_badness,3.*((double) color_count[Map::BLACK] - 21.)/64. + 5./64.);
-    RED_badness = std::max(RED_badness,3.*((double) color_count[Map::RED] - 21.)/64. + 5./64.);
+    double max_disease_badness = BLUE_badness;
+    if(YELLOW_badness>max_disease_badness){
+        max_disease_badness = YELLOW_badness;
+    }
+    if(BLACK_badness>max_disease_badness){
+        max_disease_badness = BLACK_badness;
+    }
+    if(RED_badness>max_disease_badness){
+        max_disease_badness = RED_badness;
+    }
 
-    double max_value=0;
-    if(outbreak_badness>max_value){
-        max_value=outbreak_badness;
-    }
-    if(BLUE_badness>max_value){
-        max_value = BLUE_badness;
-    }
-    if(YELLOW_badness>max_value){
-        max_value = YELLOW_badness;
-    }
-    if(BLACK_badness>max_value){
-        max_value = BLACK_badness;
-    }
-    if(RED_badness>max_value){
-        max_value = RED_badness;
-    }
-    return max_value;
+    // <1 always during a game (constructed so that max(outbreak_badness) ~ max(disease badness) < .5)
+    return outbreak_badness + max_disease_badness;
 }
 
 double Heuristics::CompoundLossWin(Board::Board& game_board){
-    return Heuristics::CureGoalConditionswStation(game_board) * (1-Heuristics::LossProximity(game_board));
+    return .5* Heuristics::CureGoalConditionswStation(game_board) + .5*(1-Heuristics::LossProximity(game_board));
 }
