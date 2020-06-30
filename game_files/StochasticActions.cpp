@@ -72,6 +72,8 @@ StochasticActions::EpidemicDrawAction::EpidemicDrawAction(int _epidemic_card,int
 
 void StochasticActions::EpidemicDrawAction::execute(Board::Board& game_board){
     
+    strrep = "";
+    
     bool quarantine_adjacent = false;
 
     // update this infect deck to reflect this card having been drawn from the bottom and used

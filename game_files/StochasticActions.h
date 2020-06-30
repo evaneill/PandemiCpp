@@ -14,7 +14,7 @@ namespace StochasticActions
     // Executes the effect of drawing a player card
     class PlayerCardDrawAction: public Actions::Action{
         // Which card is drawn
-        int card_drawn;
+        int card_drawn=-1;
         // extra info added to repr() output
         std::string strrep="";
     public:
@@ -29,9 +29,9 @@ namespace StochasticActions
     // Executes the effect of drawing an epidemic card
     class EpidemicDrawAction: public Actions::Action{
         // which city is drawn from bottom of infect deck
-        int infect_card_drawn;
+        int infect_card_drawn=-1;
         // The epidemic card drawn (for updating the player deck)
-        int epidemic_card;
+        int epidemic_card=-1;
         // extra info added to repr() output
         std::string strrep="";
     public:
@@ -45,7 +45,7 @@ namespace StochasticActions
     // Executes effects of drawing an infect card. Will stop if game is lost after setting game status to lost
     class InfectDeckDrawAction: public Actions::Action{
         // infect card drawn
-        int card_drawn;
+        int card_drawn=-1;
         // extra info that can be added to repr()
         std::string strrep="";
 
