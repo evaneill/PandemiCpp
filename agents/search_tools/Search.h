@@ -26,7 +26,7 @@ namespace Search
         Actions::Action* action;
 
         bool stochastic;
-        bool terminal;
+        bool terminal=false;
 
         int N_visits=0; // # of times tree search has gone through this node
         double TotalReward=0; // Amount of total reward realized on passes through this node during search
