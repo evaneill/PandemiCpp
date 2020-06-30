@@ -90,10 +90,9 @@ Search::Node* Agents::KSample_Naive_UCTMaxChildAgent::get_max_child(Search::Node
         // Set totalReward based on max "acheivable" reward expectation
         child -> TotalReward = child_score * (child -> N_visits);
 
-        // Replicate logic of set_score(). If not terminal, use UCB1, otherwise leave it unchanged
-        if(!child -> terminal){
-            child -> score = Search::UCB1Score(child);
-        }
+        // Set the score w/ UCB on newly defined total reward (if terminal, keep game score of the board)
+        child -> update(Search::UCB1Score);
+        
         // If (max avg reward) > best existing reward
         if(child_score >best_child_reward){
             best_child = child;
