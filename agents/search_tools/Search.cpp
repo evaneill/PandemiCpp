@@ -189,6 +189,8 @@ Search::StochasticNode::StochasticNode(Search::Node* _parent,Actions::Action* _a
 
             // set the score here to 0/1. Tree evaluation should *always* see the true reward of a terminal state added into the tree
             score = (double) game_logic.reward(*_board_state);
+        } else {
+            terminal = false;
         }
 
         if(!parent -> stochastic){
@@ -381,8 +383,8 @@ Actions::Action* Search::KDeterminizedGameTree::GetOrCreateAction(Search::Node* 
 }
 
 Search::Node* Search::KDeterminizedGameTree::GetDeterministicChild(Search::Node* node, Board::Board& game_board, int determinization,bool on_chain){
-    if(!node -> stochastic){
-        // always return a deterministic node immediately, 
+    if(!node -> stochastic || node -> terminal){
+        // always return a deterministic or terminal node immediately, 
         return node;
     } else {
         // If it's not, check to see whether any children have been instantiated before
