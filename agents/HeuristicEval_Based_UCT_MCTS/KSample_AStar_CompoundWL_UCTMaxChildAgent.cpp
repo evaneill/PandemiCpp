@@ -52,7 +52,7 @@ Actions::Action* Agents::KSample_AStar_CompoundWL_UCTMaxChildAgent::generate_act
 
         // Straight up evaluate the heuristic of the state
         // Use the "CureGoalConditions": What fraction of 4 diseases are cured at rollout end, PLUS maximum fraction of satisfied preconditions to cure actions among players
-        double reward = Heuristics::CompoundLossWin(board_copy);
+        double reward = Heuristics::CompoundHeuristic(board_copy,Heuristics::CureGoalConditionswStation,Heuristics::LossProximity);
 
         // Back up the observed reward
         // (terminal nodes never get value changed on backprop)
@@ -72,6 +72,8 @@ Actions::Action* Agents::KSample_AStar_CompoundWL_UCTMaxChildAgent::generate_act
             (double) chosen_child -> N_visits) - ((double) n_simulations/(double)chosen_child -> parent -> n_children()) 
         )/ (double) n_simulations); // Fraction of all simulations spent on this choice compared to a child explored an "average" amount. Neg -> This was chosen after other heavily explored options ruled out. Pos -> This was chosen after thorough exploration. ~0 -> Most likely no good reason to choose this vs. other children.
 
+    Board::Board board_copy = active_game.board_copy();
+    state_values.push_back(Heuristics::CompoundHeuristic(board_copy,Heuristics::CureGoalConditionswStation,Heuristics::LossProximity));
     // After the simulation budget is used up, return the action attached to the most promising child of the root
     return chosen_child -> get_action();
 }
@@ -172,6 +174,7 @@ void Agents::KSample_AStar_CompoundWL_UCTMaxChildAgent::reset(){
     chosen_rewards.clear();
     chosen_confidences.clear();
     chosen_visits_minus_avg.clear();
+    state_values.clear();
 }
 
 std::vector<std::string> Agents::KSample_AStar_CompoundWL_UCTMaxChildAgent::get_keys(){
@@ -189,7 +192,45 @@ std::vector<std::string> Agents::KSample_AStar_CompoundWL_UCTMaxChildAgent::get_
         "MaxSelectedConfidence",
         "MinSelectedConfidence",
         "AvgChosenMinusAvgVisits",
-        "MaxChosenMinusAvgVisits"
+        "MaxChosenMinusAvgVisits",
+        "Turn0SelectedReward",
+        "Turn5SelectedReward",
+        "Turn10SelectedReward",
+        "Turn15SelectedReward",
+        "Turn20SelectedReward",
+        "Turn25SelectedReward",
+        "Turn30SelectedReward",
+        "Turn35SelectedReward",
+        "Turn40SelectedReward",
+        "Turn45SelectedReward",
+        "Turn50SelectedReward",
+        "Turn55SelectedReward",
+        "Turn60SelectedReward",
+        "Turn65SelectedReward",
+        "Turn70SelectedReward",
+        "Turn75SelectedReward",
+        "Turn80SelectedReward",
+        "Turn85SelectedReward",
+        "Turn90SelectedReward",
+        "Turn0StateEval",
+        "Turn5StateEval",
+        "Turn10StateEval",
+        "Turn15StateEval",
+        "Turn20StateEval",
+        "Turn25StateEval",
+        "Turn30StateEval",
+        "Turn35StateEval",
+        "Turn40StateEval",
+        "Turn45StateEval",
+        "Turn50StateEval",
+        "Turn55StateEval",
+        "Turn60StateEval",
+        "Turn65StateEval",
+        "Turn70StateEval",
+        "Turn75StateEval",
+        "Turn80StateEval",
+        "Turn85StateEval",
+        "Turn90StateEval"
     };
 }
 
@@ -253,6 +294,44 @@ std::vector<double> Agents::KSample_AStar_CompoundWL_UCTMaxChildAgent::get_value
         *std::max_element(chosen_confidences.begin(),chosen_confidences.end()), // Max confidence bound size
         *std::min_element(chosen_confidences.begin(),chosen_confidences.end()), // Min confidence bound size
         visits_minus_avg_mean,
-        *std::max_element(chosen_visits_minus_avg.begin(),chosen_visits_minus_avg.end())
+        *std::max_element(chosen_visits_minus_avg.begin(),chosen_visits_minus_avg.end()),
+        chosen_rewards.size()>=(0+1) ? chosen_rewards[0] : -1.,
+        chosen_rewards.size()>=(5+1) ? chosen_rewards[5] : -1.,
+        chosen_rewards.size()>=(10+1) ? chosen_rewards[10] : -1.,
+        chosen_rewards.size()>=(15+1) ? chosen_rewards[15] : -1.,
+        chosen_rewards.size()>=(20+1) ? chosen_rewards[20] : -1.,
+        chosen_rewards.size()>=(25+1) ? chosen_rewards[25] : -1.,
+        chosen_rewards.size()>=(30+1) ? chosen_rewards[30] : -1.,
+        chosen_rewards.size()>=(35+1) ? chosen_rewards[35] : -1.,
+        chosen_rewards.size()>=(40+1) ? chosen_rewards[40] : -1.,
+        chosen_rewards.size()>=(45+1) ? chosen_rewards[45] : -1.,
+        chosen_rewards.size()>=(50+1) ? chosen_rewards[50] : -1.,
+        chosen_rewards.size()>=(55+1) ? chosen_rewards[55] : -1.,
+        chosen_rewards.size()>=(60+1) ? chosen_rewards[60] : -1.,
+        chosen_rewards.size()>=(65+1) ? chosen_rewards[65] : -1.,
+        chosen_rewards.size()>=(70+1) ? chosen_rewards[70] : -1.,
+        chosen_rewards.size()>=(75+1) ? chosen_rewards[75] : -1.,
+        chosen_rewards.size()>=(80+1) ? chosen_rewards[80] : -1.,
+        chosen_rewards.size()>=(85+1) ? chosen_rewards[85] : -1.,
+        chosen_rewards.size()>=(90+1) ? chosen_rewards[90] : -1.,
+        state_values.size()>=(0+1) ? state_values[0] : -1,
+        state_values.size()>=(5+1) ? state_values[5] : -1,
+        state_values.size()>=(10+1) ? state_values[10] : -1,
+        state_values.size()>=(15+1) ? state_values[15] : -1,
+        state_values.size()>=(20+1) ? state_values[20] : -1,
+        state_values.size()>=(25+1) ? state_values[25] : -1,
+        state_values.size()>=(30+1) ? state_values[30] : -1,
+        state_values.size()>=(35+1) ? state_values[35] : -1,
+        state_values.size()>=(40+1) ? state_values[40] : -1,
+        state_values.size()>=(45+1) ? state_values[45] : -1,
+        state_values.size()>=(50+1) ? state_values[50] : -1,
+        state_values.size()>=(55+1) ? state_values[55] : -1,
+        state_values.size()>=(60+1) ? state_values[60] : -1,
+        state_values.size()>=(65+1) ? state_values[65] : -1,
+        state_values.size()>=(70+1) ? state_values[70] : -1,
+        state_values.size()>=(75+1) ? state_values[75] : -1,
+        state_values.size()>=(80+1) ? state_values[80] : -1,
+        state_values.size()>=(85+1) ? state_values[85] : -1,
+        state_values.size()>=(90+1) ? state_values[90] : -1
     };  
 }
