@@ -103,6 +103,27 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
+    class K1_10k_Precondition_CanWinExperiment: public Experiment {
+    public:
+        K1_10k_Precondition_CanWinExperiment();
+        ~K1_10k_Precondition_CanWinExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
+
+        void write_header();
+        void append_header(std::string extras);
+        void write_experiment(std::string data);
+
+        Board::Board* get_board();
+        Agents::BaseAgent* get_agent(GameLogic::Game* game);
+        std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
+    };
+
     class ByGroupRandomAgentGameExperiment: public Experiment{
     public:
         ByGroupRandomAgentGameExperiment();
@@ -674,6 +695,27 @@ namespace Experiments
     public:
         K1_50k_AStar_CurePrecondition_UCTMaxChildExperiment();
         ~K1_50k_AStar_CurePrecondition_UCTMaxChildExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
+
+        void write_header();
+        void append_header(std::string extras);
+        void write_experiment(std::string data);
+
+        Board::Board* get_board();
+        Agents::BaseAgent* get_agent(GameLogic::Game* game);
+        std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
+    };
+
+    class K3_50k_AStar_SmartLossProximity_UCTMaxChildExperiment: public Experiment {
+    public:
+        K3_50k_AStar_SmartLossProximity_UCTMaxChildExperiment();
+        ~K3_50k_AStar_SmartLossProximity_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
