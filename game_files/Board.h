@@ -202,6 +202,15 @@ namespace Board
         bool& has_lost(); // reference to loss status. Only modified during stochasticity
         int& get_turn_action();
 
+        int& get_outbreak_count();
+        int& get_difficulty();
+        int get_infection_rate(); // return the current infection rate according to kept index
+        int& get_turn(); // return reference to whose turn it is
+
+        bool disease_count_safe();
+        bool player_deck_nonempty();
+        bool outbreak_count_safe();
+
         // Player deck entrypoints
         int draw_playerdeck_inplace();
         int& get_player_cards_drawn(); // Entry point for access to number of player cards drawn during player draw phase
@@ -217,15 +226,7 @@ namespace Board
         void updateInfectDeck(int card,bool bottom=false); // update infect deck to reflect a card having been drawn and used
         int& get_infect_cards_drawn();
         int n_infect_cards(bool top=true); // number of infect cards in the group on top (true) or bottom (false) of infect deck
-
-        int& get_outbreak_count();
-        int& get_difficulty();
-        int get_infection_rate(); // return the current infection rate according to kept index
-        int& get_turn(); // return reference to whose turn it is
-
-        bool disease_count_safe();
-        bool player_deck_nonempty();
-        bool outbreak_count_safe();
+        bool in_infect_discard(int citycard);
         
         // use it to force breaking in bad logic cases.
         bool& broken();

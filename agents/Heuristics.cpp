@@ -330,6 +330,126 @@ double Heuristics::LossProximity(Board::Board& game_board){
     return outbreak_badness + max_disease_badness;
 }
 
-double Heuristics::CompoundLossWin(Board::Board& game_board){
-    return .5* Heuristics::CureGoalConditionswStation(game_board) + .5*(1-Heuristics::LossProximity(game_board));
+double Heuristics::SmartLossProximity(Board::Board& game_board){
+    // Goal is to account for both "badness" that's present on the board, and "badness" that's bound to happen in the future
+    // Specifically want to fold in the fact that cities with 3 cubes are bad news for the future agent, ever if even a deep planner may not be able to recognize it.
+
+    // ========= "Badness" associated to cities with 3 disease cubes =========
+    std::array<std::array<int,48>,4> disease_count = game_board.get_disease_count();
+
+    int BLUE_count = 0;
+    for(int city=0;city<48;city++){
+        // For cities where there's 3, check that it's possible it will ever be drawn again
+        if(disease_count[Map::BLUE][city]==3){
+            // if it's not the case that both the city has been drawn already and an epidemic is impossible,
+            if(!(game_board.in_infect_discard(city) && !game_board.epidemic_possible())){
+                // Then increment the count
+                BLUE_count+=1;
+                // Then check neighbors to see if there's a nominal risk of chain outbreak
+                for(int neighbor: Map::CITY_NEIGHBORS(city)){
+                    if(disease_count[Map::BLUE][neighbor]==3){
+                        // Idea is that two cities next to eachother -> count = 3 = (1 + .5 + 1 + .5)
+                        // three cities w/ 3 next to eachother - > count = 6 
+                        BLUE_count+=.5;
+                    }
+                }
+            } else {
+                BLUE_count+=.5; // same value as 2-cube city
+            }
+        } else {
+            // If not 3, we don't care about anything but adding a much smaller quantity to the count
+            BLUE_count+= .25 * disease_count[Map::BLUE][city];
+        }
+    }
+
+    int YELLOW_count = 0;
+    for(int city=0;city<48;city++){
+        // For cities where there's 3, check that it's possible it will ever be drawn again
+        if(disease_count[Map::YELLOW][city]==3){
+            // if it's not the case that both the city has been drawn already and an epidemic is impossible,
+            if(!(game_board.in_infect_discard(city) && !game_board.epidemic_possible())){
+                // Then increment the count
+                YELLOW_count+=1;
+                // Then check neighbors to see if there's a nominal risk of chain outbreak
+                for(int neighbor: Map::CITY_NEIGHBORS(city)){
+                    if(disease_count[Map::YELLOW][neighbor]==3){
+                        // Idea is that two cities next to eachother -> count = 3 = (1 + .5 + 1 + .5)
+                        // three cities w/ 3 next to eachother - > count = 6 
+                        YELLOW_count+=.5;
+                    }
+                }
+            } else {
+                YELLOW_count+=.5; // same value as 2-cube city
+            }
+        } else {
+            // If not 3, we don't care about anything but adding a much smaller quantity to the count
+            YELLOW_count+= .25 * disease_count[Map::YELLOW][city];
+        }
+    }
+
+    int BLACK_count = 0;
+    for(int city=0;city<48;city++){
+        // For cities where there's 3, check that it's possible it will ever be drawn again
+        if(disease_count[Map::BLACK][city]==3){
+            // if it's not the case that both the city has been drawn already and an epidemic is impossible,
+            if(!(game_board.in_infect_discard(city) && !game_board.epidemic_possible())){
+                // Then increment the count
+                BLACK_count+=1;
+                // Then check neighbors to see if there's a nominal risk of chain outbreak
+                for(int neighbor: Map::CITY_NEIGHBORS(city)){
+                    if(disease_count[Map::BLACK][neighbor]==3){
+                        // Idea is that two cities next to eachother -> count = 3 = (1 + .5 + 1 + .5)
+                        // three cities w/ 3 next to eachother - > count = 6 
+                        BLACK_count+=.5;
+                    }
+                }
+            } else {
+                BLACK_count+=.5; // same value as 2-cube city
+            }
+        } else {
+            // If not 3, we don't care about anything but adding a much smaller quantity to the count
+            BLACK_count+= .25 * disease_count[Map::BLACK][city];
+        }
+    }
+
+    int RED_count = 0;
+    for(int city=0;city<48;city++){
+        // For cities where there's 3, check that it's possible it will ever be drawn again
+        if(disease_count[Map::RED][city]==3){
+            // if it's not the case that both the city has been drawn already and an epidemic is impossible,
+            if(!(game_board.in_infect_discard(city) && !game_board.epidemic_possible())){
+                // Then increment the count
+                RED_count+=1;
+                // Then check neighbors to see if there's a nominal risk of chain outbreak
+                for(int neighbor: Map::CITY_NEIGHBORS(city)){
+                    if(disease_count[Map::RED][neighbor]==3){
+                        // Idea is that two cities next to eachother -> count = 3 = (1 + .5 + 1 + .5)
+                        // three cities w/ 3 next to eachother - > count = 6 
+                        RED_count+=.5;
+                    }
+                }
+            } else {
+                RED_count+=.5; // same value as 2-cube city
+            }
+        } else {
+            // If not 3, we don't care about anything but adding a much smaller quantity to the count
+            RED_count+= .25 * disease_count[Map::RED][city];
+        }
+    }
+    // Divide by 6 = value when 3 cities w/ 3 are all next to eachother 
+    // (it can be worse than that, but rarely, and this would make it be appropriately hella bad anyway)
+    // This means that badness for any one disease can be MORE than 1. I'm counting on the fact that this being the case for one disease would make it *not* the case for others, which is true in a vanilla game
+    // 
+    double BLUE_3cube_badness = BLUE_count/=6;
+    double YELLOW_3cube_badness = YELLOW_count/=6.;
+    double BLACK_3cube_badness = BLACK_count/=6.;
+    double RED_3cube_badness = RED_count/=6;
+
+    // I normalize the sum by 2 rather than 4 since I want to stretch typical values to span more of [0,1], and I feel like typically on average they're already < 1/2 each
+    // Max with 0 *just in case*, since losing (score = 0 ) should NEVER be a more attractive option than a bad board state.
+    return std::max(1. - (BLUE_3cube_badness + YELLOW_3cube_badness + BLACK_3cube_badness + RED_3cube_badness)/2,0.);
+}
+
+double Heuristics::CompoundHeuristic(Board::Board& game_board,double heuristic1(Board::Board& game_board), double heuristic2(Board::Board& game_board),double alpha){
+    return alpha * heuristic1(game_board) + (1.-alpha)*heuristic2(game_board);
 }

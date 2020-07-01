@@ -113,6 +113,7 @@ namespace Decks
 		void update(int card,bool bottom=false); // for forcing an infect deck to put this on the discard and pull it from the top group (i.e for use in collaboration with draw_inplace)
 
 		int top_group_size(bool top=true); // number of infect cards in the top infect-card group
+		bool in_discard(int citycard); // whether or not a specific card is in the discard
 		
 		void readd_discard();
 	};

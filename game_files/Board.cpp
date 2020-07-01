@@ -529,6 +529,10 @@ int Board::Board::n_infect_cards(bool top){
     return infect_deck.top_group_size(top);
 }
 
+bool Board::Board::in_infect_discard(int citycard){
+    return infect_deck.in_discard(citycard);
+}
+
 int Board::Board::draw_infectdeck_bottom_inplace(){
     return infect_deck.draw_bottom_inplace();
 }

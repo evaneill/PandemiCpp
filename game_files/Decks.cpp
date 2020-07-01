@@ -317,5 +317,13 @@ int Decks::InfectDeck::top_group_size(bool top){
     } else {
         return deck_stack[0].size();
     }
-    
+}
+
+bool Decks::InfectDeck::in_discard(int citycard){
+    for(int card : current_discard){
+        if(card==citycard){
+            return true;
+        }
+    }
+    return false;
 }

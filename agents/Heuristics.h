@@ -30,16 +30,18 @@ namespace Heuristics
 
     // How close, in a coarse fashion, position is to losing. Can be used by itself and minimized, or compounded with other heuristics
     // Idea is to capture how close the loss is according to player-controllable parts of the game
-    // MAX(exp(.5 * (outbreaks - 8)), MAX over diseases of (exp(4 * (cubes-25)/25)) for that disease))
     //
-    // Both metrics are designed to get exponentially more worse the closer to game-losing status they are, and be relatively minor earlier in the game
+    // Both metrics are designed to get worse the further into the game you are
     double LossProximity(Board::Board& game_board);
 
-    // Compound heuristic measuring closeness to winning tempered by closeness to losing
-    // = CureGoalConditionswStation * (1 - LossProximity)
-    // Idea is that for any given initial state under considerations, maximum value of any children is capped by proximity to loss.
-    // Agent is incentivized to pursue routes that maximize chance of winning while avoiding lots of badness
-    double CompoundLossWin(Board::Board& game_board);
+    // Like above but takes into account the presence of cities with 3 disease cubes specifically, since they may outbreak much later in the game but must typically be treated earlier
+    // Treats outbreaks the same as above
+    // Cube-count is weighted by the # present in a city
+    double SmartLossProximity(Board::Board& game_board);
+
+    // Compound heuristic putting together heuristics in the form
+    // alpha * heuristic1 + (1-alpha) * heuristic2 (alpha = .5 by default)
+    double CompoundHeuristic(Board::Board& game_board,double heuristic1(Board::Board& game_board), double heuristic2(Board::Board& game_board),double alpha=.5);
 }
 
 #endif
