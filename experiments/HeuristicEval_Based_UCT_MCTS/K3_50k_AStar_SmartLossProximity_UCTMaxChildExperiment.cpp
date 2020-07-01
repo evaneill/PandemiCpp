@@ -11,15 +11,15 @@
 
 Experiments::K3_50k_AStar_SmartLossProximity_UCTMaxChildExperiment::K3_50k_AStar_SmartLossProximity_UCTMaxChildExperiment(){
     // Hard-code a description for this experiment
-    experiment_name = "K3_50k_AStar_LossProximity_UCTMaxChildExperiment";
-    description = "Test a three-determinization A-star UCT agent that uses 1 - max(oubtreak badness, disease cube badness) reward on leaf states to update node scores, and uses max-child to select an action";
+    experiment_name = "K3_50k_AStar_SmartLossProximity_UCTMaxChildExperiment";
+    description = "Test a three-determinization A-star UCT agent that uses 1 - (badness related to number of cities w 3 cubes mostly) reward on leaf states to update node scores, and uses max-child to select an action";
 
-    fileheader = "K3_50k_AStar_LossProximity_UCTMaxChildExperiment";// .header ,.csv
+    fileheader = "K3_50k_AStar_SmartLossProximity_UCTMaxChildExperiment";// .header ,.csv
     
     // Use the scenario to setup some variables
     scenario = new Scenarios::VanillaGameScenario();
 
-    agent_name = "Three-Sample A-star UCT Max-Child Agent w (1 - LossProximity) heuristic";
+    agent_name = "Three-Sample A-star UCT Max-Child Agent w SmartLossProximity heuristic";
 
     // Define measurements on the active board
     // As I write this, these are all the possible measurements
