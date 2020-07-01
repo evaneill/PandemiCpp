@@ -72,7 +72,7 @@ Actions::Action* Agents::KSample_AStar_SmartLossProximity_UCTMaxChildAgent::gene
             (double) chosen_child -> N_visits) - ((double) n_simulations/(double)chosen_child -> parent -> n_children()) 
         )/ (double) n_simulations); // Fraction of all simulations spent on this choice compared to a child explored an "average" amount. Neg -> This was chosen after other heavily explored options ruled out. Pos -> This was chosen after thorough exploration. ~0 -> Most likely no good reason to choose this vs. other children.
     Board::Board board_copy = active_game.board_copy();
-    state_values.push_back(Heuristics::LossProximity(board_copy));
+    state_values.push_back(Heuristics::SmartLossProximity(board_copy));
 
     // After the simulation budget is used up, return the action attached to the most promising child of the root
     return chosen_child -> get_action();
