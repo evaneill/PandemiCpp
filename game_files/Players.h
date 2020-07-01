@@ -66,6 +66,7 @@ namespace Players
         Player(const Player& other){
 
             position = other.position;
+            last_position = other.last_position;
 
             hand.clear();
             for(int c: other.hand){
