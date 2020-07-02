@@ -338,11 +338,14 @@ double Heuristics::SmartLossProximity(Board::Board& game_board){
     std::array<std::array<int,48>,4> disease_count = game_board.get_disease_count();
 
     int BLUE_count = 0;
+    int YELLOW_count = 0;
+    int BLACK_count = 0;
+    int RED_count = 0;
     for(int city=0;city<48;city++){
         // For cities where there's 3, check that it's possible it will ever be drawn again
         if(disease_count[Map::BLUE][city]==3){
-            // if it's not the case that both the city has been drawn already and an epidemic is impossible,
-            if(!(game_board.in_infect_discard(city) && !game_board.epidemic_possible())){
+            // if it's not the case that both the city has been drawn already and an epidemic is impossible in the future,
+            if(!(game_board.in_infect_discard(city) && game_board.all_epidemics_drawn())){
                 // Then increment the count
                 BLUE_count+=1;
                 // Then check neighbors to see if there's a nominal risk of chain outbreak
@@ -360,14 +363,10 @@ double Heuristics::SmartLossProximity(Board::Board& game_board){
             // If not 3, we don't care about anything but adding a much smaller quantity to the count
             BLUE_count+= .25 * disease_count[Map::BLUE][city];
         }
-    }
-
-    int YELLOW_count = 0;
-    for(int city=0;city<48;city++){
         // For cities where there's 3, check that it's possible it will ever be drawn again
         if(disease_count[Map::YELLOW][city]==3){
-            // if it's not the case that both the city has been drawn already and an epidemic is impossible,
-            if(!(game_board.in_infect_discard(city) && !game_board.epidemic_possible())){
+            // if it's not the case that both the city has been drawn already and an epidemic is impossible in the future,
+            if(!(game_board.in_infect_discard(city) && game_board.all_epidemics_drawn())){
                 // Then increment the count
                 YELLOW_count+=1;
                 // Then check neighbors to see if there's a nominal risk of chain outbreak
@@ -385,14 +384,11 @@ double Heuristics::SmartLossProximity(Board::Board& game_board){
             // If not 3, we don't care about anything but adding a much smaller quantity to the count
             YELLOW_count+= .25 * disease_count[Map::YELLOW][city];
         }
-    }
 
-    int BLACK_count = 0;
-    for(int city=0;city<48;city++){
         // For cities where there's 3, check that it's possible it will ever be drawn again
         if(disease_count[Map::BLACK][city]==3){
-            // if it's not the case that both the city has been drawn already and an epidemic is impossible,
-            if(!(game_board.in_infect_discard(city) && !game_board.epidemic_possible())){
+            // if it's not the case that both the city has been drawn already and an epidemic is impossible in the future,
+            if(!(game_board.in_infect_discard(city) && game_board.all_epidemics_drawn())){
                 // Then increment the count
                 BLACK_count+=1;
                 // Then check neighbors to see if there's a nominal risk of chain outbreak
@@ -410,14 +406,11 @@ double Heuristics::SmartLossProximity(Board::Board& game_board){
             // If not 3, we don't care about anything but adding a much smaller quantity to the count
             BLACK_count+= .25 * disease_count[Map::BLACK][city];
         }
-    }
-
-    int RED_count = 0;
-    for(int city=0;city<48;city++){
+        
         // For cities where there's 3, check that it's possible it will ever be drawn again
         if(disease_count[Map::RED][city]==3){
-            // if it's not the case that both the city has been drawn already and an epidemic is impossible,
-            if(!(game_board.in_infect_discard(city) && !game_board.epidemic_possible())){
+            // if it's not the case that both the city has been drawn already and an epidemic is impossible in the future,
+            if(!(game_board.in_infect_discard(city) && game_board.all_epidemics_drawn())){
                 // Then increment the count
                 RED_count+=1;
                 // Then check neighbors to see if there's a nominal risk of chain outbreak
@@ -440,14 +433,14 @@ double Heuristics::SmartLossProximity(Board::Board& game_board){
     // (it can be worse than that, but rarely, and this would make it be appropriately hella bad anyway)
     // This means that badness for any one disease can be MORE than 1. I'm counting on the fact that this being the case for one disease would make it *not* the case for others, which is true in a vanilla game
     // 
-    double BLUE_3cube_badness = BLUE_count/=6;
-    double YELLOW_3cube_badness = YELLOW_count/=6.;
-    double BLACK_3cube_badness = BLACK_count/=6.;
-    double RED_3cube_badness = RED_count/=6;
+    double BLUE_3cube_badness = BLUE_count/6.;
+    double YELLOW_3cube_badness = YELLOW_count/6.;
+    double BLACK_3cube_badness = BLACK_count/6.;
+    double RED_3cube_badness = RED_count/6.;
 
     // I normalize the sum by 2 rather than 4 since I want to stretch typical values to span more of [0,1], and I feel like typically on average they're already < 1/2 each
     // Max with 0 *just in case*, since losing (score = 0 ) should NEVER be a more attractive option than a bad board state.
-    return std::max(1. - (BLUE_3cube_badness + YELLOW_3cube_badness + BLACK_3cube_badness + RED_3cube_badness)/2,0.);
+    return std::max(1. - (BLUE_3cube_badness + YELLOW_3cube_badness + BLACK_3cube_badness + RED_3cube_badness)/2.,0.);
 }
 
 double Heuristics::CompoundHeuristic(Board::Board& game_board,double heuristic1(Board::Board& game_board), double heuristic2(Board::Board& game_board),double alpha){
