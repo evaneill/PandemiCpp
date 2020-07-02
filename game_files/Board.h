@@ -218,6 +218,7 @@ namespace Board
         int remaining_player_cards(); // Entry point for asking how many player cards are left in the deck
         bool epidemic_possible(); // Is it possible to draw an epidemic on the next player card?
         int get_epidemic_count();
+        bool all_epidemics_drawn(); // are all possible epidemic cards drawn?
 
         // Infect deck entrypoints
         int draw_infectdeck_bottom_inplace();// return a card that might be drawn without removing it from deck

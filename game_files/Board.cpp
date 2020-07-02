@@ -557,6 +557,10 @@ bool Board::Board::epidemic_possible(){
     return player_deck.epidemic_possible();
 }
 
+bool Board::Board::all_epidemics_drawn(){
+    return player_deck.all_epidemics_drawn();
+}
+
 int& Board::Board::get_difficulty(){
     return difficulty;
 }

@@ -70,6 +70,9 @@ namespace Decks
 		// track whether it's possible for the next card to be an epidemic
 		bool epidemic_possible();
 
+		// Whether or not all epidemics have been drawn
+		bool all_epidemics_drawn();
+
 		// right now these are purely for testing purposes.
 		int _remaining_nonepi_cards();
 		int _drawn_cards();

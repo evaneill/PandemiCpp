@@ -198,6 +198,10 @@ bool Decks::PlayerDeck::epidemic_possible(){
     return epidemics_drawn==(difficulty - deck_chunk_sizes.size());
 }
 
+bool Decks::PlayerDeck::all_epidemics_drawn(){
+    return epidemics_drawn==difficulty;
+}
+
 // These are only called for testing so far. 
 int Decks::PlayerDeck::_remaining_nonepi_cards(){return remaining_nonepi_cards.size();}
 int Decks::PlayerDeck::_chunk_size(){return chunk_size;};
