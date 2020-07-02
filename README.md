@@ -1,5 +1,7 @@
 # PandemiCpp 
-C++ implementation of pandemic board game for testing MCTS agents
+C++ implementation of pandemic board game for testing MCTS agents. 
+
+Disclaimer: This was created as a means to explore and test MCTS methods rather than develop or try state-of-the-art methods. So it's lacking some functionality that would help towards these ends.
 
 ## Status
 As of June 27, 2020 this is still a work in progress and has been through a good amount of, but not deeply thorough, testing for game logic and agents. It's not error free.
