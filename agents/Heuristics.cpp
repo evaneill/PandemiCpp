@@ -327,7 +327,7 @@ double Heuristics::LossProximity(Board::Board& game_board){
     }
 
     // <1 always during a game (constructed so that max(outbreak_badness) ~ max(disease badness) < .5)
-    return outbreak_badness + max_disease_badness;
+    return 1 - outbreak_badness - max_disease_badness;
 }
 
 double Heuristics::SmartLossProximity(Board::Board& game_board){
