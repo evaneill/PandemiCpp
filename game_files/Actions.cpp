@@ -31,6 +31,42 @@ bool isneighbor(int city_idx1, int city_idx2){
     }
     return false;
 }
+
+void update_medic_position(Board::Board& game_board){
+    for(Players::Player& p: game_board.get_players()){
+        // If any player is the medic
+        if(p.role.medic){
+            if(game_board.is_cured(Map::BLUE)){
+                std::array<int,4>& color_count = game_board.get_color_count();
+                std::array<std::array<int,48>,4>& disease_count = game_board.get_disease_count();
+                // disease count of this color on their position should be 0
+                color_count[Map::BLUE]-=disease_count[Map::BLUE][p.get_position()];
+                disease_count[Map::BLUE][p.get_position()]=0;
+            }
+            if(game_board.is_cured(Map::YELLOW)){
+                std::array<int,4>& color_count = game_board.get_color_count();
+                std::array<std::array<int,48>,4>& disease_count = game_board.get_disease_count();
+                // disease count of this color on their position should be 0
+                color_count[Map::YELLOW]-=disease_count[Map::YELLOW][p.get_position()];
+                disease_count[Map::YELLOW][p.get_position()]=0;
+            }
+            if(game_board.is_cured(Map::BLACK)){
+                std::array<int,4>& color_count = game_board.get_color_count();
+                std::array<std::array<int,48>,4>& disease_count = game_board.get_disease_count();
+                // disease count of this color on their position should be 0
+                color_count[Map::BLACK]-=disease_count[Map::BLACK][p.get_position()];
+                disease_count[Map::BLACK][p.get_position()]=0;
+            }
+            if(game_board.is_cured(Map::RED)){
+                std::array<int,4>& color_count = game_board.get_color_count();
+                std::array<std::array<int,48>,4>& disease_count = game_board.get_disease_count();
+                // disease count of this color on their position should be 0
+                color_count[Map::RED]-=disease_count[Map::RED][p.get_position()];
+                disease_count[Map::RED][p.get_position()]=0;
+            }
+        }
+    }
+}
 // ========================
 
 // ===== MOVE =====
@@ -41,6 +77,7 @@ Actions::Move::Move(int _to): to(_to){
 
 void Actions::Move::execute(Board::Board& new_board){
     Players::Player& active_player = new_board.active_player();
+
     // Set last_position tracker to current position index
     active_player.reset_last_position(active_player.get_position());
 
@@ -49,6 +86,9 @@ void Actions::Move::execute(Board::Board& new_board){
     new_board.get_turn_action()++;
 
     new_board.LastAction_Move=true;
+
+    // Make sure disease is cleared from medic position, if there
+    update_medic_position(new_board);
 }
 
 std::string Actions::Move::repr(){
@@ -129,6 +169,9 @@ void Actions::DirectFlight::execute(Board::Board& new_board){
     new_board.get_turn_action()++;
 
     new_board.LastAction_DirectFlight=true;
+
+    // Make sure disease is cleared from medic position, if there
+    update_medic_position(new_board);
 }
 
 std::string Actions::DirectFlight::repr(){
@@ -220,6 +263,9 @@ void Actions::CharterFlight::execute(Board::Board& new_board){
     new_board.get_turn_action()++;
 
     new_board.LastAction_CharterFlight=true;
+
+    // Make sure disease is cleared from medic position, if there
+    update_medic_position(new_board);
 }
 
 std::string Actions::CharterFlight::repr(){
@@ -300,6 +346,9 @@ void Actions::ShuttleFlight::execute(Board::Board& new_board){
     new_board.get_turn_action()++;
 
     new_board.LastAction_ShuttleFlight=true;
+
+    // Make sure disease is cleared from medic position, if there
+    update_medic_position(new_board);
 }
 
 std::string Actions::ShuttleFlight::repr(){
@@ -764,6 +813,11 @@ void Actions::Cure::execute(Board::Board& new_board){
                     new_board.Eradicate(Map::BLUE);
                 }
                 new_board.LastAction_Cure=true;
+                if(new_board.is_cured(Map::BLUE) && new_board.is_cured(Map::YELLOW) && new_board.is_cured(Map::BLACK) && new_board.is_cured(Map::RED)){
+                    new_board.has_won()=true;
+                }
+                // Make sure disease is cleared from medic position, if there
+                update_medic_position(new_board);
                 return;
             }
             if(color_count[Map::YELLOW]>=active_player.role.required_cure_cards && !new_board.is_cured(Map::YELLOW)){
@@ -776,6 +830,11 @@ void Actions::Cure::execute(Board::Board& new_board){
                     new_board.Eradicate(Map::YELLOW);
                 }
                 new_board.LastAction_Cure=true;
+                if(new_board.is_cured(Map::BLUE) && new_board.is_cured(Map::YELLOW) && new_board.is_cured(Map::BLACK) && new_board.is_cured(Map::RED)){
+                    new_board.has_won()=true;
+                }
+                // Make sure disease is cleared from medic position, if there
+                update_medic_position(new_board);
                 return;
             }
             if(color_count[Map::BLACK]>=active_player.role.required_cure_cards && !new_board.is_cured(Map::BLACK)){
@@ -788,6 +847,11 @@ void Actions::Cure::execute(Board::Board& new_board){
                     new_board.Eradicate(Map::BLACK);
                 }
                 new_board.LastAction_Cure=true;
+                if(new_board.is_cured(Map::BLUE) && new_board.is_cured(Map::YELLOW) && new_board.is_cured(Map::BLACK) && new_board.is_cured(Map::RED)){
+                    new_board.has_won()=true;
+                }
+                // Make sure disease is cleared from medic position, if there
+                update_medic_position(new_board);
                 return;
             }
             if(color_count[Map::RED]>=active_player.role.required_cure_cards && !new_board.is_cured(Map::RED)){
@@ -800,6 +864,11 @@ void Actions::Cure::execute(Board::Board& new_board){
                     new_board.Eradicate(Map::RED);
                 }
                 new_board.LastAction_Cure=true;
+                if(new_board.is_cured(Map::BLUE) && new_board.is_cured(Map::YELLOW) && new_board.is_cured(Map::BLACK) && new_board.is_cured(Map::RED)){
+                    new_board.has_won()=true;
+                }
+                // Make sure disease is cleared from medic position, if there
+                update_medic_position(new_board);
                 return;
             }
         }
