@@ -131,27 +131,26 @@ void Scenarios::CanWinScenario::reset_board(Board::Board* game_board,bool verbos
 
     game_board -> is_setup();
     game_board -> reset_disease_count();
-    game_board -> setup_player_deck();
 
     // Do same ridiculous thing as BusyBoardTest to instantiate a lot of research stations
     // Infect atlanta and neighbors of atlanta with >1 cubes to test TREAT effect updating with cure
     game_board -> AddStation(0);
     game_board -> AddStation(1);
-    std::array<int,2> junk = game_board -> infect(1,0,2);
-    junk = game_board ->infect(1,1,2);
-    junk = game_board ->infect(1,2,2);
-    junk = game_board ->infect(1,3,2);
+    // std::array<int,2> junk = game_board -> infect(1,0,2);
+    // junk = game_board ->infect(1,1,2);
+    // junk = game_board ->infect(1,2,2);
+    // junk = game_board ->infect(1,3,2);
     game_board -> AddStation(2);
     game_board -> AddStation(3);
-    junk = game_board -> infect(3,0,2);
-    junk = game_board -> infect(3,1,2);
-    junk = game_board -> infect(3,2,2);
-    junk = game_board -> infect(3,3,2);
+    // junk = game_board -> infect(3,0,2);
+    // junk = game_board -> infect(3,1,2);
+    // junk = game_board -> infect(3,2,2);
+    // junk = game_board -> infect(3,3,2);
     game_board -> AddStation(4);
-    junk = game_board -> infect(4,0,2);
-    junk = game_board -> infect(4,1,2);
-    junk = game_board -> infect(4,2,2);
-    junk = game_board -> infect(4,3,2);
+    // junk = game_board -> infect(4,0,2);
+    // junk = game_board -> infect(4,1,2);
+    // junk = game_board -> infect(4,2,2);
+    // junk = game_board -> infect(4,3,2);
     game_board -> AddStation(5);
     game_board -> AddStation(6);
     game_board -> AddStation(7);
@@ -162,10 +161,10 @@ void Scenarios::CanWinScenario::reset_board(Board::Board* game_board,bool verbos
     game_board -> AddStation(12);
     game_board -> AddStation(13);
     game_board -> AddStation(14);
-    junk = game_board -> infect(14,0,2);
-    junk = game_board -> infect(14,1,2);
-    junk = game_board -> infect(14,2,2);
-    junk = game_board -> infect(14,3,2);
+    // junk = game_board -> infect(14,0,2);
+    // junk = game_board -> infect(14,1,2);
+    // junk = game_board -> infect(14,2,2);
+    // junk = game_board -> infect(14,3,2);
     game_board -> AddStation(15);
     game_board -> AddStation(16);
     game_board -> AddStation(17);
@@ -202,22 +201,38 @@ void Scenarios::CanWinScenario::reset_board(Board::Board* game_board,bool verbos
 
     // Give each player 7 cards of a distinct color
     // blue card player
+    game_board -> get_players()[Map::BLUE].UpdateHand(6);
     game_board -> get_players()[Map::BLUE].UpdateHand(7);
     game_board -> get_players()[Map::BLUE].UpdateHand(8);
-    game_board -> get_players()[Map::BLUE].UpdateHand(6);
     game_board -> get_players()[Map::BLUE].UpdateHand(9);
     game_board -> get_players()[Map::BLUE].UpdateHand(10);
     game_board -> get_players()[Map::BLUE].UpdateHand(11);
     game_board -> get_players()[Map::BLUE].UpdateHand(12);
 
+    game_board -> updatePlayerDeck(6,true);
+    game_board -> updatePlayerDeck(7,true);
+    game_board -> updatePlayerDeck(8,true);
+    game_board -> updatePlayerDeck(9,true);
+    game_board -> updatePlayerDeck(10,true);
+    game_board -> updatePlayerDeck(11,true);
+    game_board -> updatePlayerDeck(12,true);
+
     // yellow card player
+    game_board -> get_players()[Map::YELLOW].UpdateHand(6+12);
     game_board -> get_players()[Map::YELLOW].UpdateHand(7+12);
     game_board -> get_players()[Map::YELLOW].UpdateHand(8+12);
     game_board -> get_players()[Map::YELLOW].UpdateHand(9+12);
     game_board -> get_players()[Map::YELLOW].UpdateHand(10+12);
     game_board -> get_players()[Map::YELLOW].UpdateHand(11+12);
-    game_board -> get_players()[Map::YELLOW].UpdateHand(6+12);
     game_board -> get_players()[Map::YELLOW].UpdateHand(12+12);
+
+    game_board -> updatePlayerDeck(6+12,true);
+    game_board -> updatePlayerDeck(7+12,true);
+    game_board -> updatePlayerDeck(8+12,true);
+    game_board -> updatePlayerDeck(9+12,true);
+    game_board -> updatePlayerDeck(10+12,true);
+    game_board -> updatePlayerDeck(11+12,true);
+    game_board -> updatePlayerDeck(12+12,true);
 
     // black card player
     game_board -> get_players()[Map::BLACK].UpdateHand(6+24);
@@ -228,6 +243,14 @@ void Scenarios::CanWinScenario::reset_board(Board::Board* game_board,bool verbos
     game_board -> get_players()[Map::BLACK].UpdateHand(11+24);
     game_board -> get_players()[Map::BLACK].UpdateHand(12+24);
 
+    game_board -> updatePlayerDeck(6+24,true);
+    game_board -> updatePlayerDeck(7+24,true);
+    game_board -> updatePlayerDeck(8+24,true);
+    game_board -> updatePlayerDeck(9+24,true);
+    game_board -> updatePlayerDeck(10+24,true);
+    game_board -> updatePlayerDeck(11+24,true);
+    game_board -> updatePlayerDeck(12+24,true);
+
     // red card player
     game_board -> get_players()[Map::RED].UpdateHand(6+36);
     game_board -> get_players()[Map::RED].UpdateHand(7+36);
@@ -236,4 +259,14 @@ void Scenarios::CanWinScenario::reset_board(Board::Board* game_board,bool verbos
     game_board -> get_players()[Map::RED].UpdateHand(10+36);
     game_board -> get_players()[Map::RED].UpdateHand(11+36);
     game_board -> get_players()[Map::RED].UpdateHand(12+36);
+
+    game_board -> updatePlayerDeck(6+36,true);
+    game_board -> updatePlayerDeck(7+36,true);
+    game_board -> updatePlayerDeck(8+36,true);
+    game_board -> updatePlayerDeck(9+36,true);
+    game_board -> updatePlayerDeck(10+36,true);
+    game_board -> updatePlayerDeck(11+36,true);
+    game_board -> updatePlayerDeck(12+36,true);
+
+    game_board -> setup_player_deck();
 }
