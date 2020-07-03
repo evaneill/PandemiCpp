@@ -96,21 +96,13 @@ void GameLogic::Game::nonplayer_actions(Board::Board& game_board,bool verbose){
         bool was_quiet_night = game_board.quiet_night_status();
         std::string player_name = game_board.active_player().role.name;
 
-        // A nullptr will be returned by PlayerDeckDrawAction when there are no player cards left, so we will avoid trying to execute it
-        if(next_action){
-            next_action -> execute(game_board);
-        }
+        next_action -> execute(game_board);
 
         if(verbose && (!was_quiet_night || game_board.get_turn_action()==4 || (game_board.get_turn_action()==5 && game_board.get_infect_cards_drawn()==0))){
-            if(next_action){
-                DEBUG_MSG("[Game::nonplayer_actions()] " << player_name << ": " << next_action -> repr() << std::endl);
-            }
+            DEBUG_MSG("[Game::nonplayer_actions()] " << player_name << ": " << next_action -> repr() << std::endl);
         }
 
-        // A nullptr will be returned by PlayerDeckDrawAction when there are no player cards left, so we will avoid trying to delete it
-        if(next_action){
-            delete next_action;
-        }
+        delete next_action;
     }
 }
 

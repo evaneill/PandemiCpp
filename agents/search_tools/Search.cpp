@@ -294,12 +294,8 @@ Search::Node* Search::StochasticNode::getChild(int child){
 }
 
 void Search::StochasticNode::setChild(int child,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic){
-    // it's possible that _action is nullptr if player deck is out of cards.
-    // In this case do nothing: _board_state must have already been labeled as having lost.
-    // in this case ensuing logic will create a losing deterministic node (since is_stochastic() accounts for terminality)
-    if(_action){
-        _action -> execute(*_board_state);
-    }
+    _action -> execute(*_board_state);
+
     if(game_logic.is_stochastic(*_board_state)){
         children[child] = new Search::StochasticNode(this,_action,_board_state,game_logic);
     } else {
@@ -412,11 +408,7 @@ Search::Node* Search::KDeterminizedGameTree::GetDeterministicChild(Search::Node*
         Search::Node* child = node -> getChild(on_chain ? 0 : determinization);
         Actions::Action* action = child -> get_action();
 
-        // If this isn't a nullptr action returned by gamelogic before, execute it
-        // Otherwise the child node should be terminal (fingers crossed), so just call GetDeterminnisticChild on it
-        if(action){
-            action -> execute(game_board);
-        }
+        action -> execute(game_board);
 
         return GetDeterministicChild(child,game_board,determinization,true);
     } else {

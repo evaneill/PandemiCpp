@@ -124,6 +124,22 @@ std::string StochasticActions::EpidemicDrawAction::repr(){
 }
 // =========================
 
+// ===== PLAYERDECK EMPTY ACTION ===== (GAME LOGIC ONLY)
+StochasticActions::PlayerDeckEmptyAction::PlayerDeckEmptyAction()
+    {
+        movetype = "PLAYERDRAW: DECK EMPTY";
+    }
+
+void StochasticActions::PlayerDeckEmptyAction::execute(Board::Board& game_board){
+    game_board.has_lost()=true;
+    game_board.get_lost_reason()='Ran out of player cards!';
+}
+
+std::string StochasticActions::PlayerDeckEmptyAction::repr(){
+    return movetype;
+}
+// =========================
+
 // ===== Player Card draw constructor =====
 
 StochasticActions::PlayerDeckDrawActionConstructor::PlayerDeckDrawActionConstructor(){}
@@ -156,10 +172,7 @@ Actions::Action* StochasticActions::PlayerDeckDrawActionConstructor::random_acti
             return new PlayerCardDrawAction(card);
         }
     }  else {
-        // Otherwise the game is lost! Tried to draw a player card when there were none
-        game_board.get_lost_reason()="Ran out of player cards!";
-        game_board.has_lost() = true;
-        return nullptr;
+        return new PlayerDeckEmptyAction();
     }
 }
 

@@ -42,6 +42,16 @@ namespace StochasticActions
         std::string repr();
     };
 
+    // Utility action used to force the game to lose when the player deck is empty and a card is to be drawn
+    class PlayerDeckEmptyAction: public Actions::Action{
+    public:
+        PlayerDeckEmptyAction();
+
+        void execute(Board::Board& game_board);
+
+        std::string repr();
+    };
+
     // Executes effects of drawing an infect card. Will stop if game is lost after setting game status to lost
     class InfectDeckDrawAction: public Actions::Action{
         // infect card drawn
