@@ -294,7 +294,12 @@ Search::Node* Search::StochasticNode::getChild(int child){
 }
 
 void Search::StochasticNode::setChild(int child,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic){
-    _action -> execute(*_board_state);
+    // it's possible that _action is nullptr if player deck is out of cards.
+    // In this case do nothing: _board_state must have already been labeled as having lost.
+    // in this case ensuing logic will create a losing deterministic node (since is_stochastic() accounts for terminality)
+    if(_action){
+        _action -> execute(*_board_state);
+    }
     if(game_logic.is_stochastic(*_board_state)){
         children[child] = new Search::StochasticNode(this,_action,_board_state,game_logic);
     } else {
