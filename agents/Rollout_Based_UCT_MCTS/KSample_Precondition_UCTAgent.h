@@ -26,6 +26,9 @@ namespace Agents
         // score - (TotalReward/N_Visits) of chosen child
         std::vector<double> chosen_confidences = {};
 
+        // vector of choice node average rewards backed up through the tree
+        std::vector<double> state_values = {};
+        
         // Difference between number of times child was visited and (n_simulations/# of children)
         //      (idea is can measure "how different" the chosen action was - very small when there isn't good justification)
         std::vector<double> chosen_visits_minus_avg = {};
