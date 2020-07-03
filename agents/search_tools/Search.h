@@ -19,6 +19,7 @@ namespace Search
     public:
         Node(Node* _parent,Actions::Action* _action);
         virtual ~Node(){};
+        
         // action applied after parent action in order to derive a new, unique state
         // For deterministic nodes this is clear enough
         // For stochastic nodes it indicates a sampled stochastic action drawn by the game logic
@@ -128,9 +129,6 @@ namespace Search
             } 
         }
 
-        // Score of the node. Updated on backprop()
-        double score=0; 
-
         Node* get_parent();
 
         // Score of the node
@@ -193,9 +191,6 @@ namespace Search
             // empty the vector of now meaningless pointers (not sure if necessary)
             children.clear();
         }
-
-        // Score of the node. Updated on backprop()
-        double score=0; 
 
         Node* get_parent();
 
