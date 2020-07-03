@@ -29,7 +29,7 @@ namespace Heuristics
     double CureGoalConditionswStation(Board::Board& game_board);
 
     // How close, in a coarse fashion, position is to losing. Can be used by itself and minimized, or compounded with other heuristics
-    // Idea is to capture how close the loss is according to player-controllable parts of the game
+    // Idea is to capture how close the loss is according to player-controllable parts of the game (outbreak count and disease count)
     //
     // Both metrics are designed to get worse the further into the game you are
     double LossProximity(Board::Board& game_board);

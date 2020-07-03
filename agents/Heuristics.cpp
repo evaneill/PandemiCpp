@@ -284,36 +284,19 @@ double Heuristics::CureGoalConditionswStation(Board::Board& game_board){
 }
 
 double Heuristics::LossProximity(Board::Board& game_board){
-    // Made in anticipation of having a compound-heuristic agent, where it'd be weighted equally with a Cure Precondition heuristic
-    //      Wanted .5 * (changes in this heuristic) to be comparable and maybe a bit less than changes in Cure Precondition heuristic.
+    // Simple linear trend for both quantities, and then a 1 - max(*,*) of the two
     
-    double outbreak_badness = 0;
     int outbreak_count = game_board.get_outbreak_count();
-    //  outbreaks: 0,   1,      2,    3,    4,      5,     6,     7
-    //        h(): 0,   0,    .04,  .08,  .12,    .21,   .30,   .39
-    if(outbreak_count>=2 && outbreak_count<=4){
-        outbreak_badness=.04 * ((double) outbreak_count - 1.);
-    } else if(outbreak_count==5){
-        outbreak_badness=.21;
-    } else if(outbreak_count==6){
-        outbreak_badness=.30;
-    } else if(outbreak_count==7){
-        outbreak_badness=.39;
-    }
-    
+    // outbreak badness = "what fraction of outbreaks toward losing are we?""
+    double outbreak_badness = outbreak_count/8.; 
+
     std::array<int,4> color_count= game_board.get_color_count();
 
-    // Piecewise linear fxn mostly 0 (<=18) then sloping up
-    double BLUE_badness = std::max(0.,((double) color_count[Map::BLUE] - 18.)/32.);
-    double YELLOW_badness = std::max(0.,((double) color_count[Map::YELLOW] - 18.)/32.);
-    double BLACK_badness = std::max(0.,((double) color_count[Map::BLACK] - 18.)/32.);
-    double RED_badness = std::max(0.,((double) color_count[Map::RED] - 18.)/32.);
-
-    // Higher slope when count >21
-    BLUE_badness = std::max(BLUE_badness,3.*((double) color_count[Map::BLUE] - 21.)/32. + 3./32.);
-    YELLOW_badness = std::max(YELLOW_badness,3.*((double) color_count[Map::YELLOW] - 21.)/32. + 3./32.);
-    BLACK_badness = std::max(BLACK_badness,3.*((double) color_count[Map::BLACK] - 21.)/32. + 3./32.);
-    RED_badness = std::max(RED_badness,3.*((double) color_count[Map::RED] - 21.)/32. + 3./32.);
+    // How close we are to running out of disease cubes (lose when =25) for each disease?
+    double BLUE_badness = color_count[Map::BLUE]/25;
+    double YELLOW_badness = color_count[Map::YELLOW]/25;
+    double BLACK_badness = color_count[Map::BLACK]/25;
+    double RED_badness = color_count[Map::RED]/25;
 
     double max_disease_badness = BLUE_badness;
     if(YELLOW_badness>max_disease_badness){
@@ -326,13 +309,13 @@ double Heuristics::LossProximity(Board::Board& game_board){
         max_disease_badness = RED_badness;
     }
 
-    // <1 always during a game (constructed so that max(outbreak_badness) ~ max(disease badness) < .5)
-    return 1 - outbreak_badness - max_disease_badness;
+    return 1 - std::max(outbreak_badness,max_disease_badness);
 }
 
 double Heuristics::SmartLossProximity(Board::Board& game_board){
     // Goal is to account for both "badness" that's present on the board, and "badness" that's bound to happen in the future
     // Specifically want to fold in the fact that cities with 3 cubes are bad news for the future agent, ever if even a deep planner may not be able to recognize it.
+    // This is kind of equivalent to looking at "outbreak preconditions" in the same way that we look at cure preconditions
 
     // ========= "Badness" associated to cities with 3 disease cubes =========
     std::array<std::array<int,48>,4> disease_count = game_board.get_disease_count();
