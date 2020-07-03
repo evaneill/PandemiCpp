@@ -89,13 +89,12 @@ Search::Node* Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent::get_max_ch
         Search::Node* child = root -> getChild(child_num);
         double child_score = get_max_avgreward(child);
 
+        // Set totalReward based on max "acheivable" reward expectation
+        child -> TotalReward = child_score * (child -> N_visits);
+        
         // Set the score w/ UCB on newly defined total reward (if terminal, keep game score of the board)
         child -> update(Search::UCB1Score);
 
-        // Replicate logic of set_score(). If not terminal, use UCB1, otherwise leave it unchanged
-        if(!child -> terminal){
-            child -> score = Search::UCB1Score(child);
-        }
         // If (max avg reward) > best existing reward
         if(child_score >best_child_reward){
             best_child = child;
