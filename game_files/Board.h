@@ -214,7 +214,7 @@ namespace Board
         // Player deck entrypoints
         int draw_playerdeck_inplace();
         int& get_player_cards_drawn(); // Entry point for access to number of player cards drawn during player draw phase
-        void updatePlayerDeck(int card); // update player deck to reflect a card having been drawn and used
+        void updatePlayerDeck(int card,bool setup = false); // update player deck to reflect a card having been drawn and used
         int remaining_player_cards(); // Entry point for asking how many player cards are left in the deck
         bool epidemic_possible(); // Is it possible to draw an epidemic on the next player card?
         int get_epidemic_count();
