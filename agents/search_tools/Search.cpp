@@ -411,7 +411,12 @@ Search::Node* Search::KDeterminizedGameTree::GetDeterministicChild(Search::Node*
         // Then get it, advance the state using it's action, and return the recursive call
         Search::Node* child = node -> getChild(on_chain ? 0 : determinization);
         Actions::Action* action = child -> get_action();
-        action -> execute(game_board);
+
+        // If this isn't a nullptr action returned by gamelogic before, execute it
+        // Otherwise the child node should be terminal (fingers crossed), so just call GetDeterminnisticChild on it
+        if(action){
+            action -> execute(game_board);
+        }
 
         return GetDeterministicChild(child,game_board,determinization,true);
     } else {
