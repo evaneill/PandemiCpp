@@ -132,7 +132,7 @@ StochasticActions::PlayerDeckEmptyAction::PlayerDeckEmptyAction()
 
 void StochasticActions::PlayerDeckEmptyAction::execute(Board::Board& game_board){
     game_board.has_lost()=true;
-    game_board.get_lost_reason()='Ran out of player cards!';
+    game_board.get_lost_reason()="Ran out of player cards!";
 }
 
 std::string StochasticActions::PlayerDeckEmptyAction::repr(){
