@@ -147,12 +147,19 @@ int StochasticActions::PlayerDeckDrawActionConstructor::n_actions(Board::Board& 
 }
 
 Actions::Action* StochasticActions::PlayerDeckDrawActionConstructor::random_action(Board::Board& game_board){
-    int card = game_board.draw_playerdeck_inplace();
-    if(Decks::IS_EPIDEMIC(card)){
-        int infected_city = game_board.draw_infectdeck_bottom_inplace();
-        return new EpidemicDrawAction(card,infected_city);
-    } else {
-        return new PlayerCardDrawAction(card);
+    if(game_board.player_deck_nonempty()){
+        int card = game_board.draw_playerdeck_inplace();
+        if(Decks::IS_EPIDEMIC(card)){
+            int infected_city = game_board.draw_infectdeck_bottom_inplace();
+            return new EpidemicDrawAction(card,infected_city);
+        } else {
+            return new PlayerCardDrawAction(card);
+        }
+    }  else {
+        // Otherwise the game is lost! Tried to draw a player card when there were none
+        game_board.get_lost_reason()="Ran out of player cards!";
+        game_board.has_lost() = true;
+        return nullptr;
     }
 }
 

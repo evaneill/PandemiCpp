@@ -89,7 +89,6 @@ void GameLogic::Game::nonplayer_actions(Board::Board& game_board,bool verbose){
 
     // Stochastic check _includes_ check for terminal status of game (stochastic transitions can't be legal if the game has ended)
     while(is_stochastic(game_board)){
-
         // Get the next required action
         Actions::Action* next_action = get_stochastic_action(game_board);
         
@@ -97,12 +96,19 @@ void GameLogic::Game::nonplayer_actions(Board::Board& game_board,bool verbose){
         bool was_quiet_night = game_board.quiet_night_status();
         std::string player_name = game_board.active_player().role.name;
 
-        next_action -> execute(game_board);
+        // A nullptr will be returned by PlayerDeckDrawAction when there are no player cards left, so we will avoid trying to execute it
+        if(next_action){
+            next_action -> execute(game_board);
+        }
 
         if(verbose && (!was_quiet_night || game_board.get_turn_action()==4 || (game_board.get_turn_action()==5 && game_board.get_infect_cards_drawn()==0))){
             DEBUG_MSG("[Game::nonplayer_actions()] " << player_name << ": " << next_action -> repr() << std::endl);
         }
-        delete next_action;
+
+        // A nullptr will be returned by PlayerDeckDrawAction when there are no player cards left, so we will avoid trying to delete it
+        if(next_action){
+            delete next_action;
+        }
     }
 }
 

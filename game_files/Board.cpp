@@ -417,19 +417,13 @@ void Board::Board::update_eradicated_status(){
 // This should be partially made redundant by logic built into actions that can induce a win/loss
 // But redundancy for important things is good!
 void Board::Board::updatestatus(){
-    // First have to remove all cubes of cured diseases from position of medic, if existent
-    // It ONLY makes sense to put this here because I know that this will get called after ever agent AND stochastic action.
+    // First have to remove all cubes of cured diseases from position of medic, if existent (this is redundant)
     update_medic_position();
     update_eradicated_status();
 
     if(cured[Map::BLUE] && cured[Map::YELLOW] && cured[Map::BLACK] && cured[Map::RED]){
         // the only way to win is to have cured all four diseases
         won = true;
-    }
-    if(player_deck.isempty()){
-        // If there are no more player cards, you lost.
-        why_lost = "Ran out of player cards!";
-        lost = true;
     }
     if(outbreak_count>7){
         // If there are >7 outbreaks
@@ -517,8 +511,8 @@ int& Board::Board::get_player_cards_drawn(){
     return player_cards_drawn;
 }
 
-void Board::Board::updatePlayerDeck(int card){
-    player_deck.update(card);
+void Board::Board::updatePlayerDeck(int card,bool setup){
+    player_deck.update(card,setup);
 }
 
 int& Board::Board::get_infect_cards_drawn(){
