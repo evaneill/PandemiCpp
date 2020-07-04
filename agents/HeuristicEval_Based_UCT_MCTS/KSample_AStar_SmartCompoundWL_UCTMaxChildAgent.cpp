@@ -11,7 +11,7 @@
 
 #include "../search_tools/Search.h"
 
-Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(GameLogic::Game& _active_game,int _n_simulations,int _K,double _alpha = .5,int _VisitConvergenceCriteria=100):
+Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(GameLogic::Game& _active_game,int _n_simulations,int _K,double _alpha,int _VisitConvergenceCriteria):
     BaseAgent(_active_game)
     {   
         n_simulations = _n_simulations;
