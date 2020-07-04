@@ -733,10 +733,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment: public Experiment {
+    class K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment();
-        ~K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment(){
+        K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment();
+        ~K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;

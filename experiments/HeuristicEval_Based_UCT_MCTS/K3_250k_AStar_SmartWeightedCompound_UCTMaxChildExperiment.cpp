@@ -3,23 +3,23 @@
 #include <chrono>
 #include <ctime>
 
-#include "../../agents/HeuristicEval_Based_UCT_MCTS/KSample_AStar_Precondition_UCTMaxChildAgent.h"
+#include "../../agents/HeuristicEval_Based_UCT_MCTS/KSample_AStar_SmartCompoundWL_UCTMaxChildAgent.h"
 
 #include "../../experimental_tools/Experiments.h"
 #include "../../experimental_tools/Scenarios.h"
 #include "../../experimental_tools/Measurements.h"
 
-Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment(){
+Experiments::K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment::K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment(){
     // Hard-code a description for this experiment
-    experiment_name = "K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment";
-    description = "Test a three-determinization A-star UCT agent that uses (# diseases cured /4)+.2*SUM(max fraction satisfied preconditions for uncured disease i among players) reward from rollouts to update node scores, and uses max-child to select an action";
+    experiment_name = "K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment";
+    description = "Test a three-determinization A-star UCT agent that uses a compound (2/3)W + (1/3)L 'smart compound' heuristic to evaluate states and uses max-child to select an action";
 
-    fileheader = "K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment";// .header ,.csv
+    fileheader = "K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment";// .header ,.csv
     
     // Use the scenario to setup some variables
     scenario = new Scenarios::VanillaGameScenario();
 
-    agent_name = "Three-Sample A-star UCT Max-Child Agent w cure precondition heuristic";
+    agent_name = "Three-Sample A-star UCT Max-Child Agent w (2/3)W - (1/3)L compound heuristic";
 
     // Define measurements on the active board
     // As I write this, these are all the possible measurements
@@ -50,7 +50,7 @@ Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment::K3_250k_AStar
     n_games=100;
 }
 
-void Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment::write_header(){
+void Experiments::K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment::write_header(){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::trunc);
 
     header << "Experiment Name: " << experiment_name << std::endl;
@@ -85,34 +85,35 @@ void Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment::write_he
     header.close();
 }
 
-void Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment::reset_board(Board::Board* game_board){
+void Experiments::K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment::reset_board(Board::Board* game_board){
     scenario -> reset_board(game_board);
 }
 
-void Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment::append_header(std::string extras){
+void Experiments::K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment::append_header(std::string extras){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::app);
     header << extras;
     header.close();
 }
 
-void Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment::write_experiment(std::string data){
+void Experiments::K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment::write_experiment(std::string data){
     std::ofstream logfile(Experiments::OUTPUT_DIR + fileheader + ".csv",std::ios::out | std::ios::trunc);
     logfile << data;
     logfile.close();
 }
 
-Board::Board* Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment::get_board(){
+Board::Board* Experiments::K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment::get_board(){
     return scenario -> make_board({1,2,3},4);
 }
 
-Agents::BaseAgent* Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment::get_agent(GameLogic::Game* game){
+Agents::BaseAgent* Experiments::K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment::get_agent(GameLogic::Game* game){
     // 10000 simulations per step
     // 3 determinization per stochasticity
-    // Will take max-avg-reward children if >=100 visits 
-    return new Agents::KSample_AStar_Precondition_UCTMaxChildAgent(*game,250000,3,1);
+    // Will take max-avg-reward children if >=1 visits 
+    // alpha = 2/3
+    return new Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(*game,250000,3,2./3.,1);
 }
 
-std::vector<Measurements::GameMeasurement*> Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment::get_game_measures(Board::Board* game){
+std::vector<Measurements::GameMeasurement*> Experiments::K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment::get_game_measures(Board::Board* game){
     std::vector<Measurements::GameMeasurement*> game_measures = {};
 
     for(Measurements::MeasurementConstructor* con: measureCons){
@@ -122,7 +123,7 @@ std::vector<Measurements::GameMeasurement*> Experiments::K3_250k_AStar_CurePreco
 }
 
 int main(){
-    Experiments::Experiment* experiment = new Experiments::K3_250k_AStar_CurePrecondition_UCTMaxChildExperiment();
+    Experiments::Experiment* experiment = new Experiments::K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment();
     
     // ===== Seed rand() =====
     // ===== Thank you stackoverflow =====
