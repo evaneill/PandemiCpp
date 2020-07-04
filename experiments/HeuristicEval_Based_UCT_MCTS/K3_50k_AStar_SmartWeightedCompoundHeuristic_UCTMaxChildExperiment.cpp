@@ -110,7 +110,7 @@ Agents::BaseAgent* Experiments::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTM
     // 3 determinization per stochasticity
     // Will take max-avg-reward children if >=1 visits 
     // alpha = 2/3 (2/3 goes to Cure Precondition weighting)
-    return new Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(*game,50000,3,2./3.,1);
+    return new Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(*game,50000,3,3./4.,1);
 }
 
 std::vector<Measurements::GameMeasurement*> Experiments::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::get_game_measures(Board::Board* game){
