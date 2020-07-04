@@ -12,7 +12,7 @@
 Experiments::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
     // Hard-code a description for this experiment
     experiment_name = "K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment";
-    description = "Test a three-determinization A-star UCT agent that uses a weighted compound W(2/3)-L(1/3) heuristic ('smart' loss proximity included) reward on leaf states to update node scores, and uses max-child to select an action";
+    description = "Test a three-determinization A-star UCT agent that uses a weighted compound W(3/4)-L(1/4) heuristic ('smart' loss proximity included) reward on leaf states to update node scores, and uses max-child to select an action";
 
     fileheader = "K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment";// .header ,.csv
     
@@ -109,7 +109,7 @@ Agents::BaseAgent* Experiments::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTM
     // 10000 simulations per step
     // 3 determinization per stochasticity
     // Will take max-avg-reward children if >=1 visits 
-    // alpha = 2/3 (2/3 goes to Cure Precondition weighting)
+    // alpha = 3/4 (3/4 goes to Cure Precondition weighting)
     return new Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(*game,50000,3,3./4.,1);
 }
 
