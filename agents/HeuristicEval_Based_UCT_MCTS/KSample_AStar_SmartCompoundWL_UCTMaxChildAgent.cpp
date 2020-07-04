@@ -11,13 +11,15 @@
 
 #include "../search_tools/Search.h"
 
-Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(GameLogic::Game& _active_game, int _n_simulations, int _K,int _VisitConvergenceCriteria):
+Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(GameLogic::Game& _active_game,int _n_simulations,int _K,double _alpha = .5,int _VisitConvergenceCriteria=100):
     BaseAgent(_active_game)
     {   
         n_simulations = _n_simulations;
 
         K = _K;
         minVisitConverged = _VisitConvergenceCriteria;
+
+        alpha = _alpha;
 
         name += "(" + std::to_string(n_simulations) + " simulations per step)";
         name = std::to_string(K) + " " + name;
@@ -52,7 +54,7 @@ Actions::Action* Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent::generat
 
         // Straight up evaluate the heuristic of the state
         // Use the compound heuristic of preconditions + "smart" proximity (which will look dumb to say if it ends up doing poorly)
-        double reward = Heuristics::CompoundHeuristic(board_copy,Heuristics::CureGoalConditionswStation,Heuristics::SmartLossProximity);
+        double reward = Heuristics::CompoundHeuristic(board_copy,Heuristics::CureGoalConditionswStation,Heuristics::SmartLossProximity,alpha);
 
         // Back up the observed reward
         // (terminal nodes never get value changed on backprop)

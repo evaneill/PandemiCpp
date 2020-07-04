@@ -3,7 +3,7 @@
 #include <chrono>
 #include <ctime>
 
-#include "../../agents/HeuristicEval_Based_UCT_MCTS/KSample_AStar_SmartWeightedCompoundWL_UCTMaxChildAgent.h"
+#include "../../agents/HeuristicEval_Based_UCT_MCTS/KSample_AStar_SmartCompoundWL_UCTMaxChildAgent.h"
 
 #include "../../experimental_tools/Experiments.h"
 #include "../../experimental_tools/Scenarios.h"
@@ -109,7 +109,8 @@ Agents::BaseAgent* Experiments::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTM
     // 10000 simulations per step
     // 3 determinization per stochasticity
     // Will take max-avg-reward children if >=1 visits 
-    return new Agents::KSample_AStar_SmartWeightedCompoundWL_UCTMaxChildAgent(*game,50000,3,1);
+    // alpha = 2/3 (2/3 goes to Cure Precondition weighting)
+    return new Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(*game,50000,3,2./3.,1);
 }
 
 std::vector<Measurements::GameMeasurement*> Experiments::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::get_game_measures(Board::Board* game){

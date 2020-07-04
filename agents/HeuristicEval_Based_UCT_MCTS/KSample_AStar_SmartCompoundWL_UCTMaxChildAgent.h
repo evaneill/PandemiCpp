@@ -17,6 +17,9 @@ namespace Agents
         // How many visits qualify an average reward as properly "converged" and so worthy of `maxing` over children
         int minVisitConverged;
 
+        // weight between component compound heuristics;
+        double alpha;
+
         // Search tree to use on each step.
         Search::GameTree* search_tree = nullptr;
 
@@ -38,7 +41,7 @@ namespace Agents
     public:
         std::string name = "-Determinization A-star UCT Agent with (# cured diseases/4)+.15* (max fraction of cards held toward curing uncured disease)  + reward for station tangency value rollouts.";
         
-        KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(GameLogic::Game& _active_game,int n_simulations,int K,int VisitConvergenceCriteria=100);
+        KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(GameLogic::Game& _active_game,int n_simulations,int K,double alpha = .5,int VisitConvergenceCriteria=100);
         ~KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(){
             if(search_tree){
                 delete search_tree;

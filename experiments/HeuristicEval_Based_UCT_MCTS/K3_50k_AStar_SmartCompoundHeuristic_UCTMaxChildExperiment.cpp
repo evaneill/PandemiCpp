@@ -109,7 +109,7 @@ Agents::BaseAgent* Experiments::K3_50k_AStar_SmartCompoundHeuristic_UCTMaxChildE
     // 10000 simulations per step
     // 3 determinization per stochasticity
     // Will take max-avg-reward children if >=1 visits 
-    return new Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(*game,50000,3,1);
+    return new Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(*game,50000,3,.5,1);
 }
 
 std::vector<Measurements::GameMeasurement*> Experiments::K3_50k_AStar_SmartCompoundHeuristic_UCTMaxChildExperiment::get_game_measures(Board::Board* game){
