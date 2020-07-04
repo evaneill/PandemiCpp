@@ -118,12 +118,13 @@ int Decks::PlayerDeck::draw_index(bool setup){
     int& chunk_cards_left = deck_chunk_sizes.back();
     if(epidemics_drawn==(difficulty - deck_chunk_sizes.size()) && !setup){
         // number left includes epidemic card
-        if((float) rand()< (float) (RAND_MAX/(chunk_cards_left))){
+        if((float) rand()<= (float) ((float) RAND_MAX/(float) chunk_cards_left)){
             return 48+3+epidemics_drawn;
         } else {
             return rand() % remaining_nonepi_cards.size();
         }
     } else {
+        // There's no remaining epidemic card
         return rand() % remaining_nonepi_cards.size();
     }
     return -1;
