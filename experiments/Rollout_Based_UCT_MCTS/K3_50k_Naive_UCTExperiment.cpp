@@ -11,10 +11,10 @@
 
 Experiments::K3_50k_Naive_UCTExperiment::K3_50k_Naive_UCTExperiment(){
     // Hard-code a description for this experiment
-    experiment_name = "ThreeSampleNaive50kUCTAgentExperiment";
+    experiment_name = "K3_50k_Naive_UCTExperiment";
     description = "Test a three-determinization UCT agent that uses only win/loss (0/1) reward from rollouts to update node scores, and 50000 simulations/step";
 
-    fileheader = "ThreeSampleNaive50kUCTAgentExperiment";// .header ,.csv
+    fileheader = "K3_50k_Naive_UCTExperiment";// .header ,.csv
     
     // Use the scenario to setup some variables
     scenario = new Scenarios::VanillaGameScenario();
