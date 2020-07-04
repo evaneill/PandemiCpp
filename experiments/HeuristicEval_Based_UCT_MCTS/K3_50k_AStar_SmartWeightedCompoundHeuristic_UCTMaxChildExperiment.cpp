@@ -112,7 +112,7 @@ Agents::BaseAgent* Experiments::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTM
     return new Agents::KSample_AStar_SmartWeightedCompoundWL_UCTMaxChildAgent(*game,50000,3,1);
 }
 
-std::vector<Measurements::GameMeasurement*> Experiments::K3_50k_AStar_SmartCompoundHeuristic_UCTMaxChildExperiment::get_game_measures(Board::Board* game){
+std::vector<Measurements::GameMeasurement*> Experiments::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::get_game_measures(Board::Board* game){
     std::vector<Measurements::GameMeasurement*> game_measures = {};
 
     for(Measurements::MeasurementConstructor* con: measureCons){
@@ -122,7 +122,7 @@ std::vector<Measurements::GameMeasurement*> Experiments::K3_50k_AStar_SmartCompo
 }
 
 int main(){
-    Experiments::Experiment* experiment = new Experiments::K3_50k_AStar_SmartCompoundHeuristic_UCTMaxChildExperiment();
+    Experiments::Experiment* experiment = new Experiments::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
     
     // ===== Seed rand() =====
     // ===== Thank you stackoverflow =====
