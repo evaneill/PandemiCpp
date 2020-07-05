@@ -397,10 +397,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_10k_Precondition_UCTMaxChildExperiment: public Experiment {
+    class K3_50k_Precondition_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_10k_Precondition_UCTMaxChildExperiment();
-        ~K3_10k_Precondition_UCTMaxChildExperiment(){
+        K3_50k_Precondition_UCTMaxChildExperiment();
+        ~K3_50k_Precondition_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -418,10 +418,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K1_10k_Naive_UCTMaxChildExperiment: public Experiment {
+    class K3_50k_Naive_UCTMaxChildExperiment: public Experiment {
     public:
-        K1_10k_Naive_UCTMaxChildExperiment();
-        ~K1_10k_Naive_UCTMaxChildExperiment(){
+        K3_50k_Naive_UCTMaxChildExperiment();
+        ~K3_50k_Naive_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -439,10 +439,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_10k_SubGoal_UCTMaxChildExperiment: public Experiment {
+    class K3_50k_SubGoal_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_10k_SubGoal_UCTMaxChildExperiment();
-        ~K3_10k_SubGoal_UCTMaxChildExperiment(){
+        K3_50k_SubGoal_UCTMaxChildExperiment();
+        ~K3_50k_SubGoal_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;

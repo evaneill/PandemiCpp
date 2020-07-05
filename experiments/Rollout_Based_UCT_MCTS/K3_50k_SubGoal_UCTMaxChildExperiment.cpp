@@ -3,23 +3,23 @@
 #include <chrono>
 #include <ctime>
 
-#include "../../agents/Rollout_Based_UCT_MCTS/KSample_Precondition_UCTMaxChildAgent.h"
+#include "../../agents/Rollout_Based_UCT_MCTS/KSample_Subgoal_UCTMaxChildAgent.h"
 
 #include "../../experimental_tools/Experiments.h"
 #include "../../experimental_tools/Scenarios.h"
 #include "../../experimental_tools/Measurements.h"
 
-Experiments::K3_10k_Precondition_UCTMaxChildExperiment::K3_10k_Precondition_UCTMaxChildExperiment(){
+Experiments::K3_50k_SubGoal_UCTMaxChildExperiment::K3_50k_SubGoal_UCTMaxChildExperiment(){
     // Hard-code a description for this experiment
-    experiment_name = "K3_10k_Precondition_UCTMaxChildExperiment";
-    description = "Test a three-determinization UCT agent that uses (# diseases cured /4)+.2*SUM(max fraction satisfied preconditions for uncured disease i among players) reward from rollouts to update node scores, and uses max-child to select an action";
+    experiment_name = "K3_50k_SubGoal_UCTMaxChildExperiment";
+    description = "Test a three-determinization UCT agent that uses (# diseases cured /4) reward from rollouts to update node scores, and uses max-child to select an action";
 
-    fileheader = "K3_10k_Precondition_UCTMaxChildExperiment";// .header ,.csv
+    fileheader = "K3_50k_SubGoal_UCTMaxChildExperiment";// .header ,.csv
     
     // Use the scenario to setup some variables
     scenario = new Scenarios::VanillaGameScenario();
 
-    agent_name = "Three-Sample Subgoal+Precondition Heuristic UCT Max-Child Agent";
+    agent_name = "Three-Sample SubGoal Heuristic UCT Max-Child Agent";
 
     // Define measurements on the active board
     // As I write this, these are all the possible measurements
@@ -50,7 +50,7 @@ Experiments::K3_10k_Precondition_UCTMaxChildExperiment::K3_10k_Precondition_UCTM
     n_games=100;
 }
 
-void Experiments::K3_10k_Precondition_UCTMaxChildExperiment::write_header(){
+void Experiments::K3_50k_SubGoal_UCTMaxChildExperiment::write_header(){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::trunc);
 
     header << "Experiment Name: " << experiment_name << std::endl;
@@ -85,34 +85,34 @@ void Experiments::K3_10k_Precondition_UCTMaxChildExperiment::write_header(){
     header.close();
 }
 
-void Experiments::K3_10k_Precondition_UCTMaxChildExperiment::reset_board(Board::Board* game_board){
+void Experiments::K3_50k_SubGoal_UCTMaxChildExperiment::reset_board(Board::Board* game_board){
     scenario -> reset_board(game_board);
 }
 
-void Experiments::K3_10k_Precondition_UCTMaxChildExperiment::append_header(std::string extras){
+void Experiments::K3_50k_SubGoal_UCTMaxChildExperiment::append_header(std::string extras){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::app);
     header << extras;
     header.close();
 }
 
-void Experiments::K3_10k_Precondition_UCTMaxChildExperiment::write_experiment(std::string data){
+void Experiments::K3_50k_SubGoal_UCTMaxChildExperiment::write_experiment(std::string data){
     std::ofstream logfile(Experiments::OUTPUT_DIR + fileheader + ".csv",std::ios::out | std::ios::trunc);
     logfile << data;
     logfile.close();
 }
 
-Board::Board* Experiments::K3_10k_Precondition_UCTMaxChildExperiment::get_board(){
+Board::Board* Experiments::K3_50k_SubGoal_UCTMaxChildExperiment::get_board(){
     return scenario -> make_board({1,2,3},4);
 }
 
-Agents::BaseAgent* Experiments::K3_10k_Precondition_UCTMaxChildExperiment::get_agent(GameLogic::Game* game){
+Agents::BaseAgent* Experiments::K3_50k_SubGoal_UCTMaxChildExperiment::get_agent(GameLogic::Game* game){
     // 10000 simulations per step
     // 3 determinization per stochasticity
-    // Will take max-avg-reward children if >=100 visits 
-    return new Agents::KSample_Precondition_UCTMaxChildAgent(*game,10000,3,100);
+    // Will take max-avg-reward children if >=1 visits (1 to match heuristic eval agents)
+    return new Agents::KSample_Subgoal_UCTMaxChildAgent(*game,10000,3,1);
 }
 
-std::vector<Measurements::GameMeasurement*> Experiments::K3_10k_Precondition_UCTMaxChildExperiment::get_game_measures(Board::Board* game){
+std::vector<Measurements::GameMeasurement*> Experiments::K3_50k_SubGoal_UCTMaxChildExperiment::get_game_measures(Board::Board* game){
     std::vector<Measurements::GameMeasurement*> game_measures = {};
 
     for(Measurements::MeasurementConstructor* con: measureCons){
@@ -122,7 +122,7 @@ std::vector<Measurements::GameMeasurement*> Experiments::K3_10k_Precondition_UCT
 }
 
 int main(){
-    Experiments::Experiment* experiment = new Experiments::K3_10k_Precondition_UCTMaxChildExperiment();
+    Experiments::Experiment* experiment = new Experiments::K3_50k_SubGoal_UCTMaxChildExperiment();
     
     // ===== Seed rand() =====
     // ===== Thank you stackoverflow =====
