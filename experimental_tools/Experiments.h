@@ -795,4 +795,25 @@ namespace Experiments
         std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
         void reset_board(Board::Board* game_board);
     };
+
+    class K1_500_Precondition_UCTMaxChild_SmartRolloutExperiment: public Experiment {
+    public:
+        K1_500_Precondition_UCTMaxChild_SmartRolloutExperiment();
+        ~K1_500_Precondition_UCTMaxChild_SmartRolloutExperiment(){
+            delete scenario;
+            for(Measurements::MeasurementConstructor* cons: measureCons){
+                delete cons;
+            }
+            measureCons.clear();
+        };
+
+        void write_header();
+        void append_header(std::string extras);
+        void write_experiment(std::string data);
+
+        Board::Board* get_board();
+        Agents::BaseAgent* get_agent(GameLogic::Game* game);
+        std::vector<Measurements::GameMeasurement*> get_game_measures(Board::Board* board);
+        void reset_board(Board::Board* game_board);
+    };
 }

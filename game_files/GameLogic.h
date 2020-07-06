@@ -112,10 +112,16 @@ namespace GameLogic
         // reward of a given board
         int reward(Board::Board& game_board);
 
-        // Get the reward from rolling out a game, using a given heuristic to evaluate the end-state
+        // Get the reward from rolling out a game (w/ bygroup_random action selection), using a given heuristic to evaluate the end-state
         // By default just return the 0/1 loss/win value
         double rollout(Board::Board* game_board,Heuristics::Heuristic heuristic = Heuristics::PureGameReward);
         double rollout(Board::Board& game_board,Heuristics::Heuristic heuristic = Heuristics::PureGameReward);
+
+        // Get the reward from rolling out a game with a epsilon-greedy heuristic local search (select highest value next action w.p. 1-epsilon, else uniform other action)
+        // Evaluate the terminal state with a separate (or same!) heuristic
+        // selection heuristic  = one that dictates what action to pick based on next boardstate value
+        // eval heuristic       = one that evaluates the final terminal board state, whose value will be returned as a rollout reward
+        double epsgreedy_heuristic_rollout(Board::Board& game_board, double epsilon, Heuristics::Heuristic selection_heuristic, Heuristics::Heuristic eval_heuristic = Heuristics::PureGameReward);
 
         // Board pointer for affixing to actions as necessary
         Board::Board* get_board_ptr();

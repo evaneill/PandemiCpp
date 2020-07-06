@@ -417,6 +417,67 @@ double GameLogic::Game::rollout(Board::Board& game_board,Heuristics::Heuristic h
     return heuristic(game_board);
 }
 
+double GameLogic::Game::epsgreedy_heuristic_rollout(Board::Board& game_board, double epsilon, Heuristics::Heuristic selection_heuristic, Heuristics::Heuristic eval_heuristic){
+    while(!is_terminal(game_board)){
+        nonplayer_actions(game_board);
+        if(!is_terminal(game_board)){
+            // get all available action options
+            std::vector<Actions::Action*> all_actions = list_actions(game_board);
+
+            // instantiate tracking objects for best action and its heuristic score
+            double best_score = -1;
+            Actions::Action* best_action = nullptr;
+
+            // For each action...
+            for(Actions::Action* act : all_actions){
+                // Explicit copy current state copy of the current board state
+                Board::Board board_copy = Board::Board(game_board);
+
+                // Apply this action to the board
+                act -> execute(board_copy);
+
+                // Use the heuristic to evaluate the result, including a check for terminality
+                double state_score;
+                if(!board_copy.is_terminal()){
+                    // use the selection heuristic to evaluate successor states
+                    double state_score = selection_heuristic(board_copy);
+                } else {
+                    // If terminal, get the reward from the game logic
+                    double state_score = reward(board_copy);
+                }
+                if(state_score>best_score){
+                    // If this score is better than the existing max, then reset the "best" score and action.
+                    best_score = state_score;
+                    best_action = act;
+                }
+            }
+
+            // If a random uniform number <= epsilon, then...
+            if((float) rand()/ (float) RAND_MAX <= epsilon){
+                // Choose a non-max action uniformly at random
+                int random_index = rand() % all_actions.size();
+                while(all_actions[random_index]==best_action && all_actions.size()>1){
+                    // make sure we didn't just choose action already defined as best
+                    // Make sure that there's at least one other non-"best" action to choose from to avoid infinite loops
+                    random_index = rand() % all_actions.size();
+                }
+                
+                // redefine the best action
+                best_action = all_actions[random_index];
+            }
+
+            // use the "best action" to advance the board
+            best_action -> execute(game_board);
+
+            // Lastly delete everything to avoid a fat memory leak
+            for(Actions::Action* act : all_actions){
+                delete act;
+            }
+        }
+    }
+    return eval_heuristic(game_board);
+}
+
 std::vector<std::string> GameLogic::Game::terminal_reasons(){
     std::vector<std::string> reasons;
     if((*active_board).has_won()){
