@@ -22,7 +22,7 @@ def featurizeCure(df):
     # have to account for the fact that measurements can only be made *before* actions are taken, so in any games that are won, have to add the winning cure disease
     df.loc[df.GameWon>0,'n_Cured']+=1
 
-    # In any won game, also set the winning cure action to "Depth" - it was at this point that the cure was made
+    # In any won game, also set the winning cure action to "Depth" - it was at this point that the cure was made and game was won
     df.loc[(df.GameWon>0) & (df.BlueCured<0),'BlueCured']=df.loc[(df.GameWon>0) & (df.BlueCured<0),'Depth']
     df.loc[(df.GameWon>0) & (df.YellowCured<0),'YellowCured']=df.loc[(df.GameWon>0) & (df.YellowCured<0),'Depth']
     df.loc[(df.GameWon>0) & (df.BlackCured<0),'BlackCured']=df.loc[(df.GameWon>0) & (df.BlackCured<0),'Depth']
@@ -65,3 +65,4 @@ def load_df(fpath,K,sims,heuristic):
     df['nSims']=sims
 
     return df
+
