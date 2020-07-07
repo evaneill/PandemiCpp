@@ -9,17 +9,17 @@
 #include "../../experimental_tools/Scenarios.h"
 #include "../../experimental_tools/Measurements.h"
 
-Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+Experiments::K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
     // Hard-code a description for this experiment
-    experiment_name = "K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment";
-    description = "Test a 10-determinization A-star UCT agent that uses a weighted compound W(2/3)-L(1/3) heuristic ('smart' loss proximity included) reward on leaf states to update node scores, and uses max-child to select an action";
+    experiment_name = "K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment";
+    description = "Test a 20-determinization A-star UCT agent that uses a weighted compound W(2/3)-L(1/3) heuristic ('smart' loss proximity included) reward on leaf states to update node scores, and uses max-child to select an action";
 
-    fileheader = "K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment";// .header ,.csv
+    fileheader = "K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment";// .header ,.csv
     
     // Use the scenario to setup some variables
     scenario = new Scenarios::VanillaGameScenario();
 
-    agent_name = "Ten-Sample A-star UCT Max-Child Agent w weighted compound (win + 'smart' loss proximity) heuristic";
+    agent_name = "20-Sample A-star UCT Max-Child Agent w weighted compound (win + 'smart' loss proximity) heuristic";
 
     // Define measurements on the active board
     // As I write this, these are all the possible measurements
@@ -50,7 +50,7 @@ Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment:
     n_games=100;
 }
 
-void Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::write_header(){
+void Experiments::K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::write_header(){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::trunc);
 
     header << "Experiment Name: " << experiment_name << std::endl;
@@ -85,35 +85,35 @@ void Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperi
     header.close();
 }
 
-void Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::reset_board(Board::Board* game_board){
+void Experiments::K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::reset_board(Board::Board* game_board){
     scenario -> reset_board(game_board);
 }
 
-void Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::append_header(std::string extras){
+void Experiments::K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::append_header(std::string extras){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::app);
     header << extras;
     header.close();
 }
 
-void Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::write_experiment(std::string data){
+void Experiments::K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::write_experiment(std::string data){
     std::ofstream logfile(Experiments::OUTPUT_DIR + fileheader + ".csv",std::ios::out | std::ios::trunc);
     logfile << data;
     logfile.close();
 }
 
-Board::Board* Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::get_board(){
+Board::Board* Experiments::K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::get_board(){
     return scenario -> make_board({1,2,3},4);
 }
 
-Agents::BaseAgent* Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::get_agent(GameLogic::Game* game){
-    // 50000 simulations per step
-    // 10 determinization per stochasticity
+Agents::BaseAgent* Experiments::K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::get_agent(GameLogic::Game* game){
+    // 100000 simulations per step
+    // 20 determinization per stochasticity
     // Will take max-avg-reward children if >=1 visits 
     // alpha = 2/3 (2/3 goes to Cure Precondition weighting)
-    return new Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(*game,50000,10,2./3.,1);
+    return new Agents::KSample_AStar_SmartCompoundWL_UCTMaxChildAgent(*game,50000,20,2./3.,1);
 }
 
-std::vector<Measurements::GameMeasurement*> Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::get_game_measures(Board::Board* game){
+std::vector<Measurements::GameMeasurement*> Experiments::K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment::get_game_measures(Board::Board* game){
     std::vector<Measurements::GameMeasurement*> game_measures = {};
 
     for(Measurements::MeasurementConstructor* con: measureCons){
@@ -123,7 +123,7 @@ std::vector<Measurements::GameMeasurement*> Experiments::K10_50k_AStar_SmartWeig
 }
 
 int main(){
-    Experiments::Experiment* experiment = new Experiments::K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+    Experiments::Experiment* experiment = new Experiments::K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
     
     // ===== Seed rand() =====
     // ===== Thank you stackoverflow =====

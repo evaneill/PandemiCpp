@@ -123,7 +123,7 @@ std::vector<Measurements::GameMeasurement*> Experiments::K5_50k_AStar_SmartWeigh
 }
 
 int main(){
-    Experiments::Experiment* experiment = new Experiments::K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+    Experiments::Experiment* experiment = new Experiments::K5_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
     
     // ===== Seed rand() =====
     // ===== Thank you stackoverflow =====
