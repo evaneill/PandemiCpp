@@ -26,10 +26,12 @@ These agents select highest-UCB1 score children in order to select an action onc
 
 ### Rollout-Based UCT MCTS
 
-Heuristics are used to evaluate the terminal state reached after rollouts from tree-leaf states. The returned heuristic value is used for backup.
+Heuristics (or no heuristic - `Naive`) are used to evaluate the terminal state reached after rollouts from tree-leaf states. The returned heuristic value is used for backup. The intuition behind doing this is that a default policy is incredibly unlikely to win, and so some measure of "closeness" to winning achieved by game-end is used instead of 1-0 win/loss reward. By default they'll choose the highest-UCB1 child successor. Some use greedy expectimax child selection (`MaxChild`) calculated on the partial game tree.
 
-Right now all of these agents use the `ByGroup` randomness in their default policy.
+Right now pretty much all of these agents use the `ByGroup` randomness in their default policy.
+
+There is one agent that uses a heavy rollout ("SmartRollout") incorporating epsilon-greedy child selection based on a compound heuristic comprised of (2/3)-(1/3) weighted combination of cure precondition and "smart" loss proximity. B/c this implementation is kind of clumsy, it is very costly to calculate this because you have to generate, alter, and evaluate a copy of the current state to value each child. 
 
 ### Heuristic Evaluation-based UCT MCTS
 
-Heuristics are used to evaluate the leaf states of a tree as it grows. Because the heuristics are human-coded estimates of state value, they are uncertain and so upper confidence bounds are kept just like in plain MCTS. All of these use Max Child selection policy.
+With this kind of agent, all of the same steps of MCTS are used to grow a partial game tree. Instead of rollout-based value estimation, though, heuristics are used to evaluate the leaf states of a tree as it grows. Because the heuristics are human-coded estimates of state value, they are uncertain and so upper confidence bounds are kept just like in plain MCTS. All of these use greedy expectimax child-selection.
