@@ -309,7 +309,7 @@ double Heuristics::LossProximity(Board::Board& game_board){
         max_disease_badness = RED_badness;
     }
 
-    return 1 - std::max(outbreak_badness,max_disease_badness);
+    return std::max(0.,1 - std::max(outbreak_badness,max_disease_badness));
 }
 
 double Heuristics::SmartLossProximity(Board::Board& game_board){
