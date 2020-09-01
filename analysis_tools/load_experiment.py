@@ -72,10 +72,10 @@ def load_df(fpath,K,sims,heuristic,selection="Greedy Expectimax"):
     df = pd.read_csv(fpath)
     featurize(df)
 
-    df['Heuristic']=heuristic
-    df['Determinizations']=K
-    df['nSims']=sims
-    df['Selection Policy']=selection
+    df['Heuristic'] = heuristic
+    df['Determinizations'] = K
+    df['nSims'] = 1000*int(sims[:-1]) if sims.endswith('k') else int(sims if len(sims)>0 else 0)
+    df['Selection Policy'] = selection
 
     return df
 
@@ -107,4 +107,4 @@ def load_dfs(suffix,K,N,heuristic,fpath="./",selection_policy="Greedy Expectimax
             else:
                 raise Exception
 
-    return pd.concat(dfs,axis=0)
+    return pd.concat(dfs,axis=0,ignore_index=True)

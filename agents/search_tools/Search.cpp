@@ -69,7 +69,7 @@ Search::DeterministicNode::DeterministicNode(Search::Node* _parent,Actions::Acti
 
 void Search::DeterministicNode::set_score(double score_fn(Search::Node*)){
     if(!terminal){
-        score = score_fn(this);
+        score = std::min(score_fn(this),1.);
     }
     // if terminal, score should have been instantiated on creation and never change.
 }
@@ -255,7 +255,7 @@ bool Search::StochasticNode::converged(int num_visits){
 
 void Search::StochasticNode::set_score(double score_fn(Search::Node*)){
     if(!terminal){
-        score = score_fn(this);
+        score = std::min(score_fn(this),1.);
     } 
     // If the node is terminal, keep the original game logic assignment of score as 0/1
 }
