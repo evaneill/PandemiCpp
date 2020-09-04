@@ -120,22 +120,22 @@ def generate_value_trend_df(*args):
 	# 
 	# 
 	# initialize an empty dataframe
-	comparison_df = pd.DataFrame(columns=['Turn','n_Cured','nSims','Determinizations','Heuristic','Value Type','Value'])
+	comparison_df = pd.DataFrame(columns=['GameWon','Agent Action','n_Cured','nSims','Determinizations','Heuristic','Value Type','Value'])
 	for df in args:
 		# For each of the 0,5,10,...,90 turns captured in the measurement
 		for i in range(0,95,5):
 			# define a temporary dataframe as a subset of the given one with selected reward as the value
-			col = df[['n_Cured','nSims','Determinizations','Heuristic','Turn'+str(i)+'SelectedReward']] 
-			col.columns = ['n_Cured','nSims','Determinizations','Heuristic','Value'] 
-			col['Turn']=int(i)
+			col = df[['GameWon','n_Cured','nSims','Determinizations','Heuristic','Turn'+str(i)+'SelectedReward']] 
+			col.columns = ['GameWon','n_Cured','nSims','Determinizations','Heuristic','Value'] 
+			col['Agent Action']=int(i)
 			col['Value Type']=str('Selected Reward')
 
 			# Concatenate it with the new empty dataframe
 			comparison_df = pd.concat([comparison_df,col],axis=0) 
 	
-			col = df[['n_Cured','nSims','Determinizations','Heuristic','Turn'+str(i)+'StateEval']] 
-			col.columns = ['n_Cured','nSims','Determinizations','Heuristic','Value'] 
-			col['Turn']=int(i)
+			col = df[['GameWon','n_Cured','nSims','Determinizations','Heuristic','Turn'+str(i)+'StateEval']] 
+			col.columns = ['GameWon','n_Cured','nSims','Determinizations','Heuristic','Value'] 
+			col['Agent Action']=int(i)
 			col['Value Type']=str('State Value')
 
 			# Concatenate it with the new empty dataframe

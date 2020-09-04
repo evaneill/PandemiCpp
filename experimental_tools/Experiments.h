@@ -460,10 +460,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_10k_AStar_CurePrecondition_UCTMaxChildExperiment: public Experiment {
+    class K3_10k_CurePrecondition_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_10k_AStar_CurePrecondition_UCTMaxChildExperiment();
-        ~K3_10k_AStar_CurePrecondition_UCTMaxChildExperiment(){
+        K3_10k_CurePrecondition_UCTMaxChildExperiment();
+        ~K3_10k_CurePrecondition_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -481,10 +481,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
  
-    class K3_50k_AStar_CurePrecondition_UCTMaxChildExperiment: public Experiment {
+    class K3_50k_CurePrecondition_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_50k_AStar_CurePrecondition_UCTMaxChildExperiment();
-        ~K3_50k_AStar_CurePrecondition_UCTMaxChildExperiment(){
+        K3_50k_CurePrecondition_UCTMaxChildExperiment();
+        ~K3_50k_CurePrecondition_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -502,10 +502,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_10k_AStar_CompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_10k_CompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_10k_AStar_CompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_10k_AStar_CompoundHeuristic_UCTMaxChildExperiment(){
+        K3_10k_CompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_10k_CompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -523,10 +523,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_10k_AStar_LossProximity_UCTMaxChildExperiment: public Experiment {
+    class K3_10k_LossProximity_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_10k_AStar_LossProximity_UCTMaxChildExperiment();
-        ~K3_10k_AStar_LossProximity_UCTMaxChildExperiment(){
+        K3_10k_LossProximity_UCTMaxChildExperiment();
+        ~K3_10k_LossProximity_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -544,10 +544,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_50k_AStar_CompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_50k_CompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_50k_AStar_CompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_50k_AStar_CompoundHeuristic_UCTMaxChildExperiment(){
+        K3_50k_CompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_50k_CompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -565,10 +565,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_50k_AStar_LossProximity_UCTMaxChildExperiment: public Experiment {
+    class K3_50k_LossProximity_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_50k_AStar_LossProximity_UCTMaxChildExperiment();
-        ~K3_50k_AStar_LossProximity_UCTMaxChildExperiment(){
+        K3_50k_LossProximity_UCTMaxChildExperiment();
+        ~K3_50k_LossProximity_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -586,10 +586,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K1_10k_AStar_CompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K1_10k_CompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K1_10k_AStar_CompoundHeuristic_UCTMaxChildExperiment();
-        ~K1_10k_AStar_CompoundHeuristic_UCTMaxChildExperiment(){
+        K1_10k_CompoundHeuristic_UCTMaxChildExperiment();
+        ~K1_10k_CompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -607,10 +607,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K1_50k_AStar_CompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K1_50k_CompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K1_50k_AStar_CompoundHeuristic_UCTMaxChildExperiment();
-        ~K1_50k_AStar_CompoundHeuristic_UCTMaxChildExperiment(){
+        K1_50k_CompoundHeuristic_UCTMaxChildExperiment();
+        ~K1_50k_CompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -628,10 +628,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K1_10k_AStar_LossProximity_UCTMaxChildExperiment: public Experiment {
+    class K1_10k_LossProximity_UCTMaxChildExperiment: public Experiment {
     public:
-        K1_10k_AStar_LossProximity_UCTMaxChildExperiment();
-        ~K1_10k_AStar_LossProximity_UCTMaxChildExperiment(){
+        K1_10k_LossProximity_UCTMaxChildExperiment();
+        ~K1_10k_LossProximity_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -649,10 +649,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K1_50k_AStar_LossProximity_UCTMaxChildExperiment: public Experiment {
+    class K1_50k_LossProximity_UCTMaxChildExperiment: public Experiment {
     public:
-        K1_50k_AStar_LossProximity_UCTMaxChildExperiment();
-        ~K1_50k_AStar_LossProximity_UCTMaxChildExperiment(){
+        K1_50k_LossProximity_UCTMaxChildExperiment();
+        ~K1_50k_LossProximity_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -670,10 +670,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K1_10k_AStar_CurePrecondition_UCTMaxChildExperiment: public Experiment {
+    class K1_10k_CurePrecondition_UCTMaxChildExperiment: public Experiment {
     public:
-        K1_10k_AStar_CurePrecondition_UCTMaxChildExperiment();
-        ~K1_10k_AStar_CurePrecondition_UCTMaxChildExperiment(){
+        K1_10k_CurePrecondition_UCTMaxChildExperiment();
+        ~K1_10k_CurePrecondition_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -691,10 +691,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K1_50k_AStar_CurePrecondition_UCTMaxChildExperiment: public Experiment {
+    class K1_50k_CurePrecondition_UCTMaxChildExperiment: public Experiment {
     public:
-        K1_50k_AStar_CurePrecondition_UCTMaxChildExperiment();
-        ~K1_50k_AStar_CurePrecondition_UCTMaxChildExperiment(){
+        K1_50k_CurePrecondition_UCTMaxChildExperiment();
+        ~K1_50k_CurePrecondition_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -712,10 +712,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_50k_AStar_SmartLossProximity_UCTMaxChildExperiment: public Experiment {
+    class K3_50k_SmartLossProximity_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_50k_AStar_SmartLossProximity_UCTMaxChildExperiment();
-        ~K3_50k_AStar_SmartLossProximity_UCTMaxChildExperiment(){
+        K3_50k_SmartLossProximity_UCTMaxChildExperiment();
+        ~K3_50k_SmartLossProximity_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -733,10 +733,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment: public Experiment {
+    class K3_250k_SmartWeightedCompound_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment();
-        ~K3_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment(){
+        K3_250k_SmartWeightedCompound_UCTMaxChildExperiment();
+        ~K3_250k_SmartWeightedCompound_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -754,10 +754,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_50k_AStar_SmartCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_50k_SmartCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_50k_AStar_SmartCompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_50k_AStar_SmartCompoundHeuristic_UCTMaxChildExperiment(){
+        K3_50k_SmartCompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_50k_SmartCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -775,10 +775,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K3_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -817,10 +817,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K1_500_AStar_SmartCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K1_500_SmartCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K1_500_AStar_SmartCompoundHeuristic_UCTMaxChildExperiment();
-        ~K1_500_AStar_SmartCompoundHeuristic_UCTMaxChildExperiment(){
+        K1_500_SmartCompoundHeuristic_UCTMaxChildExperiment();
+        ~K1_500_SmartCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -838,10 +838,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K5_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K5_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K5_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K5_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K5_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K5_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -859,10 +859,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K10_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K10_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K10_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K10_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -880,10 +880,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K20_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K20_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K20_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K20_50k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K20_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K20_50k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -901,10 +901,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K5_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K5_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K5_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K5_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K5_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K5_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -922,10 +922,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K10_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K10_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K10_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K10_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K10_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K10_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -943,10 +943,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K20_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K20_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K20_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K20_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -964,10 +964,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_100k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K3_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_100k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -985,10 +985,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K10_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment: public Experiment {
+    class K10_250k_SmartWeightedCompound_UCTMaxChildExperiment: public Experiment {
     public:
-        K10_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment();
-        ~K10_250k_AStar_SmartWeightedCompound_UCTMaxChildExperiment(){
+        K10_250k_SmartWeightedCompound_UCTMaxChildExperiment();
+        ~K10_250k_SmartWeightedCompound_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -1006,10 +1006,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_500_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_500_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_500_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_500_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K3_500_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_500_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -1027,10 +1027,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_1000_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_1000_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_1000_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_1000_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K3_1000_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_1000_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -1048,10 +1048,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_2000_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_2000_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_2000_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_2000_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K3_2000_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_2000_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -1069,10 +1069,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_5000_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_5000_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_5000_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_5000_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K3_5000_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_5000_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -1090,10 +1090,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_10k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_10k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_10k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_10k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K3_10k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_10k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
@@ -1111,10 +1111,10 @@ namespace Experiments
         void reset_board(Board::Board* game_board);
     };
 
-    class K3_20k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
+    class K3_20k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment: public Experiment {
     public:
-        K3_20k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
-        ~K3_20k_AStar_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
+        K3_20k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment();
+        ~K3_20k_SmartWeightedCompoundHeuristic_UCTMaxChildExperiment(){
             delete scenario;
             for(Measurements::MeasurementConstructor* cons: measureCons){
                 delete cons;
