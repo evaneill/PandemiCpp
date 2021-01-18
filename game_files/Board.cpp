@@ -471,12 +471,20 @@ bool  Board::Board::is_eradicated(int col){
     return eradicated[col];
 }
 
+std::vector<bool>& Board::Board::get_eradicated(){
+    return eradicated;
+}
+
 void Board::Board::Eradicate(int col){
     eradicated[col]=true;
 }
 
 bool Board::Board::is_cured(int col){
     return cured[col];
+}
+
+std::vector<bool>& Board::Board::get_cure_status(){
+    return cured;
 }
 
 void Board::Board::Cure(int col){
@@ -525,6 +533,10 @@ int Board::Board::n_infect_cards(bool top){
 
 bool Board::Board::in_infect_discard(int citycard){
     return infect_deck.in_discard(citycard);
+}
+
+std::vector<std::vector<int>>& Board::Board::get_infectdeck_stack(){
+    return infect_deck.get_deck_stack();
 }
 
 int Board::Board::draw_infectdeck_bottom_inplace(){
@@ -591,6 +603,10 @@ bool Board::Board::disease_count_safe(){
 
 bool Board::Board::player_deck_nonempty(){
     return !player_deck.isempty();
+}
+
+std::vector<int>& Board::Board::get_playerdeck_remaining_cards(){
+    return player_deck.get_remaining_nonepi_cards();
 }
 
 bool Board::Board::outbreak_count_safe(){

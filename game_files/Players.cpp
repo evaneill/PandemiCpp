@@ -67,6 +67,16 @@ void Players::Player::UpdateHand(int drawn_card){
     }
 }
 
+std::vector<int> Players::Player::get_all_cards(){
+    std::vector<int> output = {};
+    output = hand;
+    for(int c : event_cards){
+        output.push_back(c);
+    }
+    std::sort(output.begin(),output.end());
+    return output;
+}
+
 int Players::Player::handsize(){
     return hand.size()+event_cards.size();
 }

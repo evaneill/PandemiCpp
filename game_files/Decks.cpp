@@ -194,6 +194,10 @@ int Decks::PlayerDeck::remaining_cards(){
     return remaining_nonepi_cards.size()+difficulty-epidemics_drawn;
 }
 
+std::vector<int>& Decks::PlayerDeck::get_remaining_nonepi_cards(){
+    return remaining_nonepi_cards;
+}
+
 bool Decks::PlayerDeck::epidemic_possible(){
     // Replicate a little bit of logic from draw_index
     return epidemics_drawn==(difficulty - deck_chunk_sizes.size());
@@ -331,4 +335,8 @@ bool Decks::InfectDeck::in_discard(int citycard){
         }
     }
     return false;
+}
+
+std::vector<std::vector<int>>& Decks::InfectDeck::get_deck_stack(){
+    return deck_stack;
 }

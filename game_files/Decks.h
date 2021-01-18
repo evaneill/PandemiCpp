@@ -66,6 +66,7 @@ namespace Decks
 		// This tracks losing status - very important! Determines winning/losing status.
 		bool isempty();
 		int remaining_cards();
+		std::vector<int>& get_remaining_nonepi_cards();
 
 		// track whether it's possible for the next card to be an epidemic
 		bool epidemic_possible();
@@ -118,6 +119,8 @@ namespace Decks
 		int top_group_size(bool top=true); // number of infect cards in the top infect-card group
 		bool in_discard(int citycard); // whether or not a specific card is in the discard
 		
+		std::vector<std::vector<int>>& get_deck_stack(); // return the deck stack (for hashing rn)
+
 		void readd_discard();
 	};
 

@@ -191,9 +191,11 @@ namespace Board
         void RemoveStation(int station_list_idx);
                 
         bool is_eradicated(int col); // get eradicated status of a disease
+        std::vector<bool>& get_eradicated();
         void Eradicate(int col); // set eradicated status of a disease to true
 
         bool is_cured(int col); // get cured status of given disease
+        std::vector<bool>& get_cure_status();
         void Cure(int color); // Tell the board to cure a disease (shouldn't be necessary but optimizer doesn't like updating status occasionally when told to do so)
 
         std::vector<Players::Player>& get_players();
@@ -209,6 +211,7 @@ namespace Board
 
         bool disease_count_safe();
         bool player_deck_nonempty();
+        std::vector<int>& get_playerdeck_remaining_cards();
         bool outbreak_count_safe();
 
         // Player deck entrypoints
@@ -228,6 +231,7 @@ namespace Board
         int& get_infect_cards_drawn();
         int n_infect_cards(bool top=true); // number of infect cards in the group on top (true) or bottom (false) of infect deck
         bool in_infect_discard(int citycard);
+        std::vector<std::vector<int>>& get_infectdeck_stack(); // infect deck stack
         
         // use it to force breaking in bad logic cases.
         bool& broken();

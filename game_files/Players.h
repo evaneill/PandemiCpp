@@ -90,6 +90,9 @@ namespace Players
         // Update the non-event-card hand with a card denoted by index
         void UpdateHand(int drawn_card);
 
+        // get copy of hand IN ORDER (for hashing right now)
+        std::vector<int> get_all_cards();
+
         // Set the position to a new city
         void set_position(Map::City& new_city);
         void set_position(int new_city); // new_city index
