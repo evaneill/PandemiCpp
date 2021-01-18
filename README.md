@@ -48,6 +48,10 @@ The rules can be found [here](https://images-cdn.zmangames.com/us-east-1/filer_p
 
 - Right now the only search tool (`KDeterminizedGameTree`) requires that stochastic transitions are the same on all branches of the tree. This makes it so it wouldn't work if `Forecast` or `Resilient Population` were implemented, since it means determinizations in different parts of the tree would be different when those cards are used. So would require a new tree!
 
+- Right now the `ActionConstructor`s hold, as part of their logic, whether or not a player should be able to move to their last position or `DoNothing`. This logic should really lie with the `Agent`s instead, as the `GameLogic` should stay as true to the simulated rules as possible. 
+
+- There should be some equality measure between board states to allow for state search. This would rely, to some degree, on an opinionated decision of what elements of the board would designate it as "the same" as another. It would allow for a graph search implementation, though, which could probably do better.
+
 ### Known bugs
 
 When a disease is already cured, infect cards should not result in the placement of that disease at the location of the medic. Right now the logic will still place disease there. I don't suspect this has a significant impact on games, since this circumstance is relatively rare. In addition, once a disease is cured the medic's position will properly be cleared of disease (as well as after each movement action), so this inappropriate placement could only ever be placing a single disease cube on a 0-cube city.
