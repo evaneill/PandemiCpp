@@ -152,23 +152,6 @@ void SanityCheck::CheckBoard(Board::Board& active_board,bool verbose){
         DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
     }
 
-    // Make sure no players position is the same as their last_position (shouldn't be possible by design)
-    if(verbose){
-        DEBUG_MSG(std::endl <<  "[SANITYCHECK] Checking that no player position is their last_position" << std::endl);
-    }
-    for(Players::Player& p: active_board.get_players()){
-        if(p.get_position()==p.get_last_position()){
-            if(verbose){
-                DEBUG_MSG("[SANITYCHECK] ... but " << p.role.name << " is at  " << Map::CITY_NAME(p.get_position()) << " even though their last position is recorded as " << Map::CITIES[p.get_last_position()].name << std::endl);
-            }
-            active_board.broken()=true;
-            active_board.broken_reasons().push_back("[SANITYCHECK] " + p.role.name + " is at  " + Map::CITY_NAME(p.get_position()) + " even though their last position is recorded as " + Map::CITIES[p.get_last_position()].name);
-        }
-    }
-    if(verbose){
-        DEBUG_MSG("[SANITYCHECK] done!" << std::endl);
-    }
-
     // Make sure disease_sum is returning same value as the actual disease tracking array disease_count
     // (this is a very suboptimal sanity check, but my experiments show that even with it, keeping a separate integer tracker reaps small rewards)
     if(verbose){

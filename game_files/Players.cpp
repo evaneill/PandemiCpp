@@ -46,7 +46,6 @@ Players::Player::Player(){
 void Players::Player::reset(){
     // put them back in hotlanta
     position = 3;
-    last_position = -1;
     hand.clear();
     event_cards.clear();
     used_OperationsExpertFlight=false;
@@ -113,10 +112,6 @@ void Players::Player::set_position(int new_city){
     position = new_city;
 };
 
-void Players::Player::reset_last_position(int old_position){
-    last_position=old_position;
-};
-
 void Players::Player::removeCard(int card_to_remove){
     // copying int for the smallest possible optimization - the value isn't used but to decide where to delete
     int hand_idx=0;
@@ -153,10 +148,6 @@ void Players::Player::removeCureCardColor(int col){
 
 int Players::Player::get_position(){
     return position;
-}
-
-int Players::Player::get_last_position(){
-    return last_position;
 }
 
 Players::Role::Role(std::string _name,int req_cure_cards){

@@ -51,8 +51,6 @@ namespace Players
 
         // player position by city index
         int position; 
-
-        int last_position=-1; // Track last position to reduce search
     public:
         Player(int role_id);
         Player();
@@ -66,7 +64,6 @@ namespace Players
         Player(const Player& other){
 
             position = other.position;
-            last_position = other.last_position;
 
             hand.clear();
             for(int c: other.hand){
@@ -96,7 +93,6 @@ namespace Players
         // Set the position to a new city
         void set_position(Map::City& new_city);
         void set_position(int new_city); // new_city index
-        void reset_last_position(int old_position=-1); // Change last_position tracker to old_position (by default remove tracking status)
 
         // Whether or not the player currently has _ABOVE_ hand limit
         bool hand_full();
@@ -111,7 +107,6 @@ namespace Players
 
         // Return the city representing current position
         int get_position();
-        int get_last_position();
 
         // To track whether or not they've jumped from a research station to somewhere else
         // <DANGER!> Relies on game logic to use properly ONLY for operations expert.

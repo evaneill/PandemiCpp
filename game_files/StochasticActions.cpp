@@ -256,11 +256,6 @@ void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
 
             // Increment the player turn by 1 (in a cyclic way)
             game_board.get_turn() = (game_board.get_turn() + 1) % game_board.get_players().size();
-
-            // Reset player position memory
-            for(Players::Player& p : game_board.get_players()){
-                p.reset_last_position();
-            }
             
             // reset the next players "operations expert flight" boolean just in case
             game_board.active_player().used_OperationsExpertFlight=false;
@@ -283,11 +278,6 @@ void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
 
         // reset the next players "operations expert flight" boolean just in case
         game_board.active_player().used_OperationsExpertFlight=false;
-
-        // Reset player position memory
-        for(Players::Player& p : game_board.get_players()){
-            p.reset_last_position();
-        }
 
         // reset quiet_night status
         game_board.quiet_night_status()=false;
