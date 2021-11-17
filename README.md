@@ -47,8 +47,6 @@ The rules can be found [here](https://images-cdn.zmangames.com/us-east-1/filer_p
 
 - Right now the only search tool (`KDeterminizedGameTree`) requires that stochastic transitions are the same on all branches of the tree. This makes it so it wouldn't work if `Forecast` or `Resilient Population` were implemented, since it means determinizations in different parts of the tree would be different when those cards are used. So would require a new tree!
 
-- Right now the `ActionConstructor`s hold, as part of their logic, whether or not a player should be able to move to their last position or `DoNothing`. This logic should really lie with the `Agent`s instead, as the `GameLogic` should stay as true to the simulated rules as possible. 
-
 - There should be some equality measure between board states to allow for state search. This would rely, to some degree, on an opinionated decision of what elements of the board would designate it as "the same" as another. It would allow for a graph search implementation, though, which could probably do better.
 
 ### Known bugs
