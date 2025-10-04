@@ -80,6 +80,20 @@ int Players::Player::handsize(){
     return hand.size()+event_cards.size();
 }
 
+bool Players::Player::hasCard(int card){
+    for(int& c : hand){
+        if(c==card){
+            return true;
+        }
+    }
+    for(int& c: event_cards){
+        if(c==card){
+            return true;
+        }
+    }
+    return false;
+}
+
 std::array<int,4> Players::Player::get_color_count(){
     int BLUE_count=0,YELLOW_count=0,BLACK_count=0,RED_count=0;
     for(int& card: hand){

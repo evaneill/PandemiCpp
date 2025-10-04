@@ -19,6 +19,7 @@ namespace StochasticActions
         std::string strrep="";
     public:
         PlayerCardDrawAction(int card);
+        ~PlayerCardDrawAction();
         
         void execute(Board::Board& game_board);
 
@@ -36,6 +37,7 @@ namespace StochasticActions
         std::string strrep="";
     public:
         EpidemicDrawAction(int _epidemic_card,int _infect_card_drawn);
+        ~EpidemicDrawAction();
 
         void execute(Board::Board& game_board);
 
@@ -46,6 +48,7 @@ namespace StochasticActions
     class PlayerDeckEmptyAction: public Actions::Action{
     public:
         PlayerDeckEmptyAction();
+        ~PlayerDeckEmptyAction();
 
         void execute(Board::Board& game_board);
 
@@ -66,6 +69,7 @@ namespace StochasticActions
         std::array<int,2> outbreak_track;
     public:
         InfectDeckDrawAction(int card);
+        ~InfectDeckDrawAction();
 
         void execute(Board::Board& game_board);
 
@@ -74,8 +78,13 @@ namespace StochasticActions
 
     class PlayerDeckDrawActionConstructor: public Actions::ActionConstructor{
         const std::string movetype = "PLAYERDRAW"; 
+
+        std::array<StochasticActions::PlayerCardDrawAction*,48> cardDrawActions;
+        std::array<std::array<StochasticActions::EpidemicDrawAction*,6>,48> epidemicDrawActions;
+        StochasticActions::PlayerDeckEmptyAction* playerDeckEmptyAction;
     public:
         PlayerDeckDrawActionConstructor();
+        ~PlayerDeckDrawActionConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -88,9 +97,11 @@ namespace StochasticActions
     };
 
     class InfectDeckDrawActionConstructor: public Actions::ActionConstructor{
-        const std::string movetype = "INFECTDRAW"; 
+        const std::string movetype = "INFECTDRAW";
+        std::array<StochasticActions::InfectDeckDrawAction*,48> actionMap;
     public:
         InfectDeckDrawActionConstructor();
+        ~InfectDeckDrawActionConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -105,9 +116,10 @@ namespace StochasticActions
     class StochasticActionConstructor{
     public:
         StochasticActionConstructor();
+        ~StochasticActionConstructor();
 
-        InfectDeckDrawActionConstructor infect_draw_con;
-        PlayerDeckDrawActionConstructor player_draw_con;
+        InfectDeckDrawActionConstructor* infect_draw_con;
+        PlayerDeckDrawActionConstructor*  player_draw_con;
 
         // We do still want the constructor to give either an InfectDraw or PlayerDraw action to GameLogic
         Actions::Action* get_action(Board::Board& game_board);

@@ -67,7 +67,7 @@ namespace Actions
         int to;
     public:
         Move(int _to);
-        ~Move(){};
+        ~Move();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
@@ -77,7 +77,7 @@ namespace Actions
         int citycard_index; // card to discard
     public:
         DirectFlight(int city_index); // instantiate with index in hand (useful for randomization)
-        ~DirectFlight(){};
+        ~DirectFlight();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
@@ -87,7 +87,7 @@ namespace Actions
         int target_city;
     public:
         CharterFlight( int _target_city);
-        ~CharterFlight(){};
+        ~CharterFlight();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
@@ -97,7 +97,7 @@ namespace Actions
         int target_station_city_idx;
     public:
         ShuttleFlight( int _target_station);
-        ~ShuttleFlight(){};
+        ~ShuttleFlight();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
@@ -106,10 +106,10 @@ namespace Actions
     // (Like shuttle flight, but to ANY city)
     class OperationsExpertFlight: public Action{
         int target_city;
-        int discard_card_card_idx;
+        int discard_card;
     public:
-        OperationsExpertFlight( int _target_city,int _discard_city_idx);
-        ~OperationsExpertFlight(){};
+        OperationsExpertFlight(int _target_city,int _discard_card);
+        ~OperationsExpertFlight();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
@@ -122,7 +122,7 @@ namespace Actions
         int place_station;
     public:
         Build( int place_station,int _remove_station=-1);
-        ~Build(){};
+        ~Build();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     }; 
@@ -132,8 +132,8 @@ namespace Actions
         int color; // color to target
         int n_treated=-1; // To be set on execute() for repr() 
     public:
-        Treat( int _color);
-        ~Treat(){};
+        Treat(int _color);
+        ~Treat();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
@@ -144,29 +144,29 @@ namespace Actions
         int color_cured =-1; // to be set on execute() for repr()
     public:
         Cure();
-        ~Cure(){};
+        ~Cure();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
 
     // ===== Give ===== 
     class Give: public Action{
-        Players::Player other_player;
+        int other_player_turn;
         int card_to_give_city_idx;
     public:
-        Give( Players::Player _other_player, int _card_to_give_cityidx);
-        ~Give(){};
+        Give(int _other_player_turn, int _card_to_give_cityidx);
+        ~Give();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
 
     // ===== Take ===== 
     class Take: public Action{
-        Players::Player other_player;
+        int other_player;
         int card_to_take_city_idx;
     public:
-        Take( Players::Player _other_player, int _card_to_take_city_idx);
-        ~Take(){};
+        Take(int _other_player, int _card_to_take_city_idx);
+        ~Take();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
@@ -174,11 +174,11 @@ namespace Actions
     // ===== EVENT CARD ACTIONS =====
     // ===== Airlift ===== 
     class Airlift: public Action{
-        Players::Player target_player; // Player to move
-        Players::Player using_player;
+        int target_player; // turn order position of Player to move
         int target_city; // City to move active 
     public:
-        Airlift( Players::Player _using_player,Players::Player _target_player,int _target_city);
+        Airlift(int _target_player,int _target_city);
+        ~Airlift();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
@@ -186,21 +186,19 @@ namespace Actions
     // ===== Government Grant ===== 
     class GovernmentGrant: public Action{
         int target_city;
-        Players::Player using_player;
         int remove_station;
     public:
-        GovernmentGrant( Players::Player _using_player,int _target_city,int _remove_station=-1);
-        ~GovernmentGrant(){};
+        GovernmentGrant(int _target_city,int _remove_station=-1);
+        ~GovernmentGrant();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
 
     // ===== Quiet Night ===== 
     class QuietNight: public Action{
-        Players::Player using_player;
     public:
-        QuietNight( Players::Player _using_player);
-        ~QuietNight(){};
+        QuietNight();
+        ~QuietNight();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
@@ -208,10 +206,9 @@ namespace Actions
     // ===== Forced Discard Action 
     class ForcedDiscardAction: public Actions::Action{
     int discard_card_index;
-    Players::Player player_to_discard;
     public:
-        ForcedDiscardAction( Players::Player player_to_discard,int _discard_card_index);
-        ~ForcedDiscardAction(){};
+        ForcedDiscardAction(int _discard_card_index);
+        ~ForcedDiscardAction();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr();
     };
@@ -222,7 +219,7 @@ namespace Actions
     class DoNothing: public Action{
     public:
         DoNothing();
-        ~DoNothing(){};
+        ~DoNothing();
         void execute(Board::Board& new_board); // To execute on a given board
         std::string repr(); // to yield a string representation for logging
     };
@@ -230,12 +227,8 @@ namespace Actions
     //This is an object that can instantiate any of a class of actions, using legal arguments.
     class ActionConstructor{
     public:
-
-        // Base Constructor methods are all pure virtual - REQUIRES child to be defined. Good b/c this class should never be called.
-        
         // Get a representation
         virtual std::string get_movetype()=0;
-        
         virtual ~ActionConstructor(){};
 
         // how many legal actions there are
@@ -248,9 +241,10 @@ namespace Actions
     // ===== PLAYER ACTION CONSTRUCTORS =====
     class MoveConstructor: public ActionConstructor{
         const std::string movetype = "MOVE"; // technically "Drive/Ferry"
+        std::array<Actions::Move*,48> actionMap;
     public:
         MoveConstructor();
-        ~MoveConstructor(){};
+        ~MoveConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -264,9 +258,10 @@ namespace Actions
 
     class DirectFlightConstructor: public ActionConstructor{
         const std::string movetype = "DIRECTFLIGHT";
+        std::array<Actions::DirectFlight*,48> actionMap;
     public:
         DirectFlightConstructor();
-        ~DirectFlightConstructor(){};
+        ~DirectFlightConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -281,9 +276,10 @@ namespace Actions
     class CharterFlightConstructor: public ActionConstructor{
         const std::string movetype = "CHARTERFLIGHT";
         // If available, always 47 actions: one for each city to fly to that's not the player's current one.
+        std::array<Actions::CharterFlight*,48> actionMap;
     public:
         CharterFlightConstructor();
-        ~CharterFlightConstructor(){};
+        ~CharterFlightConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -298,9 +294,10 @@ namespace Actions
     class ShuttleFlightConstructor: public ActionConstructor{
         const std::string movetype = "SHUTTLEFLIGHT";
         // If it's legal we can move to any of the other research stations
+        std::array<Actions::ShuttleFlight*,48> actionMap;
     public:
         ShuttleFlightConstructor();
-        ~ShuttleFlightConstructor(){};
+        ~ShuttleFlightConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -315,9 +312,10 @@ namespace Actions
     class OperationsExpertFlightConstructor: public ActionConstructor{
         const std::string movetype = "OPERATIONSEXPERTFLIGHT";
         // If it's legal we can move to any of the other research stations
+        std::array<std::array<Actions::OperationsExpertFlight*,48>,48> actionMap;
     public:
         OperationsExpertFlightConstructor();
-        ~OperationsExpertFlightConstructor(){};
+        ~OperationsExpertFlightConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -332,9 +330,10 @@ namespace Actions
     class BuildConstructor: public ActionConstructor{
         const std::string movetype = "BUILD";
         // If it's legal we can build a research station at the position of the current player.
+        std::array<std::array<Actions::Build*,49>,48> actionMap;
     public:
         BuildConstructor();
-        ~BuildConstructor(){};
+        ~BuildConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -348,9 +347,10 @@ namespace Actions
 
     class TreatConstructor: public ActionConstructor{
         const std::string movetype = "TREAT";
+        std::array<Actions::Treat*,4> actionMap;
     public:
         TreatConstructor();
-        ~TreatConstructor(){};
+        ~TreatConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -364,9 +364,10 @@ namespace Actions
 
     class CureConstructor: public ActionConstructor{
         const std::string movetype = "CURE";
+        Actions::Cure* cureAction;
     public:
         CureConstructor();
-        ~CureConstructor(){};
+        ~CureConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -380,9 +381,10 @@ namespace Actions
 
     class GiveConstructor: public ActionConstructor{
         const std::string movetype = "GIVE";
+        std::array<std::array<Actions::Give*,48>,5> actionMap;
     public:
         GiveConstructor();
-        ~GiveConstructor(){};
+        ~GiveConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -396,9 +398,10 @@ namespace Actions
 
     class TakeConstructor: public ActionConstructor{
         const std::string movetype = "TAKE";
+        std::array<std::array<Actions::Take*,48>,5> actionMap;
     public:
         TakeConstructor();
-        ~TakeConstructor(){};
+        ~TakeConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -415,9 +418,10 @@ namespace Actions
     
     class AirliftConstructor: public ActionConstructor{
         const std::string movetype = "AIRLIFT";
+        std::array<std::array<Actions::Airlift*,48>,5> actionMap;
     public:
         AirliftConstructor();
-        ~AirliftConstructor(){};
+        ~AirliftConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -431,9 +435,10 @@ namespace Actions
 
     class GovernmentGrantConstructor: public ActionConstructor{
         const std::string movetype = "GOVERNMENTGRANT";
+        std::array<std::array<Actions::GovernmentGrant*,49>,48> actionMap;
     public:
         GovernmentGrantConstructor();
-        ~GovernmentGrantConstructor(){};
+        ~GovernmentGrantConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -447,9 +452,10 @@ namespace Actions
 
     class QuietNightConstructor: public ActionConstructor{
         const std::string movetype = "QUIETNIGHT";
+        Actions::QuietNight* quietNightAction;
     public:
         QuietNightConstructor();
-        ~QuietNightConstructor(){};
+        ~QuietNightConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -464,9 +470,12 @@ namespace Actions
     // ===== DO NOTHING CONSTRUCTOR =====
     class DoNothingConstructor: public ActionConstructor{
         const std::string movetype = "DONOTHING";
+        
+        // Pointer to an existing doNothing Action
+        Actions::Action* doNothingAction;
     public:
         DoNothingConstructor();
-        ~DoNothingConstructor(){};
+        ~DoNothingConstructor();
 
         // Get a representation
         std::string get_movetype();
@@ -482,9 +491,16 @@ namespace Actions
 
     class ForcedDiscardConstructor: public Actions::ActionConstructor{
         const std::string movetype = "FORCEDDISCARD";
+
+        std::vector<Actions::ForcedDiscardAction*> discardActions;
+
+        // Also keep constructors for the event card actions, in case those are used in lieu of discard
+        Actions::QuietNightConstructor* quietNightConstructor;
+        Actions::GovernmentGrantConstructor* governmentGrantConstructor;
+        Actions::AirliftConstructor* airliftConstructor;
     public:
         ForcedDiscardConstructor();
-        ~ForcedDiscardConstructor(){};
+        ~ForcedDiscardConstructor();
 
         // Get a representation
         std::string get_movetype();

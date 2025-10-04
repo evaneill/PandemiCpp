@@ -11,6 +11,10 @@
 
 namespace Decks
 {
+	const inline int QUIETNIGHT = 48;
+	const inline int GOVERNMENTGRANT = 49;
+	const inline int AIRLIFT = 50;
+
 	// Utility
 	std::string CARD_NAME(int card_index);
 	int CARD_COLOR(int card_index);

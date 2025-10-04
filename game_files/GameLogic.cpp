@@ -9,52 +9,102 @@
 
 #include "../agents/Heuristics.h"
 
-GameLogic::Game::Game(bool verbose): 
-    // Initiate constructors
-    MoveCon(),
-    DirectFlightCon(),
-    CharterFlightCon(),
-    ShuttleFlightCon(),
-    OperationsExpertFlightCon(),
-    BuildCon(),
-    TreatCon(),
-    CureCon(),
-    GiveCon(),
-    TakeCon(),
+GameLogic::Game::Game(bool verbose){
+        // Initiate constructors
+        MoveCon = new Actions::MoveConstructor();
+        DirectFlightCon = new Actions::DirectFlightConstructor();
+        CharterFlightCon = new Actions::CharterFlightConstructor();
+        ShuttleFlightCon = new Actions::ShuttleFlightConstructor();
+        OperationsExpertFlightCon = new Actions::OperationsExpertFlightConstructor();
+        BuildCon = new Actions::BuildConstructor();
+        TreatCon = new Actions::TreatConstructor();
+        CureCon = new Actions::CureConstructor();
+        GiveCon = new Actions::GiveConstructor();
+        TakeCon = new Actions::TakeConstructor();
+        DoNothingCon = new Actions::DoNothingConstructor();
+        
+        AirliftCon = new Actions::AirliftConstructor();
+        GovernmentGrantCon = new Actions::GovernmentGrantConstructor();
+        QuietNightCon = new Actions::QuietNightConstructor();
+        
+        // Instantiate the list of references to the constructors
+        // (purely for algorithmic nicety)
+        PlayerConstructorList={
+            MoveCon,
+            DirectFlightCon,
+            CharterFlightCon,
+            ShuttleFlightCon,
+            OperationsExpertFlightCon,
+            BuildCon,
+            TreatCon,
+            CureCon,
+            GiveCon,
+            TakeCon,
+            AirliftCon,
+            GovernmentGrantCon,
+            QuietNightCon
+        };
 
-    DoNothingCon(), // (will be treated a little differently than other player actions)
-
-    // Do the same with the forced discard constructor
-    ForcedDiscardCon(),
-
-    // Do the same with event card action constructors
-    AirliftCon(),
-    GovernmentGrantCon(),
-    QuietNightCon(),
-    
-    // Instantiate the list of references to the constructors
-    // (purely for algorithmic nicety)
-    PlayerConstructorList({
-            &MoveCon,
-            &DirectFlightCon,
-            &CharterFlightCon,
-            &ShuttleFlightCon,
-            &OperationsExpertFlightCon,
-            &BuildCon,
-            &TreatCon,
-            &CureCon,
-            &GiveCon,
-            &TakeCon,
-            &AirliftCon,
-            &GovernmentGrantCon,
-            &QuietNightCon}),
-
-    // Instantiate the stochastic action constructor
-    StochasticCon()
-    {
+        ForcedDiscardCon = new Actions::ForcedDiscardConstructor();
+        
+        StochasticCon = new StochasticActions::StochasticActionConstructor();
         if(verbose){
             DEBUG_MSG("[Game::Game(...)] Instantiating Game Logic..." << std::endl);
         }
+}
+
+GameLogic::Game::~Game(){
+    if(active_board){
+        delete active_board;
+    }
+    if(MoveCon){
+        delete MoveCon;
+    }
+    if(DirectFlightCon){
+        delete DirectFlightCon;
+    }
+    if(CharterFlightCon){
+        delete CharterFlightCon;
+    }
+    if(ShuttleFlightCon){
+        delete ShuttleFlightCon;
+    }
+    if(OperationsExpertFlightCon){
+        delete OperationsExpertFlightCon;
+    }
+    if(BuildCon){
+        delete BuildCon;
+    }
+    if(TreatCon){
+        delete TreatCon;
+    }
+    if(CureCon){
+        delete CureCon;
+    }
+    if(GiveCon){
+        delete GiveCon;
+    }
+    if(TakeCon){
+        delete TakeCon;
+    }
+    if(DoNothingCon){
+        delete DoNothingCon;
+    }
+    if(AirliftCon){
+        delete AirliftCon;
+    }
+    if(GovernmentGrantCon){
+        delete GovernmentGrantCon;
+    }
+    if(QuietNightCon){
+        delete QuietNightCon;
+    }
+    if(ForcedDiscardCon){
+        delete ForcedDiscardCon;
+    }
+    if(StochasticCon){
+        delete StochasticCon;
+    }
 }
 
 void GameLogic::Game::reset_board(Board::Board* new_board){
@@ -73,7 +123,7 @@ bool GameLogic::Game::hasBoard(){
 }
 
 Actions::Action* GameLogic::Game::get_stochastic_action(Board::Board& game_board){
-    return StochasticCon.get_action(game_board);
+    return StochasticCon -> get_action(game_board);
 }
 
 void GameLogic::Game::nonplayer_actions(bool verbose){
@@ -101,13 +151,11 @@ void GameLogic::Game::nonplayer_actions(Board::Board& game_board,bool verbose){
         if(verbose && (!was_quiet_night || game_board.get_turn_action()==4 || (game_board.get_turn_action()==5 && game_board.get_infect_cards_drawn()==0))){
             DEBUG_MSG("[Game::nonplayer_actions()] " << player_name << ": " << next_action -> repr() << std::endl);
         }
-
-        delete next_action;
     }
 }
 
 Actions::Action* GameLogic::Game::get_random_action_uniform(bool verbose){
-    return get_random_action_uniform(*active_board);
+    return get_random_action_uniform(*active_board,verbose);
 }
 
 Actions::Action* GameLogic::Game::get_random_action_uniform(Board::Board& game_board, bool verbose){
@@ -129,14 +177,14 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(Board::Board& game_b
         DEBUG_MSG(" (color count BLUE: "<<game_board.active_player().get_color_count()[Map::BLUE]<< ", YELLOW: " << game_board.active_player().get_color_count()[Map::YELLOW] << ", BLACK: " << game_board.active_player().get_color_count()[Map::BLACK] << ", RED: " << game_board.active_player().get_color_count()[Map::RED] << ")");
         DEBUG_MSG(std::endl);
     }
-    if(ForcedDiscardCon.legal(game_board)){
+    if(ForcedDiscardCon -> legal(game_board)){
         // ALWAYS return a choice of discard actions if it's possible.
         // Includes possible plays of event cards
-        return ForcedDiscardCon.random_action(game_board);
+        return ForcedDiscardCon -> random_action(game_board);
     }
 
     // For hard rollouts - always return cure in the case that the board is "not that bad"
-    if(CureCon.legal(game_board)){
+    if(CureCon -> legal(game_board)){
         // If no disease has >=18 cubes on the board
         if(game_board.disease_sum(Map::BLUE)<18 && game_board.disease_sum(Map::YELLOW)<18 && game_board.disease_sum(Map::BLACK)<18 && game_board.disease_sum(Map::RED)<18){
             // And theres <=3 outbreaks
@@ -145,7 +193,7 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(Board::Board& game_b
                 if(verbose){
                     DEBUG_MSG("[Game::get_random_action_uniform()] Returning Cure since it's available and the board doesn't need a lot of attention (hard rollout criterion)");
                 }
-                return CureCon.random_action(game_board);
+                return CureCon -> random_action(game_board);
             }
         }
     }
@@ -174,8 +222,8 @@ Actions::Action* GameLogic::Game::get_random_action_uniform(Board::Board& game_b
         }
     }
     // If you can get through all the "potentially relevant" actions and still have 1 left over, then it was meant to be that we'll do nothing instead
-    if(randomized<=DoNothingCon.n_actions(game_board)){
-        return DoNothingCon.random_action(game_board);
+    if(randomized<=DoNothingCon -> n_actions(game_board)){
+        return DoNothingCon -> random_action(game_board);
     }
     // If there's still stuff left over then there's a problem...
     if(verbose){
@@ -194,14 +242,14 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(Board::Board& game_b
     // Goal is to choose FIRST uniformly over _types_ of actions
     // Then choose uniformly among legal actions of that type
 
-    if(ForcedDiscardCon.legal(game_board)){
+    if(ForcedDiscardCon -> legal(game_board)){
         // ALWAYS return a choice of discard actions if it's possible.
         // Includes possible plays of event cards
-        return ForcedDiscardCon.random_action(game_board);
+        return ForcedDiscardCon -> random_action(game_board);
     }
 
     // For hard rollouts - always return cure in the case that the board is "not that bad"
-    if(CureCon.legal(game_board)){
+    if(CureCon -> legal(game_board)){
         // If no disease has >=18 cubes on the board
         if(game_board.disease_sum(Map::BLUE)<18 && game_board.disease_sum(Map::YELLOW)<18 && game_board.disease_sum(Map::BLACK)<18 && game_board.disease_sum(Map::RED)<18){
             // And theres <=3 outbreaks
@@ -210,7 +258,7 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(Board::Board& game_b
                 if(verbose){
                     DEBUG_MSG("[Game::get_random_action_bygroup()] Returning Cure since it's available and the board doesn't need a lot of attention (hard rollout criterion)");
                 }
-                return CureCon.random_action(game_board);
+                return CureCon -> random_action(game_board);
             }
         }
     }
@@ -228,9 +276,9 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(Board::Board& game_b
     }
 
     int max_n_actions =PlayerConstructorList.size();
-    if(!TreatCon.legal(game_board) && !CureCon.legal(game_board)){
+    if(!TreatCon -> legal(game_board) && !CureCon -> legal(game_board)){
         // If neither treat nor cure is an option then it's possible that game logic will consider do nothing as an action
-        if(DoNothingCon.legal(game_board)){
+        if(DoNothingCon -> legal(game_board)){
             max_n_actions++;
         }
     }
@@ -244,9 +292,9 @@ Actions::Action* GameLogic::Game::get_random_action_bygroup(Board::Board& game_b
         if(randomized==PlayerConstructorList.size()){
             // if we landed on the DoNothingConstructor, which is outside of the PlayerConstructorList, choose that
             if(verbose){
-                DEBUG_MSG(DoNothingCon.get_movetype() << ")" <<std::endl);
+                DEBUG_MSG(DoNothingCon -> get_movetype() << ")" <<std::endl);
             }
-            return DoNothingCon.random_action(game_board);
+            return DoNothingCon -> random_action(game_board);
         } else if(PlayerConstructorList[randomized] -> legal(game_board)){
             // otherwise, if the constructor we landed on is legal, do that
             if(verbose){
@@ -268,16 +316,16 @@ int GameLogic::Game::n_available_actions(bool verbose){
 }
 
 int GameLogic::Game::n_available_actions(Board::Board& game_board, bool verbose){
-    if(ForcedDiscardCon.legal(game_board)){
-        return ForcedDiscardCon.n_actions(game_board);
+    if(ForcedDiscardCon -> legal(game_board)){
+        return ForcedDiscardCon -> n_actions(game_board);
     }
     int total_actions=0;
     for(Actions::ActionConstructor* con_ptr: PlayerConstructorList){
         total_actions+=(con_ptr -> n_actions(game_board));
     }
-    if(!TreatCon.legal(game_board) && !CureCon.legal(game_board)){
-        if(DoNothingCon.legal(game_board)){
-            total_actions+=DoNothingCon.n_actions(game_board);
+    if(!TreatCon -> legal(game_board) && !CureCon -> legal(game_board)){
+        if(DoNothingCon -> legal(game_board)){
+            total_actions+=DoNothingCon -> n_actions(game_board);
         }
     }
     return  total_actions;
@@ -288,10 +336,10 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(bool verbose){
 }
 
 std::vector<Actions::Action*> GameLogic::Game::list_actions(Board::Board& game_board,bool verbose){
-    if(ForcedDiscardCon.legal(game_board)){
+    if(ForcedDiscardCon -> legal(game_board)){
         // ALWAYS return a choice of discard actions if it's possible.
         // Includes possible plays of event cards
-        return ForcedDiscardCon.all_actions(game_board);
+        return ForcedDiscardCon -> all_actions(game_board);
     }
 
     // If the logic has reached this point, then we're just letting the player (agent) play. Return action options.
@@ -311,14 +359,14 @@ std::vector<Actions::Action*> GameLogic::Game::list_actions(Board::Board& game_b
     // Only put DoNothing in action list if you can't cure or treat
     // (And if so then push it deepest down in the action list)
     if(verbose){
-        DEBUG_MSG(std::endl << "[Game::list_actions()] considering movetype " << DoNothingCon.get_movetype() << "...");
+        DEBUG_MSG(std::endl << "[Game::list_actions()] considering movetype " << DoNothingCon -> get_movetype() << "...");
     }
-    if(!TreatCon.legal(game_board) && !CureCon.legal(game_board)){
+    if(!TreatCon -> legal(game_board) && !CureCon -> legal(game_board)){
         if(verbose){
-            DEBUG_MSG("it's legal! There are " << DoNothingCon.n_actions(game_board) << " possible actions.");
+            DEBUG_MSG("it's legal! There are " << DoNothingCon -> n_actions(game_board) << " possible actions.");
         }
-        if(DoNothingCon.legal(game_board)){
-            full_out.push_back(DoNothingCon.random_action(game_board));
+        if(DoNothingCon -> legal(game_board)){
+            full_out.push_back(DoNothingCon -> random_action(game_board));
         }
     }
 
@@ -346,7 +394,7 @@ void GameLogic::Game::applyAction(Actions::Action* action){
 
 bool GameLogic::Game::is_stochastic(Board::Board& game_board){
     // It's a stochastic state if (1) it's a stochastic phase of the game, (2) Forced discard isn't required, and (3) game hasn't ended
-    return StochasticCon.legal(game_board) && !ForcedDiscardCon.legal(game_board) && !is_terminal(game_board);
+    return StochasticCon -> legal(game_board) && !ForcedDiscardCon -> legal(game_board) && !is_terminal(game_board);
 }
 
 bool GameLogic::Game::is_terminal(bool sanity_check,bool verbose){
@@ -410,7 +458,6 @@ double GameLogic::Game::rollout(Board::Board& game_board,Heuristics::Heuristic h
         if(!is_terminal(game_board)){
             Actions::Action* random_action = get_random_action_bygroup(game_board);
             random_action -> execute(game_board);
-            delete random_action;
         }
     }
     // once the game has ended, use the heuristic to evaluate it
@@ -468,11 +515,6 @@ double GameLogic::Game::epsgreedy_heuristic_rollout(Board::Board& game_board, do
 
             // use the "best action" to advance the board
             best_action -> execute(game_board);
-
-            // Lastly delete everything to avoid a fat memory leak
-            for(Actions::Action* act : all_actions){
-                delete act;
-            }
         }
     }
     return eval_heuristic(game_board);

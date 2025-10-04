@@ -14,6 +14,10 @@ StochasticActions::PlayerCardDrawAction::PlayerCardDrawAction(int card):
         movetype = "PLAYERDRAW";
     }
 
+StochasticActions::PlayerCardDrawAction::~PlayerCardDrawAction(){
+    delete &card_drawn;
+}
+
 void StochasticActions::PlayerCardDrawAction::execute(Board::Board& game_board){
 
     game_board.updatePlayerDeck(card_drawn);
@@ -27,8 +31,8 @@ void StochasticActions::PlayerCardDrawAction::execute(Board::Board& game_board){
         // Or insert the the event card
         active_player.UpdateHand(card_drawn);
     } else {
-        game_board. broken() = true;
-        game_board. broken_reasons().push_back("[StochasticActions::PlayerCardDrawAction()] drew unidentifiable card (index: " + std::to_string(card_drawn) + ", name: " + Decks::CARD_NAME(card_drawn) +  ", color: " +std::to_string(Decks::CARD_COLOR(card_drawn))+")");
+        game_board.broken() = true;
+        game_board.broken_reasons().push_back("[StochasticActions::PlayerCardDrawAction()] drew unidentifiable card (index: " + std::to_string(card_drawn) + ", name: " + Decks::CARD_NAME(card_drawn) +  ", color: " +std::to_string(Decks::CARD_COLOR(card_drawn))+")");
     }
 
     // If one player card was already drawn before this, then we've just drawn the second and we increment the game state
@@ -69,6 +73,11 @@ StochasticActions::EpidemicDrawAction::EpidemicDrawAction(int _epidemic_card,int
     {
         movetype = "PLAYERDRAW: EPIDEMIC";
     }
+
+StochasticActions::EpidemicDrawAction::~EpidemicDrawAction(){
+    delete &epidemic_card;
+    delete &infect_card_drawn;
+}
 
 void StochasticActions::EpidemicDrawAction::execute(Board::Board& game_board){
     
@@ -130,6 +139,8 @@ StochasticActions::PlayerDeckEmptyAction::PlayerDeckEmptyAction()
         movetype = "PLAYERDRAW: DECK EMPTY";
     }
 
+StochasticActions::PlayerDeckEmptyAction::~PlayerDeckEmptyAction(){}
+
 void StochasticActions::PlayerDeckEmptyAction::execute(Board::Board& game_board){
     game_board.has_lost()=true;
     game_board.get_lost_reason()="Ran out of player cards!";
@@ -142,7 +153,25 @@ std::string StochasticActions::PlayerDeckEmptyAction::repr(){
 
 // ===== Player Card draw constructor =====
 
-StochasticActions::PlayerDeckDrawActionConstructor::PlayerDeckDrawActionConstructor(){}
+StochasticActions::PlayerDeckDrawActionConstructor::PlayerDeckDrawActionConstructor(){
+    playerDeckEmptyAction = new StochasticActions::PlayerDeckEmptyAction();
+    for(int card=0;card<48+3;card++){
+        cardDrawActions[card] = new StochasticActions::PlayerCardDrawAction(card);
+        for(int epi_id=51;epi_id<=51+6;epi_id++){
+            epidemicDrawActions[card][epi_id-51] = new StochasticActions::EpidemicDrawAction(epi_id,card);
+        }   
+    }
+}
+
+StochasticActions::PlayerDeckDrawActionConstructor::~PlayerDeckDrawActionConstructor(){
+    delete playerDeckEmptyAction;
+    for(int card=0;card<48+3;card++){
+        delete cardDrawActions[card];
+        for(int count=1;count<=6;count++){
+            delete epidemicDrawActions[card][count];
+        }   
+    }
+}
 
 std::string StochasticActions::PlayerDeckDrawActionConstructor::get_movetype(){
     return movetype;
@@ -167,12 +196,12 @@ Actions::Action* StochasticActions::PlayerDeckDrawActionConstructor::random_acti
         int card = game_board.draw_playerdeck_inplace();
         if(Decks::IS_EPIDEMIC(card)){
             int infected_city = game_board.draw_infectdeck_bottom_inplace();
-            return new EpidemicDrawAction(card,infected_city);
+            return epidemicDrawActions[infected_city][card-51];
         } else {
-            return new PlayerCardDrawAction(card);
+            return cardDrawActions[card];
         }
     }  else {
-        return new PlayerDeckEmptyAction();
+        return playerDeckEmptyAction;
     }
 }
 
@@ -204,6 +233,11 @@ StochasticActions::InfectDeckDrawAction::InfectDeckDrawAction(int card):
     card_drawn(card){
         movetype = "INFECTDRAW";
     }
+
+StochasticActions::InfectDeckDrawAction::~InfectDeckDrawAction(){
+    delete &outbreak_track;
+    delete &card_drawn;
+}
 
 void StochasticActions::InfectDeckDrawAction::execute(Board::Board& game_board){
     // If it's not quiet night
@@ -296,7 +330,17 @@ std::string StochasticActions::InfectDeckDrawAction::repr(){
 
 // ===== INFECT draw action constructor =====
 
-StochasticActions::InfectDeckDrawActionConstructor::InfectDeckDrawActionConstructor(){}
+StochasticActions::InfectDeckDrawActionConstructor::InfectDeckDrawActionConstructor(){
+    for(int city=0;city<48;city++){
+        actionMap[city] = new StochasticActions::InfectDeckDrawAction(city);
+    }
+}
+
+StochasticActions::InfectDeckDrawActionConstructor::~InfectDeckDrawActionConstructor(){
+    for(int city=0;city<48;city++){
+        delete actionMap[city];
+    }
+}
 
 std::string StochasticActions::InfectDeckDrawActionConstructor::get_movetype(){
     return movetype;
@@ -309,7 +353,7 @@ int StochasticActions::InfectDeckDrawActionConstructor::n_actions(Board::Board& 
 
 Actions::Action* StochasticActions::InfectDeckDrawActionConstructor::random_action(Board::Board& game_board){
     int card = game_board.draw_infectdeck_inplace();
-    return new InfectDeckDrawAction(card);
+    return actionMap[card];
 }
 
 std::vector<Actions::Action*> StochasticActions::InfectDeckDrawActionConstructor::all_actions(Board::Board& game_board){
@@ -330,13 +374,18 @@ bool StochasticActions::InfectDeckDrawActionConstructor::legal(Board::Board& gam
 
 // ===== STOCHASTIC CONSTRUCTOR =====
 
-StochasticActions::StochasticActionConstructor::StochasticActionConstructor():
-    // don't think this is necessary?
-    infect_draw_con(),
-    player_draw_con(){}
+StochasticActions::StochasticActionConstructor::StochasticActionConstructor(){
+        infect_draw_con = new StochasticActions::InfectDeckDrawActionConstructor();
+        player_draw_con = new StochasticActions::PlayerDeckDrawActionConstructor();
+}
+
+StochasticActions::StochasticActionConstructor::~StochasticActionConstructor(){
+    delete &infect_draw_con;
+    delete &player_draw_con;
+}
 
 bool StochasticActions::StochasticActionConstructor::legal(Board::Board& board){
-    if(infect_draw_con.legal(board) || player_draw_con.legal(board)){
+    if(infect_draw_con -> legal(board) || player_draw_con -> legal(board)){
         return true;
     } else{
         return false;
@@ -344,10 +393,10 @@ bool StochasticActions::StochasticActionConstructor::legal(Board::Board& board){
 }
 
 Actions::Action* StochasticActions::StochasticActionConstructor::get_action(Board::Board& game_board){
-    if(player_draw_con.legal(game_board)){
-        return player_draw_con.random_action(game_board);
-    } else if(infect_draw_con.legal(game_board)){
-        return infect_draw_con.random_action(game_board);
+    if(player_draw_con->legal(game_board)){
+        return player_draw_con->random_action(game_board);
+    } else if(infect_draw_con->legal(game_board)){
+        return infect_draw_con->random_action(game_board);
     } else {
         game_board.broken()=true;
         game_board.broken_reasons().push_back("[StochasticActions::StochasticActionConstructor()] Stochastic constructor was asked for actions when InfectDraw and PlayerDeckDraw were both illegal!");

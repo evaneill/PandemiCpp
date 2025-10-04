@@ -149,4 +149,8 @@ void Experiments::RunExperiment(Experiments::Experiment* exp,bool log_output){
     std::string str(buffer);
 
     exp -> append_header("End Time: "+str+"\r\n");
+
+    delete the_game;
+    delete the_agent;
+    delete exp;
 }

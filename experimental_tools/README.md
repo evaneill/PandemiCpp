@@ -21,7 +21,7 @@ Here I implement measurements as a class that keeps a pointer to the board being
 
 ## Scenarios ##
 
-In the abstract, _scenarios_ are entirely or somewhat pre-specific game situations in which to test an agent. I'm using this to help test game logic and, eventually, perhaps build some scenarios to evaluate strategic capabilities.
+In the abstract, _scenarios_ are entirely or somewhat pre-specified game situations in which to test an agent. I'm using this to help test game logic and, eventually, perhaps build some scenarios to evaluate strategic capabilities.
 
 In a more technical sense, I represent scenarios with classes that have `name` and `description` attributes and a `make_board` method that return a `Board::Board` object (and always requires a `roles` and `difficulty` argument, though this method may not use them). These classes are used in the definition of an `Experiment`.
 

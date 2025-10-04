@@ -46,8 +46,21 @@ Experiments::ByGroupRandomAgentGameExperiment::ByGroupRandomAgentGameExperiment(
     }
     log_headers.push_back("BrokeReasons"); // Always track any reasons the board broke
 
-    // Play 1000 games
+    // Play 100000 games
     n_games=100000;
+}
+
+Experiments::ByGroupRandomAgentGameExperiment::ByGroupRandomAgentGameExperiment(){
+    delete &scenario;
+    for(Measurements::MeasurementConstructor* meas : measureCons){
+        delete meas;
+    }
+    delete &log_headers;
+    delete &n_games;
+    delete &experiment_name;
+    delete &description;
+    delete &fileheader;
+    delete &agent_name;
 }
 
 void Experiments::ByGroupRandomAgentGameExperiment::reset_board(Board::Board* game_board){

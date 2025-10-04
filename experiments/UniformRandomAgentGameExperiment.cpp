@@ -50,6 +50,19 @@ Experiments::UniformRandomAgentGameExperiment::UniformRandomAgentGameExperiment(
     n_games=100000;
 }
 
+Experiments::UniformRandomAgentGameExperiment::~UniformRandomAgentGameExperiment(){
+    delete &scenario;
+    for(Measurements::MeasurementConstructor* meas : measureCons){
+        delete meas;
+    }
+    delete &log_headers;
+    delete &n_games;
+    delete &experiment_name;
+    delete &description;
+    delete &fileheader;
+    delete &agent_name;
+}
+
 void Experiments::UniformRandomAgentGameExperiment::write_header(){
     std::ofstream header(Experiments::OUTPUT_DIR + fileheader+".header",std::ios::out | std::ios::trunc);
 

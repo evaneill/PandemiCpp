@@ -109,19 +109,6 @@ namespace Search
         // State should be the state being "rolled down" from the root and accumulating an action.execute() change at each node
         DeterministicNode(Node* _parent,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic);
         ~DeterministicNode(){
-            // delete the action pinned to this node, if this isn't root, it exists, and isn't a stochastic action 
-            if(action){
-                if(parent){
-                    if(!parent -> stochastic){
-                        delete action;
-                    }
-                }
-            }
-            // Delete any actions remaining in the queueç
-            while(!action_queue.empty()){
-                delete action_queue.back();
-                action_queue.pop_back();
-            }
             // Delete any children (aka filicide)
             while(!children.empty()){
                 delete children.back();
@@ -171,15 +158,6 @@ namespace Search
         // State should be the state being "rolled down" from the root and accumulating an action.execute() change at each node
         StochasticNode(Node* _parent,Actions::Action* _action, Board::Board* _board_state,GameLogic::Game& game_logic);
         ~StochasticNode(){
-            // (This deletion is commented out as of 13/6/20 since I just want it to work with KDeterminizedTree, which deletes the actions attached to each stochastic action to begin with)
-            // delete the action pinned to this node (if it exists, which it may not either because its tree has already deleted)
-            if(!parent -> stochastic){
-                if(action){
-                    delete action;
-                }
-            }
-            
-
             // delete each child
             for(Node* child: children){
                 // In the case that some determinization was initialized as nullptr but wasn't instantiated, avoid error
@@ -187,7 +165,6 @@ namespace Search
                     delete child;
                 }
             }
-            
             // empty the vector of now meaningless pointers (not sure if necessary)
             children.clear();
         }
@@ -259,9 +236,6 @@ namespace Search
             delete root;
             // Send cascade of deletes down the tree
             for(std::vector<Actions::Action*>& determinization : determinization_queue){
-                for(Actions::Action* action: determinization){
-                    delete action;
-                }
                 determinization.clear();
             }
             determinization_queue.clear();

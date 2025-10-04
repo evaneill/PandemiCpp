@@ -13,13 +13,13 @@ std::string Decks::CARD_NAME(int card_index){
         return Map::CITY_NAME(card_index);
     } else if(card_index<Map::CITIES.size()+3){
         switch(card_index){
-            case 48:
+            case Decks::QUIETNIGHT:
                 return "Quiet Night";
                 break;
-            case 49:
+            case Decks::GOVERNMENTGRANT:
                 return "Government Grant";
                 break;
-            case 50:
+            case Decks::AIRLIFT:
                 return "Airlift";
                 break;
             default:

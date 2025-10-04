@@ -26,10 +26,10 @@ namespace Board
         std::vector<int> research_stations = {};
 
         // player deck
-        Decks::PlayerDeck player_deck;
+        Decks::PlayerDeck* player_deck;
         
         // infect card deck
-        Decks::InfectDeck infect_deck;
+        Decks::InfectDeck* infect_deck;
 
         int outbreak_count = 0; // increments on city outbreaks
         int epidemics_drawn = 0; // increments on drawing epidemics. Used to get infection rate from INFECTION_COUNTER

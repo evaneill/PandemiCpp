@@ -108,6 +108,8 @@ namespace Players
         // Return the city representing current position
         int get_position();
 
+        bool hasCard(int card);
+
         // To track whether or not they've jumped from a research station to somewhere else
         // <DANGER!> Relies on game logic to use properly ONLY for operations expert.
         bool used_OperationsExpertFlight;

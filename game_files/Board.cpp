@@ -12,8 +12,8 @@ Board::Board::Board(std::vector<int> roles, int _difficulty){
 
     difficulty = _difficulty;
 
-    player_deck = Decks::PlayerDeck(difficulty);
-    infect_deck = Decks::InfectDeck();
+    player_deck = new Decks::PlayerDeck(difficulty);
+    infect_deck = new Decks::InfectDeck();
 
     IS_SETUP=false;
 }
@@ -41,7 +41,7 @@ void Board::Board::setup(bool verbose){
                 DEBUG_MSG(std::endl << "[SETUP] Drawing cards for " << p.role.name << " : ");
             }
             for(int c=0; c<setup_cards;c++){
-                int drawn_card = player_deck.draw(true); // true used for setup (i.e. draw from all non-epidemic cards)
+                int drawn_card = player_deck -> draw(true); // true used for setup (i.e. draw from all non-epidemic cards)
                 if(verbose){
                     DEBUG_MSG(Decks::CARD_NAME(drawn_card) << " (color: " << Decks::CARD_COLOR(drawn_card) << ", index: " << drawn_card << ", pop: " << Decks::POPULATION(drawn_card) <<") \t");
                 }
@@ -89,7 +89,7 @@ void Board::Board::setup(bool verbose){
             // for 3 times
             for(int _ = 0; _<3;_++){
                 // infect that city with infect_count # of cubes
-                int card_to_infect = infect_deck.draw();
+                int card_to_infect = infect_deck -> draw();
                 if(verbose){
                     DEBUG_MSG("[SETUP] infecting " << Decks::CARD_NAME(card_to_infect) << " with " << infect_count << std::endl);
                 }
@@ -143,9 +143,11 @@ void Board::Board::clear(){
     reset_last_action();
     
     research_stations.clear();
-
-    player_deck = Decks::PlayerDeck(difficulty);
-    infect_deck = Decks::InfectDeck();
+    
+    delete player_deck;
+    player_deck = new Decks::PlayerDeck(difficulty);
+    delete infect_deck;
+    infect_deck = new Decks::InfectDeck();
 
     outbreak_count = 0; 
     epidemics_drawn = 0; 
@@ -215,15 +217,15 @@ void Board::Board::reset_disease_count(){
 }
 
 void Board::Board::setup_player_deck(){
-    player_deck.setup_shuffle_deck();
+    player_deck -> setup_shuffle_deck();
 }
 
 int Board::Board::remaining_player_cards(){
-    return player_deck.remaining_cards();
+    return player_deck -> remaining_cards();
 }
 
 void Board::Board::readd_infect_discard(){
-    infect_deck.readd_discard();
+    infect_deck -> readd_discard();
 }
 
 std::array<int,2> Board::Board::infect(int city_idx, int col,int add){
@@ -512,7 +514,7 @@ int& Board::Board::get_turn_action(){
 }
 
 int Board::Board::draw_playerdeck_inplace(){
-    return player_deck.draw_inplace();
+    return player_deck -> draw_inplace();
 }
 
 int& Board::Board::get_player_cards_drawn(){
@@ -520,7 +522,7 @@ int& Board::Board::get_player_cards_drawn(){
 }
 
 void Board::Board::updatePlayerDeck(int card,bool setup){
-    player_deck.update(card,setup);
+    player_deck -> update(card,setup);
 }
 
 int& Board::Board::get_infect_cards_drawn(){
@@ -528,27 +530,27 @@ int& Board::Board::get_infect_cards_drawn(){
 }
 
 int Board::Board::n_infect_cards(bool top){
-    return infect_deck.top_group_size(top);
+    return infect_deck -> top_group_size(top);
 }
 
 bool Board::Board::in_infect_discard(int citycard){
-    return infect_deck.in_discard(citycard);
+    return infect_deck -> in_discard(citycard);
 }
 
 std::vector<std::vector<int>>& Board::Board::get_infectdeck_stack(){
-    return infect_deck.get_deck_stack();
+    return infect_deck -> get_deck_stack();
 }
 
 int Board::Board::draw_infectdeck_bottom_inplace(){
-    return infect_deck.draw_bottom_inplace();
+    return infect_deck -> draw_bottom_inplace();
 }
 
 int Board::Board::draw_infectdeck_inplace(){
-    return infect_deck.draw_inplace();
+    return infect_deck -> draw_inplace();
 }
 
 void Board::Board::updateInfectDeck(int card,bool bottom){
-    infect_deck.update(card,bottom);
+    infect_deck -> update(card,bottom);
 }
 
 int& Board::Board::get_outbreak_count(){
@@ -556,15 +558,15 @@ int& Board::Board::get_outbreak_count(){
 }
 
 int Board::Board::get_epidemic_count(){
-    return player_deck._epidemics_drawn();
+    return player_deck -> _epidemics_drawn();
 }
 
 bool Board::Board::epidemic_possible(){
-    return player_deck.epidemic_possible();
+    return player_deck -> epidemic_possible();
 }
 
 bool Board::Board::all_epidemics_drawn(){
-    return player_deck.all_epidemics_drawn();
+    return player_deck -> all_epidemics_drawn();
 }
 
 int& Board::Board::get_difficulty(){
@@ -572,7 +574,7 @@ int& Board::Board::get_difficulty(){
 }
 
 int Board::Board::get_infection_rate(){
-    return INFECTION_COUNTER[player_deck._epidemics_drawn()];
+    return INFECTION_COUNTER[player_deck -> _epidemics_drawn()];
 }
 
 int& Board::Board::get_turn(){
@@ -602,11 +604,11 @@ bool Board::Board::disease_count_safe(){
 }
 
 bool Board::Board::player_deck_nonempty(){
-    return !player_deck.isempty();
+    return !(player_deck -> isempty());
 }
 
 std::vector<int>& Board::Board::get_playerdeck_remaining_cards(){
-    return player_deck.get_remaining_nonepi_cards();
+    return player_deck -> get_remaining_nonepi_cards();
 }
 
 bool Board::Board::outbreak_count_safe(){

@@ -23,42 +23,38 @@ namespace GameLogic
 
         // "Vanilla" move constructors
 
-        Actions::MoveConstructor MoveCon;
-        Actions::DirectFlightConstructor DirectFlightCon;
-        Actions::CharterFlightConstructor CharterFlightCon;
-        Actions::ShuttleFlightConstructor ShuttleFlightCon;
-        Actions::OperationsExpertFlightConstructor OperationsExpertFlightCon;
-        Actions::BuildConstructor BuildCon;
-        Actions::TreatConstructor TreatCon;
-        Actions::CureConstructor CureCon;
-        Actions::GiveConstructor GiveCon;
-        Actions::TakeConstructor TakeCon;
-        Actions::DoNothingConstructor DoNothingCon;
+        Actions::MoveConstructor* MoveCon;
+        Actions::DirectFlightConstructor* DirectFlightCon;
+        Actions::CharterFlightConstructor* CharterFlightCon;
+        Actions::ShuttleFlightConstructor* ShuttleFlightCon;
+        Actions::OperationsExpertFlightConstructor* OperationsExpertFlightCon;
+        Actions::BuildConstructor* BuildCon;
+        Actions::TreatConstructor* TreatCon;
+        Actions::CureConstructor* CureCon;
+        Actions::GiveConstructor* GiveCon;
+        Actions::TakeConstructor* TakeCon;
+        Actions::DoNothingConstructor* DoNothingCon;
 
         // Event constructors
 
-        Actions::AirliftConstructor AirliftCon;
-        Actions::GovernmentGrantConstructor GovernmentGrantCon;
-        Actions::QuietNightConstructor QuietNightCon;
+        Actions::AirliftConstructor* AirliftCon;
+        Actions::GovernmentGrantConstructor* GovernmentGrantCon;
+        Actions::QuietNightConstructor* QuietNightCon;
 
         // For algorithmic ease of access, to hold all player actions (including event cards)
-        const std::array<Actions::ActionConstructor*,13> PlayerConstructorList;
+        std::vector<Actions::ActionConstructor*> PlayerConstructorList;
 
         // ForcedDiscardAction (not voluntary, and not part of num_actions consideration from player turn perspective)
         
-        Actions::ForcedDiscardConstructor ForcedDiscardCon;
+        Actions::ForcedDiscardConstructor* ForcedDiscardCon;
 
         // Stochastic actions for use by the Game Logic _only_ (*not* constructors)
         // Like the above, these have legal() guards! v useful
 
-        StochasticActions::StochasticActionConstructor StochasticCon;
+        StochasticActions::StochasticActionConstructor* StochasticCon;
     public:
         Game(bool verbose=false);
-        ~Game(){
-            if(active_board){
-                delete active_board;
-            }
-        };
+        ~Game();
 
         // reset the active_board in-place
         void reset_board(Board::Board* new_board);

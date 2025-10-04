@@ -49,6 +49,19 @@ Experiments::UniformRandomAgentCanWinExperiment::UniformRandomAgentCanWinExperim
     n_games=10000;
 }
 
+Experiments::UniformRandomAgentCanWinExperiment::~UniformRandomAgentCanWinExperiment(){
+    delete &scenario;
+    for(Measurements::MeasurementConstructor* meas : measureCons){
+        delete meas;
+    }
+    delete &log_headers;
+    delete &n_games;
+    delete &experiment_name;
+    delete &description;
+    delete &fileheader;
+    delete &agent_name;
+}
+
 void Experiments::UniformRandomAgentCanWinExperiment::reset_board(Board::Board* game_board){
     scenario -> reset_board(game_board);
 }
